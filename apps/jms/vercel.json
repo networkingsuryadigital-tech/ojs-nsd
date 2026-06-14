@@ -1,5 +1,4 @@
 {
-  "_note": "Crons sub-harian (*/10, */30, tiap jam) tidak jalan di Vercel Hobby — gunakan penjadwal eksternal (cPanel cron, lihat documentations/14-deploy-vercel-cpanelcron.md) ATAU naik ke Vercel Pro.",
   "crons": [
     {
       "path": "/api/cron/journal-domains",
