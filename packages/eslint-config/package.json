@@ -1,0 +1,17 @@
+{
+  "name": "@nsd/eslint-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./base.mjs",
+    "./next": "./next.mjs",
+    "./boundaries": "./boundaries.mjs"
+  },
+  "dependencies": {
+    "eslint-config-next": "16.2.6"
+  },
+  "peerDependencies": {
+    "eslint": "^9"
+  }
+}

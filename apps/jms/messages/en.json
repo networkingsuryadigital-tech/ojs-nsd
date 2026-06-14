@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "home": "Home",
+    "issues": "Issues",
+    "about": "About",
+    "guidelines": "Author Guidelines",
+    "policies": "Policies",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "dashboard": "Editorial",
+    "authorPortal": "My submissions",
+    "reviewerPortal": "Reviews",
+    "notifications": "Notifications"
+  },
+  "tenant": {
+    "welcome": "Welcome to {journalName}",
+    "explorePages": "Journal information",
+    "publishedBy": "Publisher",
+    "issnPrint": "ISSN (print)",
+    "issnOnline": "ISSN (online)",
+    "poweredBy": "Published with JMS — PT. NSD",
+    "issuesArchive": "Published issues",
+    "noPublishedIssues": "No published issues yet.",
+    "noPublishedArticles": "No articles in this issue yet.",
+    "latestIssue": "Latest issue",
+    "latestArticles": "Latest articles",
+    "submitManuscript": "Submit manuscript",
+    "viewAllIssues": "View all issues",
+    "readArticle": "Read article",
+    "untitledArticle": "(untitled)",
+    "abstract": "Abstract",
+    "keywords": "Keywords",
+    "howToCite": "How to cite",
+    "downloadGalley": "Download {label}",
+    "openAccessNotice": "This article is published as open access via JMS."
+  },
+  "locale": {
+    "label": "Language",
+    "id": "Indonesia",
+    "en": "English"
+  },
+  "platform": {
+    "title": "Journal Management System",
+    "description": "Multi-tenant SaaS for scholarly journal management — PT. NSD",
+    "heroTitle": "JMS — PT. NSD",
+    "heroDescription": "Multi-tenant scholarly journal platform for Indonesian publishers. OAI-PMH, peer review, and APC billing ready for SINTA & Garuda indexing.",
+    "journalDirectory": "Journal directory",
+    "visitJournal": "Visit journal",
+    "visitDemoJournal": "Open demo journal",
+    "emptyJournalsTitle": "No active journals yet",
+    "emptyJournalsDescription": "Run the demo seed to create a sample journal in your local environment.",
+    "issnPrint": "Print ISSN: {issn}",
+    "issnOnline": "Online ISSN: {issn}",
+    "healthCheck": "Health check",
+    "docs": "Documentation",
+    "signIn": "Sign in",
+    "signedInAs": "{email}",
+    "about": "About",
+    "contact": "Contact",
+    "footerTagline": "Multi-tenant JMS platform — PT. NSD"
+  }
+}

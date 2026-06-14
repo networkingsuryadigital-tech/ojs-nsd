@@ -1,0 +1,15 @@
+@import "@nsd/tailwind-config/globals.css";
+
+.tenant-site {
+  font-family: var(--journal-font, var(--font-geist-sans), system-ui, sans-serif);
+}
+
+.tenant-site a:hover {
+  color: var(--journal-primary);
+}
+
+.tenant-site .prose h1,
+.tenant-site .prose h2,
+.tenant-site .prose h3 {
+  color: var(--journal-primary);
+}

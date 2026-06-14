@@ -1,0 +1,62 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "issues": "Arsip Terbitan",
+    "about": "Tentang",
+    "guidelines": "Panduan Penulis",
+    "policies": "Kebijakan",
+    "signIn": "Masuk",
+    "signOut": "Keluar",
+    "dashboard": "Editorial",
+    "authorPortal": "Naskah saya",
+    "reviewerPortal": "Review",
+    "notifications": "Notifikasi"
+  },
+  "tenant": {
+    "welcome": "Selamat datang di {journalName}",
+    "explorePages": "Informasi jurnal",
+    "publishedBy": "Penerbit",
+    "issnPrint": "ISSN (cetak)",
+    "issnOnline": "ISSN (online)",
+    "poweredBy": "Diterbitkan dengan JMS — PT. NSD",
+    "issuesArchive": "Arsip Terbitan",
+    "noPublishedIssues": "Belum ada terbitan yang dipublikasikan.",
+    "noPublishedArticles": "Belum ada artikel dalam terbitan ini.",
+    "latestIssue": "Terbitan terbaru",
+    "latestArticles": "Artikel terbaru",
+    "submitManuscript": "Kirim naskah",
+    "viewAllIssues": "Lihat semua terbitan",
+    "readArticle": "Baca artikel",
+    "untitledArticle": "(tanpa judul)",
+    "abstract": "Abstrak",
+    "keywords": "Kata kunci",
+    "howToCite": "Sitasi",
+    "downloadGalley": "Unduh {label}",
+    "openAccessNotice": "Artikel ini diterbitkan sebagai open access melalui JMS."
+  },
+  "locale": {
+    "label": "Bahasa",
+    "id": "Indonesia",
+    "en": "English"
+  },
+  "platform": {
+    "title": "Journal Management System",
+    "description": "SaaS multi-tenant untuk pengelolaan jurnal ilmiah — PT. NSD",
+    "heroTitle": "JMS — PT. NSD",
+    "heroDescription": "Platform pengelolaan jurnal ilmiah multi-tenant untuk penerbit Indonesia. OAI-PMH, peer review, dan APC billing siap untuk indeksasi SINTA & Garuda.",
+    "journalDirectory": "Direktori jurnal",
+    "visitJournal": "Kunjungi jurnal",
+    "visitDemoJournal": "Buka jurnal demo",
+    "emptyJournalsTitle": "Belum ada jurnal aktif",
+    "emptyJournalsDescription": "Jalankan seed demo untuk membuat jurnal contoh di lingkungan lokal.",
+    "issnPrint": "ISSN cetak: {issn}",
+    "issnOnline": "ISSN online: {issn}",
+    "healthCheck": "Health check",
+    "docs": "Dokumentasi",
+    "signIn": "Masuk",
+    "signedInAs": "{email}",
+    "about": "Tentang",
+    "contact": "Kontak",
+    "footerTagline": "Platform JMS multi-tenant — PT. NSD"
+  }
+}

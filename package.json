@@ -1,0 +1,23 @@
+{
+  "name": "nsd-platform",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test",
+    "test:e2e": "turbo test:e2e",
+    "db:generate": "pnpm --filter @nsd/jms db:generate",
+    "db:migrate": "pnpm --filter @nsd/jms db:migrate",
+    "db:studio": "pnpm --filter @nsd/jms db:studio",
+    "db:seed:demo": "pnpm --filter @nsd/jms db:seed:demo",
+    "db:provision:pilot": "pnpm --filter @nsd/jms db:provision:pilot"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  }
+}

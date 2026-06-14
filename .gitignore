@@ -1,0 +1,33 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# build
+.next
+out
+dist
+.turbo
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# testing
+playwright-report
+test-results
+coverage
+
+# misc
+.DS_Store
+*.pem
+.vercel
+
+# prisma
+apps/jms/prisma/migrations/**/migration_lock.toml

@@ -1,0 +1,21 @@
+{
+  "name": "@nsd/storage",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"skip\""
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.105.4"
+  },
+  "devDependencies": {
+    "@nsd/tsconfig": "workspace:*",
+    "@types/node": "^20",
+    "typescript": "^5.8.3"
+  }
+}

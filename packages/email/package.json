@@ -1,0 +1,22 @@
+{
+  "name": "@nsd/email",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./send": "./src/send.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"skip\""
+  },
+  "dependencies": {
+    "resend": "^6.12.3",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@nsd/tsconfig": "workspace:*",
+    "typescript": "^5.8.3"
+  }
+}

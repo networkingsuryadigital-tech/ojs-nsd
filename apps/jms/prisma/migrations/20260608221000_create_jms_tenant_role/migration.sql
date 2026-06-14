@@ -1,0 +1,20 @@
+-- Application role subject to RLS (Supabase postgres has BYPASSRLS by default).
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'jms_tenant') THEN
+    CREATE ROLE jms_tenant NOINHERIT NOBYPASSRLS;
+  END IF;
+END
+$$;
+
+GRANT USAGE ON SCHEMA public TO jms_tenant;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO jms_tenant;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO jms_tenant;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO jms_tenant;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT USAGE, SELECT ON SEQUENCES TO jms_tenant;
+
+GRANT jms_tenant TO postgres;

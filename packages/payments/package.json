@@ -1,0 +1,22 @@
+{
+  "name": "@nsd/payments",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./midtrans": "./src/midtrans.ts",
+    "./duitku": "./src/duitku.ts",
+    "./webhook": "./src/webhook.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"skip\"",
+    "test": "echo \"skip\""
+  },
+  "devDependencies": {
+    "@nsd/tsconfig": "workspace:*",
+    "@types/node": "^20",
+    "typescript": "^5.8.3"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "_note": "Crons sub-harian (*/10, */30, tiap jam) tidak jalan di Vercel Hobby — gunakan penjadwal eksternal (cPanel cron, lihat documentations/14-deploy-vercel-cpanelcron.md) ATAU naik ke Vercel Pro.",
+  "crons": [
+    {
+      "path": "/api/cron/journal-domains",
+      "schedule": "*/10 * * * *"
+    },
+    {
+      "path": "/api/cron/doi-deposits",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/similarity-checks",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/side-effect-reconciliation",
+      "schedule": "*/30 * * * *"
+    },
+    {
+      "path": "/api/cron/review-reminders",
+      "schedule": "0 1 * * *"
+    },
+    {
+      "path": "/api/cron/reviewer-embeddings",
+      "schedule": "0 2 * * *"
+    },
+    {
+      "path": "/api/cron/purge-rejected-submissions",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}
