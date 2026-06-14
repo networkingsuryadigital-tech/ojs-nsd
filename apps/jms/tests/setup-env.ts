@@ -1,4 +1,6 @@
 import { config } from "dotenv";
 import path from "path";
 
-config({ path: path.resolve(__dirname, "../.env") });
+if (!process.env.CI) {
+  config({ path: path.resolve(__dirname, "../.env") });
+}
