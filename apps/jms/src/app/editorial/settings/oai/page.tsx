@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getJournalOaiValidationPage } from "@/application/oai/get-journal-oai-validation-page";
 import { resolveOaiSiteContext } from "@/application/oai/resolve-oai-site-context";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
 import { env } from "@/lib/env";
 import { headers } from "next/headers";
 import {
@@ -46,21 +46,11 @@ export default async function JournalOaiValidationPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Validasi OAI Garuda</h1>
-          <p className="text-sm text-muted-foreground">
-            Pemeriksaan kesiapan harvest sebelum pendaftaran Garuda/SINTA.
-          </p>
-        </div>
-        <Link
-          href="/editorial/dashboard"
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          ← Dashboard
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <EditorialPageHeader
+        title="Validasi OAI Garuda"
+        description="Pemeriksaan kesiapan harvest sebelum pendaftaran Garuda/SINTA."
+      />
 
       <Card>
         <CardHeader>
@@ -77,7 +67,7 @@ export default async function JournalOaiValidationPage() {
             {validation.checks.map((check) => (
               <li
                 key={check.id}
-                className="rounded-md border px-3 py-2"
+                className="rounded-lg border border-foreground/10 bg-background px-3 py-2 shadow-sm"
               >
                 <div className="flex items-center justify-between gap-3">
                   <span>{check.label}</span>
@@ -90,19 +80,19 @@ export default async function JournalOaiValidationPage() {
                   </span>
                 </div>
                 {check.detail ? (
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <p className="mt-1 text-xs text-foreground/50">
                     {check.detail}
                   </p>
                 ) : null}
               </li>
             ))}
           </ul>
-          <p className="mt-4 text-xs text-muted-foreground">
+          <p className="mt-4 text-xs text-foreground/50">
             Endpoint OAI publik:{" "}
             <code>{baseSiteUrl}/api/oai?verb=Identify</code>
           </p>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

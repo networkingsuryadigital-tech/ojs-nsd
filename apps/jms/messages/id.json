@@ -1,4 +1,11 @@
 {
+  "editorial": {
+    "navLabel": "Navigasi editorial",
+    "dashboard": "Dashboard",
+    "issues": "Terbitan",
+    "published": "Artikel terbit",
+    "settings": "Pengaturan"
+  },
   "nav": {
     "home": "Beranda",
     "issues": "Arsip Terbitan",

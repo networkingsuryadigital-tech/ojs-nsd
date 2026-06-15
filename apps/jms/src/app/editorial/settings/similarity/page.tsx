@@ -1,10 +1,14 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getJournalSimilaritySettingsPage } from "@/application/similarity/get-journal-similarity-settings-page";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveJournalRoles } from "@/application/identity/resolve-journal-roles";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import {
+  editorialInlineInputClassName,
+  editorialInputClassName,
+} from "@/components/editorial/styles";
 import {
   Button,
   Card,
@@ -58,21 +62,11 @@ export default async function JournalSimilaritySettingsPage({
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Kebijakan similarity</h1>
-          <p className="text-sm text-muted-foreground">
-            Provider pemeriksaan dan gate editorial sebelum peer review.
-          </p>
-        </div>
-        <Link
-          href="/editorial/dashboard"
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          ← Dashboard
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <EditorialPageHeader
+        title="Kebijakan similarity"
+        description="Provider pemeriksaan dan gate editorial sebelum peer review."
+      />
 
       {saved === "1" ? (
         <p className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
@@ -103,7 +97,7 @@ export default async function JournalSimilaritySettingsPage({
                 id="provider"
                 name="provider"
                 defaultValue={pageData.providerOption}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               >
                 {Object.entries(PROVIDER_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -111,7 +105,7 @@ export default async function JournalSimilaritySettingsPage({
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-foreground/50">
                 Pilih &quot;Ikuti platform&quot; untuk memakai resolusi env (
                 {pageData.platformProvider}).
               </p>
@@ -125,7 +119,7 @@ export default async function JournalSimilaritySettingsPage({
                 id="gatePolicy"
                 name="gatePolicy"
                 defaultValue={pageData.gatePolicy}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               >
                 {Object.entries(GATE_POLICY_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>
@@ -152,9 +146,9 @@ export default async function JournalSimilaritySettingsPage({
                     ? String(pageData.blockThresholdStored)
                     : ""
                 }
-                className="w-40 rounded-md border px-3 py-2 text-sm"
+                className={`w-40 ${editorialInlineInputClassName}`}
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-foreground/50">
                 Efektif saat ini: {pageData.blockThresholdPercent}%. Berlaku
                 untuk kebijakan WARN dan BLOCK.
               </p>
@@ -164,6 +158,6 @@ export default async function JournalSimilaritySettingsPage({
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

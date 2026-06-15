@@ -1,10 +1,11 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getJournalEmailSettingsPage } from "@/application/notification/get-journal-email-settings-page";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveJournalRoles } from "@/application/identity/resolve-journal-roles";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { editorialInputClassName } from "@/components/editorial/styles";
 import {
   Button,
   Card,
@@ -47,21 +48,11 @@ export default async function JournalEmailSettingsPage({
   const { settings, readiness } = pageData;
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Pengirim email</h1>
-          <p className="text-sm text-muted-foreground">
-            Nama dan alamat From untuk notifikasi editorial per jurnal.
-          </p>
-        </div>
-        <Link
-          href="/editorial/dashboard"
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          ← Dashboard
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <EditorialPageHeader
+        title="Pengirim email"
+        description="Nama dan alamat From untuk notifikasi editorial per jurnal."
+      />
 
       {saved === "1" ? (
         <p className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
@@ -102,7 +93,7 @@ export default async function JournalEmailSettingsPage({
                 maxLength={120}
                 placeholder="Jurnal Contoh"
                 defaultValue={settings.emailFromName ?? ""}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               />
             </div>
             <div className="space-y-2">
@@ -115,13 +106,13 @@ export default async function JournalEmailSettingsPage({
                 type="email"
                 placeholder="noreply@jurnal.example.com"
                 defaultValue={settings.emailFromAddress ?? ""}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               />
             </div>
             <Button type="submit">Simpan pengirim</Button>
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

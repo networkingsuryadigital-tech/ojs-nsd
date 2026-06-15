@@ -4,6 +4,12 @@ import { notFound } from "next/navigation";
 import { loadEditorialDashboardData } from "@/application/editorial/load-editorial-dashboard-data";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { EditorialStatCard } from "@/components/editorial/editorial-stat-card";
+import {
+  editorialInlineInputClassName,
+  editorialInputClassName,
+} from "@/components/editorial/styles";
 import {
   Button,
   Card,
@@ -37,24 +43,6 @@ function formatCurrency(amount: number, currency: string): string {
   }).format(amount);
 }
 
-function StatCard({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string | number;
-  hint?: string;
-}) {
-  return (
-    <div className="rounded-lg border bg-card p-4">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
-      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
-  );
-}
-
 export default async function EditorialDashboardPage() {
   const actorId = await requireAuthenticatedUserId();
   let journalId: string;
@@ -72,7 +60,7 @@ export default async function EditorialDashboardPage() {
 
   if (dashboard.kind === "stats_error") {
     return (
-      <main className="mx-auto max-w-5xl p-8">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Dashboard statistik</CardTitle>
@@ -85,7 +73,7 @@ export default async function EditorialDashboardPage() {
             <p className="text-sm text-destructive">{dashboard.message}</p>
           </CardContent>
         </Card>
-      </main>
+      </div>
     );
   }
 
@@ -97,27 +85,24 @@ export default async function EditorialDashboardPage() {
   const isJournalAdmin = reviewerRoles.includes("JOURNAL_ADMIN");
 
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-8">
-      <div>
-        <h1 className="text-2xl font-semibold">Dashboard statistik</h1>
-        <p className="text-sm text-muted-foreground">
-          Ringkasan editorial jurnal — diperbarui{" "}
-          {new Date(stats.generatedAt).toLocaleString("id-ID")}
-        </p>
-      </div>
+    <div className="space-y-6">
+      <EditorialPageHeader
+        title="Dashboard statistik"
+        description={`Ringkasan editorial jurnal — diperbarui ${new Date(stats.generatedAt).toLocaleString("id-ID")}`}
+      />
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total submission" value={submissions.total} />
-        <StatCard
+        <EditorialStatCard label="Total submission" value={submissions.total} />
+        <EditorialStatCard
           label="Tingkat penerimaan"
           value={formatPercent(submissions.acceptanceRatePercent)}
           hint="Accepted vs ditolak (desk + editorial)"
         />
-        <StatCard
+        <EditorialStatCard
           label="Submission bulan ini"
           value={submissions.submittedThisMonth}
         />
-        <StatCard
+        <EditorialStatCard
           label="Terbit bulan ini"
           value={submissions.publishedThisMonth}
         />
@@ -129,13 +114,13 @@ export default async function EditorialDashboardPage() {
           <CardDescription>Agregat status submission aktif & terminal.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Intake" value={submissions.pipeline.intake} />
-          <StatCard label="Desk review" value={submissions.pipeline.deskReview} />
-          <StatCard label="Peer review" value={submissions.pipeline.peerReview} />
-          <StatCard label="Diterima / APC" value={submissions.pipeline.accepted} />
-          <StatCard label="Produksi" value={submissions.pipeline.production} />
-          <StatCard label="Terbit" value={submissions.pipeline.published} />
-          <StatCard label="Ditolak / tarik" value={submissions.pipeline.declined} />
+          <EditorialStatCard label="Intake" value={submissions.pipeline.intake} />
+          <EditorialStatCard label="Desk review" value={submissions.pipeline.deskReview} />
+          <EditorialStatCard label="Peer review" value={submissions.pipeline.peerReview} />
+          <EditorialStatCard label="Diterima / APC" value={submissions.pipeline.accepted} />
+          <EditorialStatCard label="Produksi" value={submissions.pipeline.production} />
+          <EditorialStatCard label="Terbit" value={submissions.pipeline.published} />
+          <EditorialStatCard label="Ditolak / tarik" value={submissions.pipeline.declined} />
         </CardContent>
       </Card>
 
@@ -146,8 +131,8 @@ export default async function EditorialDashboardPage() {
         <CardContent>
           <ul className="space-y-2 text-sm">
             {submissions.monthlyTrend.map((row) => (
-              <li key={row.month} className="flex items-center justify-between">
-                <span className="text-muted-foreground">{row.month}</span>
+              <li key={row.month} className="flex items-center justify-between border-b border-foreground/5 pb-2 last:border-0">
+                <span className="text-foreground/60">{row.month}</span>
                 <span className="font-medium">{row.count}</span>
               </li>
             ))}
@@ -162,11 +147,11 @@ export default async function EditorialDashboardPage() {
             <CardDescription>Penugasan reviewer & median waktu respon.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
-            <StatCard label="Diundang" value={reviews.assignments.invited} />
-            <StatCard label="Diterima" value={reviews.assignments.accepted} />
-            <StatCard label="Selesai review" value={reviews.assignments.submitted} />
-            <StatCard label="Terlambat" value={reviews.assignments.overdue} />
-            <StatCard
+            <EditorialStatCard label="Diundang" value={reviews.assignments.invited} />
+            <EditorialStatCard label="Diterima" value={reviews.assignments.accepted} />
+            <EditorialStatCard label="Selesai review" value={reviews.assignments.submitted} />
+            <EditorialStatCard label="Terlambat" value={reviews.assignments.overdue} />
+            <EditorialStatCard
               label="Median turnaround"
               value={formatDays(reviews.medianTurnaroundDays)}
             />
@@ -178,12 +163,12 @@ export default async function EditorialDashboardPage() {
             <CardTitle>Penerbitan & keanggotaan</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
-            <StatCard label="Total issue" value={publishing.totalIssues} />
-            <StatCard label="Issue terbit" value={publishing.publishedIssues} />
-            <StatCard label="Anggota aktif" value={membership.activeMembers} />
-            <StatCard label="Reviewer" value={membership.reviewers} />
-            <StatCard label="Author" value={membership.authors} />
-            <StatCard label="Editor" value={membership.editors} />
+            <EditorialStatCard label="Total issue" value={publishing.totalIssues} />
+            <EditorialStatCard label="Issue terbit" value={publishing.publishedIssues} />
+            <EditorialStatCard label="Anggota aktif" value={membership.activeMembers} />
+            <EditorialStatCard label="Reviewer" value={membership.reviewers} />
+            <EditorialStatCard label="Author" value={membership.authors} />
+            <EditorialStatCard label="Editor" value={membership.editors} />
           </CardContent>
         </Card>
       </div>
@@ -207,7 +192,7 @@ export default async function EditorialDashboardPage() {
                   id="keywords"
                   name="keywords"
                   defaultValue={reviewerProfile?.keywords.join(", ") ?? ""}
-                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  className={editorialInputClassName}
                   placeholder="machine learning, pendidikan, nlp"
                 />
               </div>
@@ -222,7 +207,7 @@ export default async function EditorialDashboardPage() {
                   min={1}
                   max={20}
                   defaultValue={reviewerProfile?.maxLoad ?? 3}
-                  className="w-32 rounded-md border px-3 py-2 text-sm"
+                  className={`w-32 ${editorialInlineInputClassName}`}
                 />
               </div>
               <Button type="submit">Simpan profil reviewer</Button>
@@ -238,36 +223,36 @@ export default async function EditorialDashboardPage() {
             <CardDescription>Konfigurasi operasional untuk admin jurnal.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-2">
+            <div className="grid gap-2 sm:grid-cols-2">
               <Link
                 href="/editorial/settings/similarity"
-                className="text-sm font-medium underline-offset-4 hover:underline"
+                className="rounded-lg border border-foreground/10 bg-background px-4 py-3 text-sm font-medium shadow-sm transition-colors hover:border-[var(--journal-primary)] hover:text-[var(--journal-primary)]"
               >
-                Kebijakan similarity →
+                Kebijakan similarity
               </Link>
               <Link
                 href="/editorial/published"
-                className="text-sm font-medium underline-offset-4 hover:underline"
+                className="rounded-lg border border-foreground/10 bg-background px-4 py-3 text-sm font-medium shadow-sm transition-colors hover:border-[var(--journal-primary)] hover:text-[var(--journal-primary)]"
               >
-                Retraction / correction →
+                Retraction / correction
               </Link>
               <Link
                 href="/editorial/settings/privacy"
-                className="text-sm font-medium underline-offset-4 hover:underline"
+                className="rounded-lg border border-foreground/10 bg-background px-4 py-3 text-sm font-medium shadow-sm transition-colors hover:border-[var(--journal-primary)] hover:text-[var(--journal-primary)]"
               >
-                Privasi & retensi →
+                Privasi & retensi
               </Link>
               <Link
                 href="/editorial/settings/email"
-                className="text-sm font-medium underline-offset-4 hover:underline"
+                className="rounded-lg border border-foreground/10 bg-background px-4 py-3 text-sm font-medium shadow-sm transition-colors hover:border-[var(--journal-primary)] hover:text-[var(--journal-primary)]"
               >
-                Pengirim email →
+                Pengirim email
               </Link>
               <Link
                 href="/editorial/settings/oai"
-                className="text-sm font-medium underline-offset-4 hover:underline"
+                className="rounded-lg border border-foreground/10 bg-background px-4 py-3 text-sm font-medium shadow-sm transition-colors hover:border-[var(--journal-primary)] hover:text-[var(--journal-primary)]"
               >
-                Validasi OAI Garuda →
+                Validasi OAI Garuda
               </Link>
             </div>
           </CardContent>
@@ -281,21 +266,21 @@ export default async function EditorialDashboardPage() {
             <CardDescription>Hanya visible untuk Journal Admin.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <StatCard
+            <EditorialStatCard
               label="Pendapatan dibayar"
               value={formatCurrency(billing.paidRevenue, billing.currency)}
             />
-            <StatCard
+            <EditorialStatCard
               label="Outstanding (issued)"
               value={formatCurrency(billing.outstandingAmount, billing.currency)}
             />
-            <StatCard
+            <EditorialStatCard
               label="Saldo ledger"
               value={formatCurrency(billing.ledgerBalance, billing.currency)}
             />
           </CardContent>
         </Card>
       ) : null}
-    </main>
+    </div>
   );
 }

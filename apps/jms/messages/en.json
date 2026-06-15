@@ -1,4 +1,11 @@
 {
+  "editorial": {
+    "navLabel": "Editorial navigation",
+    "dashboard": "Dashboard",
+    "issues": "Issues",
+    "published": "Published",
+    "settings": "Settings"
+  },
   "nav": {
     "home": "Home",
     "issues": "Issues",

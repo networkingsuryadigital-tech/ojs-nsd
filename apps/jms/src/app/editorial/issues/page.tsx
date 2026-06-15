@@ -5,6 +5,8 @@ import { listIssues } from "@/application/publishing/list-issues";
 import { listInProductionSubmissions } from "@/application/publishing/list-in-production-submissions";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { editorialInputClassName } from "@/components/editorial/styles";
 import {
   Button,
   Card,
@@ -39,13 +41,16 @@ export default async function EditorialIssuesPage() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
+    <div className="space-y-6">
+      <EditorialPageHeader
+        title="Terbitan"
+        description="Kelola volume/terbitan jurnal dan publikasikan arsip."
+      />
+
       <Card>
         <CardHeader>
-          <CardTitle>Issues</CardTitle>
-          <CardDescription>
-            Kelola volume/terbitan jurnal dan publikasikan arsip.
-          </CardDescription>
+          <CardTitle>Buat issue baru</CardTitle>
+          <CardDescription>Volume, nomor, dan tahun terbitan.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <form action={createIssueFormAction} className="grid gap-3 sm:grid-cols-4">
@@ -57,7 +62,7 @@ export default async function EditorialIssuesPage() {
                 min={1}
                 defaultValue={1}
                 required
-                className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               />
             </label>
             <label className="text-sm">
@@ -68,7 +73,7 @@ export default async function EditorialIssuesPage() {
                 min={1}
                 defaultValue={1}
                 required
-                className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               />
             </label>
             <label className="text-sm">
@@ -80,7 +85,7 @@ export default async function EditorialIssuesPage() {
                 max={2100}
                 defaultValue={currentYear}
                 required
-                className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               />
             </label>
             <label className="text-sm sm:col-span-4">
@@ -90,7 +95,7 @@ export default async function EditorialIssuesPage() {
                 type="text"
                 maxLength={500}
                 placeholder="Judul terbitan khusus"
-                className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+                className={editorialInputClassName}
               />
             </label>
             <Button type="submit" className="sm:col-span-4">
@@ -99,20 +104,20 @@ export default async function EditorialIssuesPage() {
           </form>
 
           {issues.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Belum ada issue.</p>
+            <p className="text-sm text-foreground/60">Belum ada issue.</p>
           ) : (
             <ul className="space-y-3 text-sm">
               {issues.map((issue) => (
                 <li
                   key={issue.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-3"
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-foreground/10 bg-background p-3 shadow-sm"
                 >
                   <div>
                     <span className="font-medium">{issue.citation}</span>
                     {issue.title ? (
-                      <span className="text-muted-foreground"> — {issue.title}</span>
+                      <span className="text-foreground/60"> — {issue.title}</span>
                     ) : null}
-                    <span className="ml-2 text-muted-foreground">
+                    <span className="ml-2 text-foreground/60">
                       {issue.isPublished ? "Published" : "Draft"}
                     </span>
                   </div>
@@ -141,7 +146,7 @@ export default async function EditorialIssuesPage() {
         </CardHeader>
         <CardContent>
           {productionQueue.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-foreground/60">
               Tidak ada naskah di antrean produksi.
             </p>
           ) : (
@@ -163,6 +168,6 @@ export default async function EditorialIssuesPage() {
           )}
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

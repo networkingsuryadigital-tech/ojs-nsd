@@ -113,7 +113,7 @@ export default async function DeskReviewPage({ params, searchParams }: PageProps
   );
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>{detail.title}</CardTitle>
@@ -555,6 +555,6 @@ export default async function DeskReviewPage({ params, searchParams }: PageProps
           </CardContent>
         </Card>
       )}
-    </main>
+    </div>
   );
 }

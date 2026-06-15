@@ -1,9 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { listPublishedSubmissions } from "@/application/publishing/list-published-submissions";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { editorialInputClassName } from "@/components/editorial/styles";
 import {
   Button,
   Card,
@@ -40,22 +41,11 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
   }
 
   return (
-    <main className="mx-auto max-w-4xl space-y-6 p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Artikel terbit</h1>
-          <p className="text-sm text-muted-foreground">
-            Retraction, correction, dan erratum — memicu update metadata DOI ke
-            CrossRef.
-          </p>
-        </div>
-        <Link
-          href="/editorial/dashboard"
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          ← Dashboard
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <EditorialPageHeader
+        title="Artikel terbit"
+        description="Retraction, correction, dan erratum — memicu update metadata DOI ke CrossRef."
+      />
 
       {saved === "retraction" ? (
         <p className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
@@ -70,7 +60,7 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
 
       {articles.length === 0 ? (
         <Card>
-          <CardContent className="py-8 text-sm text-muted-foreground">
+          <CardContent className="py-8 text-sm text-foreground/60">
             Belum ada artikel terbit.
           </CardContent>
         </Card>
@@ -84,7 +74,7 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
                 {article.doi ? ` · DOI ${article.doi}` : " · DOI belum terdaftar"}
               </CardDescription>
               {article.publicationNoticeReason ? (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground/60">
                   Pemberitahuan terakhir ({article.publicationNoticeType}):{" "}
                   {article.publicationNoticeReason}
                 </p>
@@ -94,14 +84,14 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
               <CardContent className="space-y-6">
                 <form
                   action={recordPublicationCorrectionFormAction}
-                  className="space-y-3 rounded-md border p-4"
+                  className="space-y-3 rounded-lg border border-foreground/10 bg-background p-4 shadow-sm"
                 >
                   <input type="hidden" name="submissionId" value={article.id} />
                   <p className="text-sm font-medium">Correction / Erratum</p>
                   <select
                     name="noticeType"
                     defaultValue="CORRECTION"
-                    className="w-full rounded-md border px-3 py-2 text-sm"
+                    className={editorialInputClassName}
                   >
                     <option value="CORRECTION">Correction</option>
                     <option value="ERRATUM">Erratum</option>
@@ -112,7 +102,7 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
                     minLength={10}
                     rows={3}
                     placeholder="Jelaskan koreksi (min. 10 karakter)"
-                    className="w-full rounded-md border px-3 py-2 text-sm"
+                    className={editorialInputClassName}
                   />
                   <Button type="submit" variant="outline">
                     Catat correction
@@ -121,7 +111,7 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
 
                 <form
                   action={retractPublicationFormAction}
-                  className="space-y-3 rounded-md border border-destructive/30 p-4"
+                  className="space-y-3 rounded-lg border border-destructive/30 bg-background p-4 shadow-sm"
                 >
                   <input type="hidden" name="submissionId" value={article.id} />
                   <p className="text-sm font-medium text-destructive">Retraction</p>
@@ -131,7 +121,7 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
                     minLength={10}
                     rows={3}
                     placeholder="Alasan retraction (min. 10 karakter)"
-                    className="w-full rounded-md border px-3 py-2 text-sm"
+                    className={editorialInputClassName}
                   />
                   <Button type="submit" variant="outline">
                     Tarik publikasi
@@ -142,6 +132,6 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
           </Card>
         ))
       )}
-    </main>
+    </div>
   );
 }

@@ -1,10 +1,11 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getJournalRetentionSettings } from "@/application/privacy/update-journal-retention-settings";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveJournalRoles } from "@/application/identity/resolve-journal-roles";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { editorialInlineInputClassName } from "@/components/editorial/styles";
 import {
   Button,
   Card,
@@ -45,21 +46,11 @@ export default async function JournalPrivacySettingsPage({
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Privasi & retensi</h1>
-          <p className="text-sm text-muted-foreground">
-            Kebijakan retensi naskah ditolak (UU PDP §3.5).
-          </p>
-        </div>
-        <Link
-          href="/editorial/dashboard"
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          ← Dashboard
-        </Link>
-      </div>
+    <div className="space-y-6">
+      <EditorialPageHeader
+        title="Privasi & retensi"
+        description="Kebijakan retensi naskah ditolak (UU PDP §3.5)."
+      />
 
       {saved === "1" ? (
         <p className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
@@ -96,13 +87,13 @@ export default async function JournalPrivacySettingsPage({
                     ? String(settings.retentionDays)
                     : ""
                 }
-                className="w-40 rounded-md border px-3 py-2 text-sm"
+                className={`w-40 ${editorialInlineInputClassName}`}
               />
             </div>
             <Button type="submit">Simpan retensi</Button>
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }
