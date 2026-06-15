@@ -1,22 +1,26 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { signInWithPassword } from "@/application/auth/sign-in-with-password";
 import { signOut } from "@/application/auth/sign-out";
-import { resolveRequestJournalIdOptional } from "@/application/tenancy/resolve-request-journal-id-optional";
+import { resolveRequestJournalIdForAuth } from "@/application/tenancy/resolve-request-journal-id-for-auth";
 
-export async function signInFormAction(formData: FormData) {
+export type SignInFormState = {
+  error?: string;
+  redirectTo?: string;
+};
+
+export async function signInFormAction(
+  _prev: SignInFormState,
+  formData: FormData,
+): Promise<SignInFormState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const nextPath = String(formData.get("next") ?? "").trim() || null;
 
-  let journalId: string | null = null;
-  try {
-    journalId = await resolveRequestJournalIdOptional();
-  } catch {
-    journalId = null;
-  }
+  const journalId = await resolveRequestJournalIdForAuth();
 
   const result = await signInWithPassword({
     email,
@@ -26,14 +30,11 @@ export async function signInFormAction(formData: FormData) {
   });
 
   if (!result.ok) {
-    const params = new URLSearchParams({ error: result.error });
-    if (nextPath) {
-      params.set("next", nextPath);
-    }
-    redirect(`/login?${params.toString()}`);
+    return { error: result.error };
   }
 
-  redirect(result.redirectTo);
+  revalidatePath("/", "layout");
+  return { redirectTo: result.redirectTo };
 }
 
 export async function signOutFormAction() {

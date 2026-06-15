@@ -1,0 +1,13 @@
+{
+  "name": "E-Journal PT. Networking Surya Digital",
+  "subdomain": "nsd",
+  "adminEmail": "harahapjafaruddin@gmail.com",
+  "adminName": "Admin Jurnal PT NSD",
+  "publisher": "PT. Networking Surya Digital",
+  "issnOnline": "0000-0000",
+  "reviewModel": "DOUBLE_BLIND",
+  "apcAmount": 0,
+  "apcCurrency": "IDR",
+  "sectionTitle": "Artikel",
+  "customDomain": "ejournal.ptnsd.co.id"
+}

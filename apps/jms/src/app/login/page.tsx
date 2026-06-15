@@ -1,22 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
+import { resolvePostLoginRedirect } from "@/application/auth/resolve-post-login-redirect";
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
-import { resolveRequestJournalIdOptional } from "@/application/tenancy/resolve-request-journal-id-optional";
 import { getRequestTenantContext } from "@/application/journal/get-journal-public-site";
+import { resolveRequestJournalIdOptional } from "@/application/tenancy/resolve-request-journal-id-optional";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
-  Button,
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  Input,
-  Label,
 } from "@nsd/ui";
 
-import { signInFormAction } from "./actions";
+import { LoginForm } from "./login-form";
 
 type PageProps = {
   searchParams: Promise<{ next?: string; error?: string }>;
@@ -27,6 +26,15 @@ export default async function LoginPage({ searchParams }: PageProps) {
   const sessionUser = await resolveSessionUser();
   const tenantContext = await getRequestTenantContext();
   const journalId = await resolveRequestJournalIdOptional();
+
+  if (sessionUser) {
+    const redirectTo = await resolvePostLoginRedirect({
+      userId: sessionUser.id,
+      journalId,
+      nextPath: next,
+    });
+    redirect(redirectTo);
+  }
 
   const journalName =
     tenantContext.kind === "tenant" ? tenantContext.site.name : "JMS Platform";
@@ -86,45 +94,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {sessionUser ? (
-              <p className="rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950 dark:text-green-100">
-                Anda sudah masuk sebagai {sessionUser.email}.
-              </p>
-            ) : null}
-
-            {error ? (
-              <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
-                {error}
-              </p>
-            ) : null}
-
-            <form action={signInFormAction} className="space-y-4">
-              {next ? <input type="hidden" name="next" value={next} /> : null}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  placeholder="admin@demo.test"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password">Kata sandi</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Masuk
-              </Button>
-            </form>
+            <LoginForm next={next} initialError={error} />
 
             <p className="text-center text-sm text-muted-foreground">
               <Link href="/" className="underline-offset-4 hover:underline">

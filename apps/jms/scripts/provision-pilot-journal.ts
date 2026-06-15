@@ -17,6 +17,7 @@ import { pathToFileURL } from "node:url";
 import "./seed-setup-env";
 
 import { provisionJournal } from "@/application/journal/provision-journal";
+import { assertValidCustomDomain } from "@/domain/tenancy/custom-domain";
 import { journalHostnames } from "@/domain/tenancy/host";
 import type { JournalRole } from "@/domain/submission/types";
 import { getAdminSupabase } from "@/infrastructure/auth/supabase";
@@ -50,6 +51,7 @@ export type PilotJournalConfig = {
   doiPrefix?: string;
   sectionTitle?: string;
   policies?: Record<string, string>;
+  customDomain?: string;
 };
 
 export type ProvisionPilotSummary = {
@@ -58,6 +60,7 @@ export type ProvisionPilotSummary = {
     subdomain: string;
     name: string;
     siteUrl: string;
+    customDomainUrl: string | null;
     oaiIdentifyUrl: string;
   };
   admin: {
@@ -129,6 +132,8 @@ function parseCliArgs(argv: string[]): Partial<PilotJournalConfig> & { configPat
       result.doiPrefix = arg.slice("--doi-prefix=".length);
     } else if (arg.startsWith("--section-title=")) {
       result.sectionTitle = arg.slice("--section-title=".length);
+    } else if (arg.startsWith("--custom-domain=")) {
+      result.customDomain = arg.slice("--custom-domain=".length);
     }
   }
 
@@ -162,6 +167,7 @@ export function resolvePilotJournalConfig(
     doiPrefix: cli.doiPrefix ?? fromFile.doiPrefix,
     sectionTitle: cli.sectionTitle ?? fromFile.sectionTitle ?? "Artikel",
     policies: cli.policies ?? fromFile.policies,
+    customDomain: cli.customDomain ?? fromFile.customDomain,
   };
 
   if (!merged.name.trim()) {
@@ -343,6 +349,43 @@ async function ensureJournalDomain(
   return buildJournalSiteUrl(subdomain);
 }
 
+async function ensureCustomJournalDomain(
+  seedDb: PrismaClient,
+  journalId: string,
+  customDomain: string,
+  journalName: string,
+  subdomain: string,
+): Promise<string> {
+  const host = assertValidCustomDomain(customDomain, getPlatformHost());
+
+  await seedDb.journalDomain.updateMany({
+    where: { journalId, isPrimary: true },
+    data: { isPrimary: false },
+  });
+
+  await seedDb.journalDomain.upsert({
+    where: { host },
+    create: {
+      journalId,
+      host,
+      isPrimary: true,
+      verified: true,
+      sslStatus: "ACTIVE",
+    },
+    update: {
+      journalId,
+      isPrimary: true,
+      verified: true,
+      sslStatus: "ACTIVE",
+    },
+  });
+
+  await invalidateTenantHostCache([host]);
+  await warmTenantHostCache([host], { id: journalId, subdomain, name: journalName });
+
+  return `https://${host}`;
+}
+
 async function ensureSection(
   seedDb: PrismaClient,
   journalId: string,
@@ -448,12 +491,25 @@ export async function runProvisionPilotJournal(
   await upsertJournalMembershipRole(seedDb, provisioned.journalId, userId, ["JOURNAL_ADMIN"]);
   await applyPolicyOverrides(seedDb, provisioned.journalId, config.policies);
 
-  const siteUrl = await ensureJournalDomain(
+  const platformSiteUrl = await ensureJournalDomain(
     seedDb,
     provisioned.journalId,
     provisioned.subdomain,
     config.name.trim(),
   );
+
+  let publicSiteUrl = platformSiteUrl;
+  let customDomainUrl: string | null = null;
+  if (config.customDomain?.trim()) {
+    customDomainUrl = await ensureCustomJournalDomain(
+      seedDb,
+      provisioned.journalId,
+      config.customDomain.trim(),
+      config.name.trim(),
+      provisioned.subdomain,
+    );
+    publicSiteUrl = customDomainUrl;
+  }
 
   const sectionTitle = config.sectionTitle?.trim() || "Artikel";
   const sectionId = await ensureSection(seedDb, provisioned.journalId, sectionTitle);
@@ -469,14 +525,15 @@ export async function runProvisionPilotJournal(
       id: provisioned.journalId,
       subdomain: provisioned.subdomain,
       name: config.name.trim(),
-      siteUrl,
-      oaiIdentifyUrl: `${siteUrl}/api/oai?verb=Identify`,
+      siteUrl: publicSiteUrl,
+      customDomainUrl,
+      oaiIdentifyUrl: `${publicSiteUrl}/api/oai?verb=Identify`,
     },
     admin: {
       userId,
       email: config.adminEmail.trim(),
       supabaseLinked,
-      loginPath: `${siteUrl}/login`,
+      loginPath: `${publicSiteUrl}/login`,
       ...(generatedPassword ? { temporaryPassword: generatedPassword } : {}),
     },
     sectionId,

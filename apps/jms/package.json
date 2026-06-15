@@ -16,6 +16,7 @@
     "db:studio": "prisma studio",
     "db:seed:demo": "vitest run scripts/seed-demo.harness.test.ts --config vitest.seed.config.ts",
     "db:seed:dummy": "vitest run scripts/seed-dummy.harness.test.ts --config vitest.seed.config.ts",
+    "db:wipe:journals": "node --import tsx scripts/wipe-journals.ts",
     "db:provision:pilot": "node --import ./scripts/stub-server-only.ts --import tsx scripts/provision-pilot-journal.ts"
   },
   "dependencies": {
