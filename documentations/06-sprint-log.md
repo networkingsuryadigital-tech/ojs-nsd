@@ -528,3 +528,58 @@ Autopilot START-HERE selesai (kode + dok). **Repo bukan git** — commit manual 
 5. Onboard jurnal pilot ([`12-onboarding-jurnal-pilot.md`](./12-onboarding-jurnal-pilot.md))
 6. Naikkan **Supabase → Pro** saat pilot nyata (terpisah dari cron)
 7. Administratif: CrossRef, Garuda, ARJUNA→SINTA ([`11-go-live-pilot-checklist.md`](./11-go-live-pilot-checklist.md))
+
+---
+
+## Eksekusi live prep pilot UAT (2026-06-15)
+
+Persiapan database production agar siap UAT author + reviewer + editor di `ejournal.ptnsd.co.id`. Semua mutasi lewat use-case (`provisionJournal`, `transitionSubmission`, `uploadGalley`, `publishSubmissionToIssue`, dst.) — tanpa update status langsung.
+
+**Arsitektur tenant (final):** apex `ejournal.ptnsd.co.id` = jurnal pilot · platform `ojs-nsd-jms.vercel.app` via `JMS_PLATFORM_HOST` (env operator, tidak diubah di kode).
+
+### Langkah 1 — Wipe data junk ✅
+- Perintah: `CONFIRM_WIPE=YES pnpm --filter @nsd/jms db:wipe:journals`
+- **1 jurnal** + **12 baris** turunan terhapus (S1/S2/S6/dummy/demo/duplicate lama)
+- Baris auth Supabase **tidak** dihapus
+
+### Langkah 2 — Provision jurnal pilot bersih ✅
+- Perintah: `pnpm db:provision:pilot -- --config=scripts/pilot-ptnsd.json`
+- **Journal ID:** `cmqeie7dj000096qo6y4kgxvk` · subdomain `nsd`
+- Custom domain `ejournal.ptnsd.co.id` (primary, verified, ssl ACTIVE)
+- Review DOUBLE_BLIND · APC 500.000 IDR · publisher PT. NSD
+- ISSN online placeholder **`TBD-PILOT-1`** — **TODO operator:** ganti ISSN resmi
+- Halaman kebijakan default: about, author-guidelines, peer-review, etika, open-access
+
+### Langkah 3 — Akun admin ✅
+- `harahapjafaruddin@gmail.com` → `JOURNAL_ADMIN` + `EDITOR_IN_CHIEF` pada jurnal pilot
+
+### Langkah 4 — Seed 1 artikel terbit ✅
+- Skrip baru: `pnpm db:seed:pilot-published` (`scripts/seed-pilot-published.ts`)
+- Alur penuh: draft dwibahasa → submit → assignToEditor → sendToReview → inviteReviewer → submitReview → ACCEPT → paymentSettled → Issue Vol.1 No.1 → uploadGalley (PDF dummy) → publishSubmissionToIssue → publishIssue
+- **Submission ID:** `cmqeig5w1000596uoheyf26x9` · **Issue ID:** `cmqeigtqc001z96uouliig8gf`
+- Judul: *Analisis Keamanan Sistem Informasi Akademik Berbasis Cloud* / *Cloud-Based Academic Information System Security Analysis*
+- Akun UAT seed (password `PilotSeed12345!`): `pilot-author@ptnsd.co.id`, `pilot-reviewer@ptnsd.co.id`
+- Bucket Storage `submissions` dibuat otomatis (attempt pertama gagal *Bucket not found*; retry sukses)
+- Peringatan non-blokir: email Resend sandbox (hanya ke `networkingsuryadigital@gmail.com`); Midtrans charge gagal → `paymentSettled` dipakai (APC fase 2/mock)
+
+### Langkah 5 — Verifikasi production ✅
+
+| URL | Hasil |
+|-----|--------|
+| `https://ejournal.ptnsd.co.id/` | ✅ Homepage jurnal (*E-Journal PT. Networking Surya Digital*), bukan direktori platform |
+| `https://ejournal.ptnsd.co.id/login` | ✅ Branding jurnal (*Masuk ke E-Journal…*), bukan *JMS Platform* |
+| `https://ejournal.ptnsd.co.id/issues` | ✅ Vol. 1, No. 1 (2026) — Terbitan Perdana |
+| `https://ejournal.ptnsd.co.id/issues/cmqeigtqc001z96uouliig8gf` | ✅ Artikel seed tampil |
+| `https://ejournal.ptnsd.co.id/api/oai?verb=ListRecords&metadataPrefix=oai_dc` | ✅ **1 record** OAI-DC (identifier `oai:ejournal.ptnsd.co.id:cmqeig5w1000596uoheyf26x9`) |
+| `https://ojs-nsd-jms.vercel.app/` | ✅ Direktori platform — hanya jurnal pilot; **tidak** ada dummy-1/demo.localhost/S6 |
+
+### DoD eksekusi
+- Langkah 1–4 ✅ · `pnpm lint` ✅ · `pnpm typecheck` ✅
+- **File kode (belum di-commit):** `seed-pilot-published.ts`, `pilot-ptnsd.json`, `provision-pilot-journal.ts` (`membershipRoles`), `db:seed:pilot-published` di `package.json`
+
+### TODO operator (pasca eksekusi)
+1. Ganti ISSN `TBD-PILOT-1` saat nomor resmi tersedia
+2. Verifikasi domain Resend agar email ke alamat UAT tim terkirim
+3. Midtrans production/sandbox key untuk APC nyata (fase 2)
+4. Tombol platform *Buka jurnal demo* → pertimbangkan rename ke *Buka jurnal pilot* (kosmetik)
+5. Cron cPanel 7 job + Supabase Pro sebelum UAT tim penuh ([`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md))

@@ -52,6 +52,7 @@ export type PilotJournalConfig = {
   sectionTitle?: string;
   policies?: Record<string, string>;
   customDomain?: string;
+  membershipRoles?: JournalRole[];
 };
 
 export type ProvisionPilotSummary = {
@@ -168,6 +169,7 @@ export function resolvePilotJournalConfig(
     sectionTitle: cli.sectionTitle ?? fromFile.sectionTitle ?? "Artikel",
     policies: cli.policies ?? fromFile.policies,
     customDomain: cli.customDomain ?? fromFile.customDomain,
+    membershipRoles: cli.membershipRoles ?? fromFile.membershipRoles,
   };
 
   if (!merged.name.trim()) {
@@ -488,7 +490,29 @@ export async function runProvisionPilotJournal(
     });
   }
 
-  await upsertJournalMembershipRole(seedDb, provisioned.journalId, userId, ["JOURNAL_ADMIN"]);
+  const membershipRoles =
+    config.membershipRoles?.length &&
+    config.membershipRoles.every((role) =>
+      (
+        [
+          "JOURNAL_ADMIN",
+          "EDITOR_IN_CHIEF",
+          "SECTION_EDITOR",
+          "COPYEDITOR",
+          "REVIEWER",
+          "AUTHOR",
+        ] as JournalRole[]
+      ).includes(role),
+    )
+      ? config.membershipRoles
+      : (["JOURNAL_ADMIN"] as JournalRole[]);
+
+  await upsertJournalMembershipRole(
+    seedDb,
+    provisioned.journalId,
+    userId,
+    membershipRoles,
+  );
   await applyPolicyOverrides(seedDb, provisioned.journalId, config.policies);
 
   const platformSiteUrl = await ensureJournalDomain(

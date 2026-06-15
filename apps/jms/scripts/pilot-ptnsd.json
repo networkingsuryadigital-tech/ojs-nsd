@@ -3,11 +3,12 @@
   "subdomain": "nsd",
   "adminEmail": "harahapjafaruddin@gmail.com",
   "adminName": "Admin Jurnal PT NSD",
-  "publisher": "PT. Networking Surya Digital",
-  "issnOnline": "0000-0000",
+  "publisher": "PT. NSD",
+  "issnOnline": "TBD-PILOT-1",
   "reviewModel": "DOUBLE_BLIND",
-  "apcAmount": 0,
+  "apcAmount": 500000,
   "apcCurrency": "IDR",
   "sectionTitle": "Artikel",
-  "customDomain": "ejournal.ptnsd.co.id"
+  "customDomain": "ejournal.ptnsd.co.id",
+  "membershipRoles": ["JOURNAL_ADMIN", "EDITOR_IN_CHIEF"]
 }

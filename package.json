@@ -15,7 +15,8 @@
     "db:studio": "pnpm --filter @nsd/jms db:studio",
     "db:seed:demo": "pnpm --filter @nsd/jms db:seed:demo",
     "db:wipe:journals": "pnpm --filter @nsd/jms db:wipe:journals",
-    "db:provision:pilot": "pnpm --filter @nsd/jms db:provision:pilot"
+    "db:provision:pilot": "pnpm --filter @nsd/jms db:provision:pilot",
+    "db:seed:pilot-published": "pnpm --filter @nsd/jms db:seed:pilot-published"
   },
   "devDependencies": {
     "turbo": "^2.5.4",
