@@ -53,6 +53,17 @@ describe("requestPasswordReset", () => {
       }),
     );
   });
+
+  it("surfaces email rate-limit errors to the user", async () => {
+    resetPasswordMock.mockResolvedValue({
+      error: { message: "email rate limit exceeded", status: 429 },
+    });
+    const result = await requestPasswordReset({ email: "admin@ptnsd.co.id" });
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/batas kirim email/i);
+    }
+  });
 });
 
 describe("updatePassword", () => {

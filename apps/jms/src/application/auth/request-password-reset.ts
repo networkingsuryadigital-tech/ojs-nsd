@@ -36,9 +36,26 @@ export async function requestPasswordReset(input: {
     redirectTo,
   });
 
-  // Log server-side only; never expose whether the address exists.
   if (error) {
-    console.error("[auth] resetPasswordForEmail failed:", error.message);
+    console.error(
+      "[auth] resetPasswordForEmail failed:",
+      error.message,
+      "redirectTo=",
+      redirectTo,
+    );
+
+    const lowered = error.message.toLowerCase();
+    if (
+      lowered.includes("rate limit") ||
+      lowered.includes("over_email") ||
+      error.status === 429
+    ) {
+      return {
+        ok: false,
+        error:
+          "Batas kirim email Auth sementara tercapai (SMTP bawaan Supabase ~2 email/jam). Tunggu ±1 jam, cek folder spam, atau pasang Custom SMTP (Resend) di Supabase Auth.",
+      };
+    }
   }
 
   return { ok: true, message: SUCCESS_MESSAGE };
