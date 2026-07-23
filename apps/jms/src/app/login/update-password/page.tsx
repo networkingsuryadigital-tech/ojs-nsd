@@ -1,8 +1,8 @@
 import Link from "next/link";
 
+import { hasAuthSession } from "@/application/auth/has-auth-session";
 import { getRequestTenantContext } from "@/application/journal/get-journal-public-site";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
-import { getServerSupabase } from "@/infrastructure/auth/supabase";
 import {
   Card,
   CardContent,
@@ -18,12 +18,8 @@ export default async function UpdatePasswordPage() {
   const journalName =
     tenantContext.kind === "tenant" ? tenantContext.site.name : "JMS Platform";
 
-  const supabase = await getServerSupabase();
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
+  const hasSession = await hasAuthSession();
 
-  const hasSession = Boolean(authUser);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
