@@ -62,14 +62,18 @@ Password seragam semua akun: **`Demo12345!`**
 2. Masukkan email → Supabase mengirim email recovery
 3. Klik tautan → `/auth/callback` → `/login/update-password` → set sandi baru
 
-Di **Supabase Dashboard → Authentication → URL Configuration**, pastikan Redirect URLs mencakup:
+Di **Supabase Dashboard → Authentication → URL Configuration**:
 
-- `http://localhost:3000/auth/callback`
-- `http://demo.localhost:3000/auth/callback`
-- `https://ejournal.ptnsd.co.id/auth/callback`
-- `https://ojs-nsd-jms.vercel.app/auth/callback`
+1. **Site URL** = `https://ejournal.ptnsd.co.id` (bukan `http://localhost:3000`)
+2. **Redirect URLs** harus mencakup:
+   - `https://ejournal.ptnsd.co.id/**`
+   - `https://ojs-nsd-jms.vercel.app/**`
+   - `http://localhost:3000/**` (dev)
+   - `http://demo.localhost:3000/**` (dev)
 
-Tanpa URL ini, tombol di email reset akan gagal.
+Jika Redirect URL production belum diizinkan, Supabase **mengganti** tautan email ke Site URL lama (`localhost:3000`) — inilah penyebab "This site can't be reached".
+
+Di Vercel, pastikan `NEXT_PUBLIC_APP_URL=https://ejournal.ptnsd.co.id` (Production).
 Tanpa `SUPABASE_SERVICE_ROLE_KEY`, baris `User` Prisma tetap dibuat tetapi **login Supabase tidak aktif** — UI publik tetap bisa di-preview; fitur editorial butuh auth.
 
 ---
