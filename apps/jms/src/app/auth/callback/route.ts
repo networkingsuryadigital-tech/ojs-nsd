@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { exchangeSupabaseAuthCode } from "@nsd/auth/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { isSafeAuthCallbackNext } from "@/application/auth/login-redirect";
@@ -22,29 +22,13 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  let response = NextResponse.redirect(new URL(next, origin));
-  const config = getSupabaseConfig();
+  const result = await exchangeSupabaseAuthCode(
+    request,
+    getSupabaseConfig(),
+    { code, redirectUrl: new URL(next, origin) },
+  );
 
-  const supabase = createServerClient(config.url, config.anonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => {
-          request.cookies.set(name, value);
-        });
-        response = NextResponse.redirect(new URL(next, origin));
-        cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
-        });
-      },
-    },
-  });
-
-  const { error } = await supabase.auth.exchangeCodeForSession(code);
-
-  if (error) {
+  if (!result.ok) {
     return NextResponse.redirect(
       new URL(
         `/login?error=${encodeURIComponent("Tautan reset kedaluwarsa atau tidak valid. Minta tautan baru.")}`,
@@ -53,5 +37,5 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return response;
+  return result.response;
 }

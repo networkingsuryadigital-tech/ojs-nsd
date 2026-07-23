@@ -56,3 +56,39 @@ export async function getSupabaseUserFromRequest(
     return null;
   }
 }
+
+/**
+ * Exchanges a Supabase auth `code` for a session and attaches cookies to a redirect.
+ * Used by `/auth/callback` (password recovery, magic link, OAuth PKCE).
+ */
+export async function exchangeSupabaseAuthCode(
+  request: NextRequest,
+  config: SupabaseConfig,
+  input: { code: string; redirectUrl: URL },
+): Promise<{ ok: true; response: NextResponse } | { ok: false; error: string }> {
+  let response = NextResponse.redirect(input.redirectUrl);
+
+  const supabase = createServerClient(config.url, config.anonKey, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
+      },
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value }) => {
+          request.cookies.set(name, value);
+        });
+        response = NextResponse.redirect(input.redirectUrl);
+        cookiesToSet.forEach(({ name, value, options }) => {
+          response.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
+
+  const { error } = await supabase.auth.exchangeCodeForSession(input.code);
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  return { ok: true, response };
+}
