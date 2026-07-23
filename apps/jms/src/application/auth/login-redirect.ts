@@ -1,4 +1,5 @@
 const LOGIN_PATH = "/login";
+const PASSWORD_UPDATE_PATH = "/login/update-password";
 
 export function isSafeInternalPath(path: string): boolean {
   if (!path.startsWith("/") || path.startsWith("//")) {
@@ -8,6 +9,14 @@ export function isSafeInternalPath(path: string): boolean {
     return false;
   }
   return true;
+}
+
+/** Safe `next` targets after Supabase auth callback (incl. password recovery). */
+export function isSafeAuthCallbackNext(path: string): boolean {
+  if (path === PASSWORD_UPDATE_PATH) {
+    return true;
+  }
+  return isSafeInternalPath(path);
 }
 
 export function buildLoginRedirectUrl(returnPath?: string): string {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button, Input, Label } from "@nsd/ui";
@@ -52,7 +53,15 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Kata sandi</Label>
+        <div className="flex items-center justify-between gap-2">
+          <Label htmlFor="password">Kata sandi</Label>
+          <Link
+            href="/login/forgot"
+            className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+          >
+            Lupa kata sandi?
+          </Link>
+        </div>
         <Input
           id="password"
           name="password"

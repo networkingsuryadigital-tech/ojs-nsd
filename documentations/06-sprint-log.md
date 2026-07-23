@@ -583,3 +583,11 @@ Persiapan database production agar siap UAT author + reviewer + editor di `ejour
 3. Midtrans production/sandbox key untuk APC nyata (fase 2)
 4. Tombol platform *Buka jurnal demo* → pertimbangkan rename ke *Buka jurnal pilot* (kosmetik)
 5. Cron cPanel 7 job + Supabase Pro sebelum UAT tim penuh ([`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md))
+
+---
+
+## Onboarding tim UAT pilot (2026-06-15)
+
+- **Dokumen:** [`16-onboarding-tim-uat.md`](./16-onboarding-tim-uat.md) — akun tim (Supabase Dashboard + `/login`), brief 5 skenario editorial, catatan keamanan kredensial
+- **Skrip:** `pnpm db:grant:role` → [`grant-journal-role.ts`](../apps/jms/scripts/grant-journal-role.ts) + [`uat-team-roles.example.json`](../apps/jms/scripts/uat-team-roles.example.json)
+- **Catatan kode:** `/login` hanya masuk (`signInWithPassword`); self-register belum ada — grant role idempoten via `JournalMembership` upsert + link Prisma dari Supabase Auth

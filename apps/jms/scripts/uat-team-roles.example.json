@@ -1,0 +1,25 @@
+{
+  "subdomain": "nsd",
+  "members": [
+    {
+      "email": "uat-section-editor@ptnsd.co.id",
+      "name": "Editor Seksi UAT",
+      "roles": ["SECTION_EDITOR"]
+    },
+    {
+      "email": "uat-reviewer1@ptnsd.co.id",
+      "name": "Reviewer UAT 1",
+      "roles": ["REVIEWER"]
+    },
+    {
+      "email": "uat-reviewer2@ptnsd.co.id",
+      "name": "Reviewer UAT 2",
+      "roles": ["REVIEWER"]
+    },
+    {
+      "email": "uat-author@ptnsd.co.id",
+      "name": "Penulis UAT",
+      "roles": ["AUTHOR"]
+    }
+  ]
+}

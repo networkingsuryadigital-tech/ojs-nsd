@@ -35,6 +35,7 @@
 | `13-eksekusi-post-s30-hardening.md` | **Prompt salin-tempel** post-S30: S31 security → S32 CI/DOCX → S33 platform | — |
 | `13b-peta-telusur-dummy.md` | Peta skenario → URL → kredensial (data dummy S34) | — |
 | `14-deploy-vercel-cpanelcron.md` | Deploy uji coba: Vercel Free + Supabase + **cPanel cron** + domain | — |
+| `16-onboarding-tim-uat.md` | Onboarding **tim UAT** jurnal pilot: akun, `pnpm db:grant:role`, brief 5 skenario editorial | — |
 | [`START-HERE.md`](./START-HERE.md) | **Mulai di sini** — urutan autopilot Langkah 1–7 | — |
 | `sprints/` | Detail per sprint selesai + **prompt langkah selanjutnya** | — |
 

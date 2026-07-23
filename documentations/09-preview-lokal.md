@@ -56,6 +56,20 @@ Password seragam semua akun: **`Demo12345!`**
 | `reviewer1@demo.test` | REVIEWER | Dashboard `/reviewer/assignments` — review Demo B |
 | `reviewer2@demo.test` | REVIEWER | Undangan Demo B (belum submit review) |
 
+### Lupa kata sandi
+
+1. Buka `/login` → **Lupa kata sandi?** → `/login/forgot`
+2. Masukkan email → Supabase mengirim email recovery
+3. Klik tautan → `/auth/callback` → `/login/update-password` → set sandi baru
+
+Di **Supabase Dashboard → Authentication → URL Configuration**, pastikan Redirect URLs mencakup:
+
+- `http://localhost:3000/auth/callback`
+- `http://demo.localhost:3000/auth/callback`
+- `https://ejournal.ptnsd.co.id/auth/callback`
+- `https://ojs-nsd-jms.vercel.app/auth/callback`
+
+Tanpa URL ini, tombol di email reset akan gagal.
 Tanpa `SUPABASE_SERVICE_ROLE_KEY`, baris `User` Prisma tetap dibuat tetapi **login Supabase tidak aktif** — UI publik tetap bisa di-preview; fitur editorial butuh auth.
 
 ---

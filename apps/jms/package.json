@@ -18,7 +18,8 @@
     "db:seed:dummy": "vitest run scripts/seed-dummy.harness.test.ts --config vitest.seed.config.ts",
     "db:wipe:journals": "node --import tsx scripts/wipe-journals.ts",
     "db:provision:pilot": "node --import ./scripts/stub-server-only.ts --import tsx scripts/provision-pilot-journal.ts",
-    "db:seed:pilot-published": "node --import ./scripts/stub-server-only.ts --import tsx scripts/seed-pilot-published.ts"
+    "db:seed:pilot-published": "node --import ./scripts/stub-server-only.ts --import tsx scripts/seed-pilot-published.ts",
+    "db:grant:role": "node --import ./scripts/stub-server-only.ts --import tsx scripts/grant-journal-role.ts"
   },
   "dependencies": {
     "@nsd/auth": "workspace:*",

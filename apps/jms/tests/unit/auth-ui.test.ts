@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
-import { isSafeInternalPath, buildLoginRedirectUrl } from "@/application/auth/login-redirect";
+import { isSafeInternalPath, isSafeAuthCallbackNext, buildLoginRedirectUrl } from "@/application/auth/login-redirect";
 import { resolvePostLoginRedirect } from "@/application/auth/resolve-post-login-redirect";
 import { resolveJournalRoles } from "@/application/identity/resolve-journal-roles";
 
@@ -13,6 +13,13 @@ describe("login-redirect", () => {
     expect(isSafeInternalPath("//evil.com")).toBe(false);
     expect(isSafeInternalPath("/login")).toBe(false);
     expect(isSafeInternalPath("/editorial/dashboard")).toBe(true);
+  });
+
+  it("allows password-update path after auth callback", () => {
+    expect(isSafeAuthCallbackNext("/login/update-password")).toBe(true);
+    expect(isSafeAuthCallbackNext("/login")).toBe(false);
+    expect(isSafeAuthCallbackNext("//evil.com")).toBe(false);
+    expect(isSafeAuthCallbackNext("/editorial/dashboard")).toBe(true);
   });
 
   it("builds login url with next param", () => {
