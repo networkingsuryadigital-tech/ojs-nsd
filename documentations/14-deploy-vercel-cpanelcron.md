@@ -114,7 +114,7 @@ Repo ojs-nsd. Patuhi AGENTS.md. Dokumentasi saja, JANGAN ubah logika kode.
 
 Konteks: keputusan deploy uji coba = Vercel Free (app) + Supabase Free (DB) + cPanel Cron Jobs
 (penjadwal 7 cron) + domain sendiri. Vercel Pro TIDAK diperlukan karena cron dijalankan cPanel.
-Panduan lengkap: documentations/14-deploy-vercel-cpanelcron.md.
+Panduan lengkap cron: [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md). Pilot DewaWeb Guardian: [`15-deploy-dewaweb-guardian.md`](./15-deploy-dewaweb-guardian.md).
 
 Tugas:
 1. Baca header auth cron sebenarnya dari salah satu route apps/jms/src/app/api/cron/* dan

@@ -22,7 +22,7 @@
 | 3 | Data dummy untuk tim uji coba | 🤖 Cursor | [`sprints/s34-dummy-data-generator.md`](./sprints/s34-dummy-data-generator.md) → blok **Prompt eksekusi** |
 | 4 | Tampilan menarik (UI/UX) | 🤖 Cursor | [`sprints/s35-ui-ux-engagement.md`](./sprints/s35-ui-ux-engagement.md) → blok **Prompt eksekusi** |
 | 5 | Rapikan dokumen + header cron | 🤖 Cursor | [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md) → **Prompt Cursor** (paling bawah) |
-| 6 | **Deploy** (Vercel + Supabase + cPanel cron + domain) | 🧑 Anda | [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md) → Langkah 1–5 |
+| 6 | **Deploy** (Vercel + Supabase + Guardian cron + domain) | 🧑 Anda | [`15-deploy-dewaweb-guardian.md`](./15-deploy-dewaweb-guardian.md) (Guardian) · [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md) (generik) |
 | 7 | Onboard jurnal pilot | 🧑 Anda | [`12-onboarding-jurnal-pilot.md`](./12-onboarding-jurnal-pilot.md) |
 
 **Nanti (tidak mendesak, 🤖 Cursor):** [`13-...md`](./13-eksekusi-post-s30-hardening.md) Prompt 3–8 (S32, S33).
@@ -65,7 +65,7 @@ onboarding) dikerjakan operator manusia, bukan kamu.
 
 ## Setelah Autopilot selesai → giliran Anda (🧑)
 
-- **Langkah 6 — Deploy:** ikuti [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md). Inti: deploy app ke Vercel free, arahkan domain Anda, jalankan `pnpm db:migrate` + `pnpm db:seed:dummy` dari laptop, pasang 7 cron di cPanel, smoke test.
+- **Langkah 6 — Deploy:** ikuti [`15-deploy-dewaweb-guardian.md`](./15-deploy-dewaweb-guardian.md) jika pakai **DewaWeb Guardian** (DNS + cron; app di Vercel free). Alternatif generik: [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md). Inti: domain → Vercel, 7 cron di cPanel, env di Vercel, Custom SMTP Supabase (Resend), smoke test.
 - **Langkah 7 — Pilot:** ikuti [`12-onboarding-jurnal-pilot.md`](./12-onboarding-jurnal-pilot.md) untuk menyiapkan satu jurnal nyata + akun admin.
 
 > Deploy & onboarding **tidak bisa unattended** — perlu Anda klik di Vercel/cPanel/Supabase. Itu wajar.

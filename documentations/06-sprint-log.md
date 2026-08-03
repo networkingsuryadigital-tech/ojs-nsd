@@ -582,7 +582,7 @@ Persiapan database production agar siap UAT author + reviewer + editor di `ejour
 2. Verifikasi domain Resend agar email ke alamat UAT tim terkirim
 3. Midtrans production/sandbox key untuk APC nyata (fase 2)
 4. Tombol platform *Buka jurnal demo* → pertimbangkan rename ke *Buka jurnal pilot* (kosmetik)
-5. Cron cPanel 7 job + Supabase Pro sebelum UAT tim penuh ([`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md))
+5. Cron cPanel 7 job + Supabase Pro sebelum UAT tim penuh ([`15-deploy-dewaweb-guardian.md`](./15-deploy-dewaweb-guardian.md) · [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md))
 
 ---
 
@@ -591,3 +591,12 @@ Persiapan database production agar siap UAT author + reviewer + editor di `ejour
 - **Dokumen:** [`16-onboarding-tim-uat.md`](./16-onboarding-tim-uat.md) — akun tim (Supabase Dashboard + `/login`), brief 5 skenario editorial, catatan keamanan kredensial
 - **Skrip:** `pnpm db:grant:role` → [`grant-journal-role.ts`](../apps/jms/scripts/grant-journal-role.ts) + [`uat-team-roles.example.json`](../apps/jms/scripts/uat-team-roles.example.json)
 - **Catatan kode:** `/login` hanya masuk (`signInWithPassword`); self-register belum ada — grant role idempoten via `JournalMembership` upsert + link Prisma dari Supabase Auth
+
+---
+
+## Deploy DewaWeb Guardian tanpa VPS (2026-08-03)
+
+- **Dokumen:** [`15-deploy-dewaweb-guardian.md`](./15-deploy-dewaweb-guardian.md) — Guardian = DNS + cron saja; app Vercel + DB Supabase (Rp 0 VPS).
+- **Skrip cron:** [`cpanel-cron-ejournal.example.sh`](../apps/jms/scripts/cpanel-cron-ejournal.example.sh)
+- **Verifikasi otomatis:** DNS `ejournal.ptnsd.co.id` → CNAME Vercel ✅ · health/OAI/login ✅ · cron tanpa secret → 401 ✅
+- **Sisa operator:** pasang 7 cron di cPanel Guardian · Custom SMTP Resend di Supabase Auth · centang checklist dok 15
