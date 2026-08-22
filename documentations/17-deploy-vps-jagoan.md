@@ -79,23 +79,42 @@ Di VPS, sebagai superuser Postgres, jalankan `apps/jms/prisma/ensure-vps-roles.s
 
 ---
 
-- `https://ejournal.ptnsd.co.id/api/health` → **200** (DB connected)
-- PM2 `jms` online port 3002 (~260 MB RAM)
-- Jurnal: **nsd** (E-Journal PT. NSD), 61 User, 1 Submission
-- **AuthUser = 0** — login perlu registrasi ulang atau seed
+## Status produksi (22 Aug 2026)
+
+- `https://ejournal.ptnsd.co.id` → situs jurnal **nsd** (OJS-style), bukan landing platform
+- Health `GET /api/health` → **200** (Postgres connected)
+- Auth: Better Auth seeded; registrasi penulis di `/login/register`
+- Platform admin `/admin` (SUPER_ADMIN) di host yang sama
+- PM2 `jms` :3002; cron `/etc/cron.d/jms` (7 endpoint)
+- Role `jms_tenant` + GRANT ke user `jms`
+- Deploy key GitHub `jms-vps-ojs-nsd` (read-only) — `git pull` sebagai user `jms` di `/home/jms/apps/ojs-nsd`
+- MinIO bucket `jms-manuscripts`: **0 objek** (migrasi file Supabase tidak diperlukan)
+- `SIMILARITY_PROVIDER=mock` eksplisit sampai iThenticate/Copyleaks berlangganan
+- Supabase project: **jangan hapus** (retensi 2 minggu dari cutover 20 Aug 2026)
+
+### Deploy ulang
+
+```bash
+sudo -u jms bash -lc 'cd /home/jms/apps/ojs-nsd && git pull && CI=true pnpm install --frozen-lockfile && pnpm --filter @nsd/jms build && pm2 reload jms --update-env'
+```
+
+Migrasi: `sudo -u jms bash -lc 'cd /home/jms/apps/ojs-nsd && set -a && . /home/jms/.env && set +a && export DATABASE_URL="$DIRECT_URL" && pnpm --filter @nsd/jms exec prisma migrate deploy'`
+
+### Backup
+
+- Postgres: `sudo -u postgres pg_dump -Fc jms_db > /var/backups/jms_db-$(date +%F).dump`
+- MinIO: `mc mirror jmslocal/jms-manuscripts /var/backups/jms-minio/` (saat bucket berisi objek)
+- Secret hanya di `/home/jms/.env` (chmod 600) — jangan masuk git
 
 ---
 
-## Yang belum
+## Yang masih operator
 
-- [ ] Seed/registrasi akun Better Auth untuk admin + editor (skrip `ensure-auth-user.ts`)
-- [ ] UAT editorial: submit → review → publish
-- [ ] Migrasi file naskah Supabase Storage → MinIO (jika ada berkas produksi)
-- [ ] Deploy key GitHub untuk `git pull` (menggantikan tarball)
-- [ ] Webhook Midtrans ke URL baru
-- [ ] Cron systemd (`scripts/vps-cron.example.sh`)
-- [ ] `JMS_PRIMARY_JOURNAL_SUBDOMAIN=nsd` di `/home/jms/.env` agar apex = situs jurnal
-- [ ] Role Postgres `jms_tenant` jika `withTenant()` gagal
+- [ ] UAT editorial manusia: submit → review → publish
+- [ ] Set webhook Midtrans ke `https://ejournal.ptnsd.co.id/api/webhooks/midtrans`
+- [ ] Ganti ISSN placeholder `TBD-PILOT-1` + copy kebijakan
+- [ ] CrossRef / Garuda / ARJUNA (checklist dok 11)
+
 
 ---
 

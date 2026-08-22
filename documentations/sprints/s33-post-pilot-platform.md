@@ -37,7 +37,7 @@
 - [x] Halaman `/admin/journals` — list jurnal (adminDb)
 - [x] Link ke CLI `pnpm db:provision:pilot`
 - [x] Middleware: `/admin/*` protected + super-admin only (`notFound` jika bukan SUPER_ADMIN)
-          - [ ] Seed demo: opsional user `superadmin@demo.test` (lakukan di VPS untuk admin NSD)
+          - [x] Seed demo: opsional user `superadmin@demo.test` (lakukan di VPS untuk admin NSD)
           - [x] Vitest: guard super-admin
           - [x] E2e smoke: unauthenticated `/admin` redirects to login (notFound for non-super-admin)
 

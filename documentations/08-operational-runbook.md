@@ -14,7 +14,7 @@
 
 **Perbaikan:**
 1. Cron otomatis: `GET /api/cron/side-effect-reconciliation` (Bearer `CRON_SECRET`) setiap 6 jam.
-2. Manual: jalankan cron sekali dari Vercel dashboard atau `curl` dengan header auth.
+2. Manual: `curl -H "Authorization: Bearer $CRON_SECRET" https://ejournal.ptnsd.co.id/api/cron/side-effect-reconciliation`
 3. Verifikasi invoice/job muncul setelah cron.
 
 ---
@@ -98,7 +98,7 @@ GET /api/privacy/export?userId={id}&requesterId={id}
 
 Hanya `userId === requesterId`. Output: profil, keanggotaan jurnal, partisipasi submission (tanpa PII pihak lain).
 
-> **Catatan:** Penghapusan akun penuh memerlukan koordinasi Supabase Auth + anonimisasi submission — belum otomatis di S20.
+> **Catatan:** Penghapusan akun memakai Better Auth + anonimisasi submission (S23). Coordinasi operator jika file MinIO perlu dihapus manual.
 
 ---
 
@@ -108,8 +108,8 @@ Hanya `userId === requesterId`. Output: profil, keanggotaan jurnal, partisipasi 
 |--------|------|
 | Error rate webhook payment > 0 | Cek Midtrans + invoice stuck |
 | `SIDE_EFFECT_FAILED` events | Jalankan side-effect-reconciliation |
-| OAI 429 (rate limit) | Normal untuk harvester agresif; pantau Upstash |
-| Sentry spike pasca-deploy | Rollback Vercel jika kritis |
+| OAI 429 (rate limit) | Normal untuk harvester agresif; pantau Redis lokal |
+| Sentry spike pasca-deploy | `pm2 reload jms` atau rollback `git` di VPS |
 
 ---
 

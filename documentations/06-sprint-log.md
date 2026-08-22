@@ -59,6 +59,8 @@
 
 **S31-B (2026-06-14):** `getOperationalHealth()` + `productionReady`/`warnings`, provider names, cold-start alert. Vitest `production-readiness.test.ts`. DoD: lint ✅ typecheck ✅ test ✅ build ✅.
 
+**VPS go-live (2026-08-22):** Apex `ejournal.ptnsd.co.id` = jurnal `nsd`. Better Auth + MinIO + Redis. S32/S33 di kode. Cron VPS 7 endpoint. AuthUser di-seed. MinIO kosong (skip migrasi file). Supabase retensi 2 minggu.
+
 **S34 (2026-06-14):** `pnpm db:seed:dummy` — faker seed 20260614, jurnal `dummy-1`/`dummy-2`, 17 skenario/jurnal, peta [`13b-peta-telusur-dummy.md`](./13b-peta-telusur-dummy.md).
 
 **S35 (2026-06-14):** Toggle tema terang/gelap, `/articles/[id]`, beranda tenant + platform footer, login split branding.
