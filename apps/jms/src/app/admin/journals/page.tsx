@@ -45,6 +45,14 @@ export default async function AdminJournalsPage() {
                     {journal.isActive ? " · aktif" : " · nonaktif"}
                     {` · ${journal.domainCount} domain`}
                   </p>
+                  <p className="mt-2">
+                    <Link
+                      href={`/admin/journals/${journal.subdomain}/members`}
+                      className="text-sm underline underline-offset-4"
+                    >
+                      Kelola anggota & peran
+                    </Link>
+                  </p>
                   {journal.oaiRepoName ? (
                     <p className="mt-1">
                       <Link href="/oai?verb=Identify" className="underline">

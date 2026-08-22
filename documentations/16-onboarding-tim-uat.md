@@ -10,25 +10,31 @@
 
 ## 1. Membuat akun anggota tim
 
-Login JMS membutuhkan **dua** baris data: user di **Supabase Auth** dan baris **`User`** di Prisma dengan `supabaseId` yang cocok. Tanpa keduanya, `/login` menolak dengan *"Akun belum terdaftar di JMS"* ([`sign-in-with-password.ts`](../apps/jms/src/application/auth/sign-in-with-password.ts)).
+Login membutuhkan **Better Auth** + baris **`User`** Prisma. Peran jurnal (`AUTHOR`, `REVIEWER`, `JOURNAL_ADMIN`, …) ada di **`JournalMembership`**.
 
-Peran jurnal (`AUTHOR`, `REVIEWER`, `SECTION_EDITOR`, …) ditetapkan terpisah lewat **`JournalMembership`** — lihat §2.
+### 1.a Registrasi penulis (self-service)
 
-### 1.a Via `/login` — hanya **masuk**, bukan daftar
+Halaman **https://ejournal.ptnsd.co.id/login/register** — juga tombol **Daftar sebagai penulis** di `/login` dan tautan **Daftar** di header publik.
 
-Halaman [`/login`](../apps/jms/src/app/login/page.tsx) saat ini **hanya** formulir **Masuk** (`LoginForm` → `signInFormAction` → `signInWithPassword`). **Tidak ada** UI registrasi / tombol daftar di aplikasi.
+Alur:
 
-Alur yang berlaku untuk anggota tim yang **sudah** dibuat operator:
+1. Orang itu membuka `/login/register`, isi nama + email + kata sandi (≥8 karakter).
+2. Sistem membuat akun Better Auth, baris Prisma `User`, dan membership `AUTHOR` pada jurnal `nsd`.
+3. Redirect ke `/author/submissions`.
 
-1. Buka **https://ejournal.ptnsd.co.id/login** (branding jurnal pilot).
-2. Isi email + kata sandi.
-3. Server memanggil `supabase.auth.signInWithPassword`, lalu `findUserBySupabaseId` di Prisma.
-4. Redirect otomatis ([`resolvePostLoginRedirect`](../apps/jms/src/application/auth/resolve-post-login-redirect.ts)):
-   - Staff editorial → `/editorial/dashboard`
-   - Reviewer → `/reviewer/assignments`
-   - Author → `/author/submissions`
+Jika email sudah ada di dump Prisma (dari migrasi lama) tetapi belum bisa login, daftar dengan **email yang sama** — sistem menautkan Auth ke user yang sudah ada.
 
-> **Catatan:** Meskipun Supabase project bisa mengaktifkan *Enable email signup* di dashboard, JMS **belum** punya halaman signup dan **belum** membuat baris Prisma `User` otomatis. Self-register penuh **belum diimplementasi**.
+### 1.b SUPER_ADMIN menetapkan admin / editor / reviewer
+
+1. Masuk sebagai SUPER_ADMIN.
+2. Buka **https://ejournal.ptnsd.co.id/admin/journals** → **Kelola anggota & peran**.
+3. Isi email orang yang sudah daftar, centang peran (untuk uji coba: **Admin jurnal** = `JOURNAL_ADMIN`), simpan.
+
+CLI cadangan (SSH VPS):
+
+```bash
+pnpm db:grant:role -- --email=editor@example.com --roles=JOURNAL_ADMIN --subdomain=nsd --merge
+```
 
 ### 1.b Via Supabase Dashboard (disarankan untuk tim UAT)
 

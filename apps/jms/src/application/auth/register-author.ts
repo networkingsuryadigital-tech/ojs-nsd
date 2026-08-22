@@ -66,20 +66,40 @@ export async function registerAuthor(input: {
 
   let appUser = await findUserByAuthUserId(authUserId);
   if (!appUser) {
-    const created = await prisma.user.create({
-      data: {
-        email,
-        name: parsed.data.name,
-        supabaseId: authUserId,
-      },
+    const existingByEmail = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: "insensitive" } },
     });
-    appUser = {
-      id: created.id,
-      authUserId: created.supabaseId,
-      supabaseId: created.supabaseId,
-      email: created.email,
-      name: created.name,
-    };
+    if (existingByEmail) {
+      const updated = await prisma.user.update({
+        where: { id: existingByEmail.id },
+        data: {
+          supabaseId: authUserId,
+          name: parsed.data.name || existingByEmail.name,
+        },
+      });
+      appUser = {
+        id: updated.id,
+        authUserId: updated.supabaseId,
+        supabaseId: updated.supabaseId,
+        email: updated.email,
+        name: updated.name,
+      };
+    } else {
+      const created = await prisma.user.create({
+        data: {
+          email,
+          name: parsed.data.name,
+          supabaseId: authUserId,
+        },
+      });
+      appUser = {
+        id: created.id,
+        authUserId: created.supabaseId,
+        supabaseId: created.supabaseId,
+        email: created.email,
+        name: created.name,
+      };
+    }
   }
 
   if (parsed.data.journalId) {

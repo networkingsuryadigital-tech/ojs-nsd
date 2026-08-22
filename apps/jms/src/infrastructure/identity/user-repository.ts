@@ -37,3 +37,25 @@ export async function findUserByAuthUserId(
     name: user.name,
   };
 }
+
+export async function findUserByEmail(
+  email: string,
+): Promise<ResolvedAppUser | null> {
+  const user = await adminDb.user.findFirst({
+    where: { email: { equals: email.trim().toLowerCase(), mode: "insensitive" } },
+    select: {
+      id: true,
+      supabaseId: true,
+      email: true,
+      name: true,
+    },
+  });
+  if (!user) return null;
+  return {
+    id: user.id,
+    authUserId: user.supabaseId,
+    supabaseId: user.supabaseId,
+    email: user.email,
+    name: user.name,
+  };
+}
