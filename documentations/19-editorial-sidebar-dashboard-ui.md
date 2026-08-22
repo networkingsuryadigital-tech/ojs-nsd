@@ -84,6 +84,7 @@ Setelah sidebar aktif, header situs publik (`TenantHeader`) yang lama masih tamp
 
 ### Kredensial
 - `documentations/18-DATA_ACCOUNT.md` **tidak ada** di working tree (sudah dihapus operator). Tidak ikut commit.
+- Login demo yang dipakai untuk cek visual: `admin@demo.test` / `Demo12345!` di `http://demo.localhost:3000`. Secret **hanya** di `apps/jms/.env` lokal (string acak dev-only; **bukan** salinan secret VPS). File `.env` tidak di-commit.
 
 ### `pnpm lint`
 - Hijau setelah perbaikan ESLint di `app/admin/journals/...`: form grant-role tidak lagi mengimpor `@/domain/*` (opsi peran dipindah ke konstanta UI `journal-role-options.ts`). `domain/` / `application/` / `infrastructure/` tidak diubah.
@@ -93,22 +94,39 @@ Setelah sidebar aktif, header situs publik (`TenantHeader`) yang lama masih tamp
 
 ### `pnpm test:e2e`
 - Perintah root `pnpm test:e2e` (turbo) gagal di langkah **build** dengan `EPERM` rename Prisma query engine — file terkunci karena `next dev` sedang jalan. Bukan regresi UI.
-- Playwright dijalankan langsung (`pnpm exec playwright test` di `apps/jms`) terhadap server `localhost:3000`:
-  - Smoke + platform: **lulus**.
-  - Public journal demo (termasuk `/editorial-board` dan header mobile publik): **lulus**.
-  - Hasil akhir: **63 passed, 9 skipped, 0 failed**.
-  - 9 tes login (`editorial-dashboard`, `auth-login`, `author-portal`, `editorial-happy-path`) **di-skip**: `BETTER_AUTH_SECRET` di `.env` lokal kosong, sehingga `admin@demo.test` / `Demo12345!` ditolak. Ini masalah env/auth lokal, bukan markup sidebar/header.
+- Playwright dijalankan langsung (`pnpm exec playwright test` di `apps/jms`) terhadap server yang sudah jalan:
+  - Smoke + platform + public journal (sebelum secret diisi): **63 passed, 9 skipped, 0 failed**.
+  - Setelah secret lokal + reseed: `tests/e2e/editorial-dashboard.spec.ts` (**3/3 passed**) — dashboard 200 + sidebar, issues/published tetap sidebar, hamburger mobile `Buka menu editorial`.
 - Helper login e2e memakai `#email` / `#password` (lebih andal daripada `getByLabel`).
 
-### Cek visual localhost (`demo.localhost:3000`)
-- **Situs publik (tanpa login):** header lengkap masih ada (Beranda, Arsip, Cari). Di viewport 375px tombol `Menu` muncul dan membuka link publik — varian `"public"` tidak rusak.
-- **`/editorial/dashboard`, `/editorial/issues`, `/editorial/published` + mobile sidebar/header:** **belum bisa diverifikasi di localhost** karena login demo gagal tanpa `BETTER_AUTH_SECRET`. Isi tes e2e untuk itu sudah ada (sidebar, tanpa link Beranda di header, hamburger `Buka menu editorial`) dan akan jalan begitu secret diisi.
+### Cek visual localhost (`demo.localhost:3000`) — sudah dilihat (login berhasil)
+
+Login lokal awalnya gagal karena dua hal env (bukan markup UI):
+
+1. `BETTER_AUTH_SECRET` kosong → diisi string acak dev-only, lalu `pnpm db:seed:demo` (harness lulus).
+2. Tabel Better Auth (`AuthUser`, `AuthSession`, `AuthAccount`, `AuthVerification`) **belum ada** di database yang dipakai `.env` lokal (Supabase). Tabel inti (`User`, `Journal`, `Submission`) sudah ada. Tabel auth dibuat di DB itu saja (bukan migrasi yang di-commit). Setelah itu seed menulis akun demo.
+3. `BETTER_AUTH_URL` di `.env` lokal diarahkan ke `http://demo.localhost:3000` supaya origin login cocok dengan host demo (trusted origins Better Auth). Jangan meniru nilai production VPS.
+
+**Desktop 1280×800** (login `admin@demo.test`):
+
+| Halaman | Sidebar | Header ringkas | Catatan |
+|---|---|---|---|
+| `/editorial/dashboard` | 4 item: Dashboard (aktif, pill hitam), Terbitan, Artikel terbit, Pengaturan. Nama jurnal + peran "Admin jurnal" di atas nav. | Logo + "Jurnal Demo NSD"; kanan: Indonesia, tema, lonceng, Keluar. **Tidak ada** Beranda / Tentang / Arsip / Cari. | 4 kartu status: Sedang direview **biru** (`rgb(37, 99, 235)` + ikon Eye), Perlu revisi **amber** (`rgb(217, 119, 6)`), Diterima **hijau** (`rgb(21, 128, 61)`), Terbit **ungu** (`rgb(124, 58, 237)`). Breadcrumb `Editorial / Dashboard`. |
+| `/editorial/issues` | Item Terbitan aktif. | Sama, tanpa nav publik. | Badge status **PUBLISHED** ungu di production queue. |
+| `/editorial/published` | Item Artikel terbit aktif. | Sama, tanpa nav publik. | Badge **PUBLISHED** ungu pada "Demo E: Artikel Terbit". |
+
+**Mobile 375×812** (`/editorial/dashboard`): header tetap ringkas (nama jurnal disembunyikan di viewport sempit, logo tetap); tombol `Buka menu editorial` tampil; drawer membuka nav yang sama (Dashboard / Terbitan / Artikel terbit / Pengaturan). Kartu status tetap biru / amber / hijau / ungu.
+
+**Console browser:** tidak ada error overlay React, tidak ada kegagalan load aset UI. Yang tercatat hanya log server Next.js di mode dev: `operational failure` / `loadReviewerProfile` / "Reviewer not found in this journal." — ini log application (profil reviewer opsional), bukan regresi markup sidebar/header/kartu. Tidak diubah di langkah UI ini.
+
+**Situs publik (tanpa login, cek sebelumnya):** header lengkap masih ada (Beranda, Arsip, Cari). Di 375px tombol `Menu` membuka link publik — varian `"public"` tidak rusak.
 
 ### Catatan
-- Jangan commit `apps/jms/next-env.d.ts` jika Next mengubah import ke `./.next/dev/types/routes.d.ts`.
-- Tidak ada perubahan skema/migrasi/use-case.
+- Jangan commit `apps/jms/.env` atau `apps/jms/next-env.d.ts` jika Next mengubah import ke `./.next/dev/types/routes.d.ts`.
+- Tidak ada perubahan skema/migrasi/use-case di git untuk langkah visual ini. Tabel Auth* di DB lokal perlu ada agar login demo jalan; itu belum masuk folder `prisma/migrations/`.
+- Commit header ringkas (`e64e652`) **belum di-push** sampai operator konfirmasi.
 
 ## Catatan operator
 
-1. Isi `BETTER_AUTH_SECRET` di `apps/jms/.env`, jalankan ulang `pnpm db:seed:demo`, lalu cek visual `/editorial/dashboard`, `/editorial/issues`, `/editorial/published` (desktop + mobile).
-2. Nomor dokumen ini **19** (18 sengaja dilompati).
+1. Nomor dokumen ini **19** (18 sengaja dilompati).
+2. Push ke GitHub/VPS menunggu konfirmasi (jangan push dari sesi visual QA).
