@@ -10,6 +10,7 @@ import type { HappyPathFixture } from "./fixtures/happy-path-fixture.types";
 const HAPPY_PATH_FIXTURE_PATH = path.resolve(__dirname, ".happy-path-fixture.json");
 
 const hasDatabase = Boolean(process.env.DATABASE_URL?.trim());
+const hasAuth = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
 const hasFixture = existsSync(HAPPY_PATH_FIXTURE_PATH);
 
 function loadFixture(): HappyPathFixture {
@@ -22,8 +23,8 @@ function editorialUrl(fixture: HappyPathFixture) {
 
 test.describe("editorial happy path (demo tenant)", () => {
   test.skip(
-    !hasDatabase || !hasFixture,
-    "Membutuhkan DATABASE_URL dan fixture dari globalSetup.",
+    !hasDatabase || !hasFixture || !hasAuth,
+    "Membutuhkan DATABASE_URL, BETTER_AUTH_SECRET, dan fixture dari globalSetup.",
   );
 
   test("submit → desk → review → accept → publish → OAI ListRecords", async ({

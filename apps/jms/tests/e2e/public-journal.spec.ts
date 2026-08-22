@@ -9,6 +9,14 @@ test.describe("public journal (demo tenant)", () => {
     await expect(page.getByRole("link", { name: "Cari" })).toBeVisible();
   });
 
+  test("public header uses hamburger menu on mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto("/");
+    await expect(page.getByRole("button", { name: "Menu" })).toBeVisible();
+    await page.getByRole("button", { name: "Menu" }).click();
+    await expect(page.getByRole("link", { name: "Beranda" })).toBeVisible();
+  });
+
   test("archives page renders", async ({ page }) => {
     const response = await page.goto("/issues");
     expect(response?.status()).toBe(200);

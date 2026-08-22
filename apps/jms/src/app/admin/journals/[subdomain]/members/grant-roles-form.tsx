@@ -2,13 +2,13 @@
 
 import { useActionState } from "react";
 
-import { JOURNAL_ROLES } from "@/domain/submission/types";
 import { Button, Input, Label } from "@nsd/ui";
 
 import {
   grantJournalRolesFormAction,
   type GrantRolesFormState,
 } from "../actions";
+import { JOURNAL_ROLE_OPTIONS } from "./journal-role-options";
 
 const ROLE_LABEL: Record<string, string> = {
   JOURNAL_ADMIN: "Admin jurnal",
@@ -69,7 +69,7 @@ export function GrantRolesForm({ subdomain }: GrantRolesFormProps) {
           Admin jurnal = JOURNAL_ADMIN (standar JMS untuk mengelola redaksi).
         </p>
         <div className="grid gap-2 sm:grid-cols-2">
-          {JOURNAL_ROLES.map((role) => (
+          {JOURNAL_ROLE_OPTIONS.map((role) => (
             <label key={role} className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"

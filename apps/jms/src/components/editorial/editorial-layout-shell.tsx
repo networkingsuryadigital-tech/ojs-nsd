@@ -40,7 +40,7 @@ export async function EditorialLayoutShell({
 
   return (
     <TenantShell site={site}>
-      <TenantHeader site={site} />
+      <TenantHeader site={site} variant="editorial" />
       <div className="flex min-h-0 flex-1 flex-col md:flex-row">
         <EditorialSidebar
           showSettings={showSettings}

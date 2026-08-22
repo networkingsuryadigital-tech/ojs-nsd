@@ -20,9 +20,14 @@ export default async function EditorialBoardPage() {
     notFound();
   }
 
-  const members = await listEditorialBoard({
-    journalId: context.site.journalId,
-  });
+  let members: Awaited<ReturnType<typeof listEditorialBoard>> = [];
+  try {
+    members = await listEditorialBoard({
+      journalId: context.site.journalId,
+    });
+  } catch {
+    members = [];
+  }
   const t = await getTranslations("nav");
 
   return (

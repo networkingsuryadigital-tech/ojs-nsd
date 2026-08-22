@@ -12,8 +12,8 @@ export async function loginAsDemoUser(
   await page.goto("/login");
   await expect(page.getByRole("heading", { name: "Masuk" })).toBeVisible();
 
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Kata sandi").fill(password);
+  await page.locator("#email").fill(email);
+  await page.locator("#password").fill(password);
   await page.getByRole("button", { name: "Masuk" }).click();
 
   await page.waitForURL(

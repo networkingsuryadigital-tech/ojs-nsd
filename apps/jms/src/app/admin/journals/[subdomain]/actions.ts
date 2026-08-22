@@ -6,7 +6,10 @@ import {
   grantJournalRolesAsPlatformAdmin,
   type GrantJournalRolesResult,
 } from "@/application/admin/grant-journal-roles";
-import { JOURNAL_ROLES, type JournalRole } from "@/domain/submission/types";
+import {
+  JOURNAL_ROLE_OPTIONS,
+  type JournalRoleOption,
+} from "./members/journal-role-options";
 
 export type GrantRolesFormState = GrantJournalRolesResult | { ok?: undefined };
 
@@ -21,8 +24,8 @@ export async function grantJournalRolesFormAction(
   const roles = formData
     .getAll("roles")
     .map((value) => String(value))
-    .filter((role): role is JournalRole =>
-      (JOURNAL_ROLES as readonly string[]).includes(role),
+    .filter((role): role is JournalRoleOption =>
+      (JOURNAL_ROLE_OPTIONS as readonly string[]).includes(role),
     );
 
   const result = await grantJournalRolesAsPlatformAdmin({
