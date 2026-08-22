@@ -8,6 +8,10 @@
   color: var(--journal-primary);
 }
 
+.tenant-site .editorial-sidebar a:hover {
+  color: inherit;
+}
+
 .tenant-site .prose h1,
 .tenant-site .prose h2,
 .tenant-site .prose h3 {

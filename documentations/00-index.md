@@ -38,6 +38,7 @@
 | `15-deploy-dewaweb-guardian.md` | Deploy **DewaWeb Guardian** (DNS + cron) tanpa VPS — pilot `ejournal.ptnsd.co.id` | — |
 | `16-onboarding-tim-uat.md` | Onboarding **tim UAT** jurnal pilot: akun, `pnpm db:grant:role`, brief 5 skenario editorial | — |
 | `17-deploy-vps-jagoan.md` | Deploy **VPS Jagoan** (self-hosted tanpa Supabase) — Better Auth, MinIO, Redis lokal | — |
+| `19-editorial-sidebar-dashboard-ui.md` | Redesign navigasi editorial (sidebar) + kartu statistik berwarna | — |
 | [`START-HERE.md`](./START-HERE.md) | **Mulai di sini** — urutan autopilot Langkah 1–7 | — |
 | `sprints/` | Detail per sprint selesai + **prompt langkah selanjutnya** | — |
 

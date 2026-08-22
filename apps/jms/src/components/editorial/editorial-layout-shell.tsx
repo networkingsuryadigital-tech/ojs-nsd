@@ -7,12 +7,26 @@ import { TenantFooter } from "@/components/tenant/tenant-footer";
 import { TenantHeader } from "@/components/tenant/tenant-header";
 import { TenantShell } from "@/components/tenant/tenant-shell";
 
-import { EditorialNav } from "./editorial-nav";
+import { EditorialSidebar } from "./editorial-sidebar";
 
 type EditorialLayoutShellProps = {
   site: JournalPublicSite;
   children: ReactNode;
 };
+
+const ROLE_PRIORITY = [
+  "JOURNAL_ADMIN",
+  "EDITOR_IN_CHIEF",
+  "SECTION_EDITOR",
+  "COPYEDITOR",
+  "REVIEWER",
+  "AUTHOR",
+  "READER",
+] as const;
+
+function primaryRole(roles: string[]): string | null {
+  return ROLE_PRIORITY.find((role) => roles.includes(role)) ?? roles[0] ?? null;
+}
 
 export async function EditorialLayoutShell({
   site,
@@ -27,8 +41,16 @@ export async function EditorialLayoutShell({
   return (
     <TenantShell site={site}>
       <TenantHeader site={site} />
-      <EditorialNav showSettings={showSettings} />
-      <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</div>
+      <div className="flex min-h-0 flex-1 flex-col md:flex-row">
+        <EditorialSidebar
+          showSettings={showSettings}
+          journalName={site.name}
+          activeRole={primaryRole(roles)}
+        />
+        <div className="mx-auto w-full max-w-5xl min-w-0 flex-1 px-4 py-8">
+          {children}
+        </div>
+      </div>
       <TenantFooter site={site} />
     </TenantShell>
   );

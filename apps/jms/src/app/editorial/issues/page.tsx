@@ -6,6 +6,7 @@ import { listInProductionSubmissions } from "@/application/publishing/list-in-pr
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
 import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { EditorialStatusBadge } from "@/components/editorial/editorial-status-badge";
 import { editorialInputClassName } from "@/components/editorial/styles";
 import {
   Button,
@@ -159,8 +160,9 @@ export default async function EditorialIssuesPage() {
                   >
                     {item.title}
                   </Link>
-                  <span className="ml-2 text-muted-foreground">
-                    {item.status} · {item.galleyCount} galley
+                  <span className="ml-2 inline-flex items-center gap-2 text-muted-foreground">
+                    <EditorialStatusBadge status={item.status} />
+                    <span>· {item.galleyCount} galley</span>
                   </span>
                 </li>
               ))}

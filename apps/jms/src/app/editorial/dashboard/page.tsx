@@ -1,5 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CheckCircle2, Eye, Newspaper, RotateCcw } from "lucide-react";
+
+import { getTranslations } from "next-intl/server";
 
 import { loadEditorialDashboardData } from "@/application/editorial/load-editorial-dashboard-data";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
@@ -83,6 +86,7 @@ export default async function EditorialDashboardPage() {
   const showReviewerProfileForm =
     reviewerRoles.includes("REVIEWER") || reviewerRoles.includes("JOURNAL_ADMIN");
   const isJournalAdmin = reviewerRoles.includes("JOURNAL_ADMIN");
+  const t = await getTranslations("editorial");
 
   return (
     <div className="space-y-6">
@@ -90,6 +94,33 @@ export default async function EditorialDashboardPage() {
         title="Dashboard statistik"
         description={`Ringkasan editorial jurnal — diperbarui ${new Date(stats.generatedAt).toLocaleString("id-ID")}`}
       />
+
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <EditorialStatCard
+          label={t("status.UNDER_REVIEW")}
+          value={submissions.byStatus.UNDER_REVIEW}
+          tone="accent"
+          icon={Eye}
+        />
+        <EditorialStatCard
+          label={t("status.REVISIONS_REQUESTED")}
+          value={submissions.byStatus.REVISIONS_REQUESTED}
+          tone="warning"
+          icon={RotateCcw}
+        />
+        <EditorialStatCard
+          label={t("status.ACCEPTED")}
+          value={submissions.byStatus.ACCEPTED}
+          tone="success"
+          icon={CheckCircle2}
+        />
+        <EditorialStatCard
+          label={t("status.PUBLISHED")}
+          value={submissions.byStatus.PUBLISHED}
+          tone="pro"
+          icon={Newspaper}
+        />
+      </section>
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <EditorialStatCard label="Total submission" value={submissions.total} />

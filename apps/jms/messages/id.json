@@ -4,7 +4,35 @@
     "dashboard": "Dashboard",
     "issues": "Terbitan",
     "published": "Artikel terbit",
-    "settings": "Pengaturan"
+    "settings": "Pengaturan",
+    "submissions": "Naskah",
+    "openMenu": "Buka menu editorial",
+    "closeMenu": "Tutup menu editorial",
+    "role": {
+      "JOURNAL_ADMIN": "Admin jurnal",
+      "EDITOR_IN_CHIEF": "Pemimpin redaksi",
+      "SECTION_EDITOR": "Editor seksi",
+      "COPYEDITOR": "Copyeditor",
+      "REVIEWER": "Reviewer",
+      "AUTHOR": "Penulis",
+      "READER": "Pembaca"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Terkirim",
+      "DESK_REVIEW": "Desk review",
+      "DESK_REJECTED": "Ditolak desk",
+      "UNDER_REVIEW": "Sedang direview",
+      "REVISIONS_REQUESTED": "Perlu revisi",
+      "RESUBMITTED": "Dikirim ulang",
+      "ACCEPTED": "Diterima",
+      "REJECTED": "Ditolak",
+      "WITHDRAWN": "Ditarik",
+      "PAYMENT_PENDING": "Menunggu pembayaran",
+      "IN_PRODUCTION": "Produksi",
+      "PUBLISHED": "Terbit",
+      "RETRACTED": "Ditarik terbit"
+    }
   },
   "nav": {
     "home": "Beranda",

@@ -4,6 +4,7 @@ import { listPublishedSubmissions } from "@/application/publishing/list-publishe
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
 import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { EditorialStatusBadge } from "@/components/editorial/editorial-status-badge";
 import { editorialInputClassName } from "@/components/editorial/styles";
 import {
   Button,
@@ -69,9 +70,12 @@ export default async function EditorialPublishedPage({ searchParams }: PageProps
           <Card key={article.id}>
             <CardHeader>
               <CardTitle className="text-lg">{article.title}</CardTitle>
-              <CardDescription>
-                Status: <strong>{article.status}</strong>
-                {article.doi ? ` · DOI ${article.doi}` : " · DOI belum terdaftar"}
+              <CardDescription className="flex flex-wrap items-center gap-2">
+                <span>Status:</span>
+                <EditorialStatusBadge status={article.status} />
+                <span>
+                  {article.doi ? `· DOI ${article.doi}` : "· DOI belum terdaftar"}
+                </span>
               </CardDescription>
               {article.publicationNoticeReason ? (
                 <p className="text-sm text-foreground/60">

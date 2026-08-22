@@ -18,5 +18,13 @@ test.describe("editorial dashboard (demo tenant)", () => {
     expect(response?.status()).toBe(200);
     await expect(page.getByRole("heading", { name: "Dashboard statistik" })).toBeVisible();
     await expect(page.getByText("Total submission")).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: "Navigasi editorial" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: "Navigasi editorial" }).getByRole("link", {
+        name: "Dashboard",
+      }),
+    ).toBeVisible();
   });
 });

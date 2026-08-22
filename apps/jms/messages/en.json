@@ -4,7 +4,35 @@
     "dashboard": "Dashboard",
     "issues": "Issues",
     "published": "Published",
-    "settings": "Settings"
+    "settings": "Settings",
+    "submissions": "Submissions",
+    "openMenu": "Open editorial menu",
+    "closeMenu": "Close editorial menu",
+    "role": {
+      "JOURNAL_ADMIN": "Journal admin",
+      "EDITOR_IN_CHIEF": "Editor in chief",
+      "SECTION_EDITOR": "Section editor",
+      "COPYEDITOR": "Copyeditor",
+      "REVIEWER": "Reviewer",
+      "AUTHOR": "Author",
+      "READER": "Reader"
+    },
+    "status": {
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "DESK_REVIEW": "Desk review",
+      "DESK_REJECTED": "Desk rejected",
+      "UNDER_REVIEW": "Under review",
+      "REVISIONS_REQUESTED": "Revisions requested",
+      "RESUBMITTED": "Resubmitted",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected",
+      "WITHDRAWN": "Withdrawn",
+      "PAYMENT_PENDING": "Payment pending",
+      "IN_PRODUCTION": "In production",
+      "PUBLISHED": "Published",
+      "RETRACTED": "Retracted"
+    }
   },
   "nav": {
     "home": "Home",

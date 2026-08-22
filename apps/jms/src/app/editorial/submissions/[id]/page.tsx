@@ -8,6 +8,8 @@ import {
   type ProductionDetail,
 } from "@/application/publishing/get-production-detail";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialPageHeader } from "@/components/editorial/editorial-page-header";
+import { EditorialStatusBadge } from "@/components/editorial/editorial-status-badge";
 import {
   Button,
   Card,
@@ -114,11 +116,14 @@ export default async function DeskReviewPage({ params, searchParams }: PageProps
 
   return (
     <div className="space-y-6">
+      <EditorialPageHeader title={detail.title} />
       <Card>
         <CardHeader>
           <CardTitle>{detail.title}</CardTitle>
-          <CardDescription>
-            Status: {detail.status} · Round {detail.reviewRound}
+          <CardDescription className="flex flex-wrap items-center gap-2">
+            <span>Status:</span>
+            <EditorialStatusBadge status={detail.status} />
+            <span>· Round {detail.reviewRound}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
