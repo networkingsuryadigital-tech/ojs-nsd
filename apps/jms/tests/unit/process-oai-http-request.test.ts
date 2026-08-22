@@ -22,8 +22,7 @@ vi.mock("@/application/oai/handle-oai-request", () => ({
 
 vi.mock("@/lib/env", () => ({
   env: {
-    UPSTASH_REDIS_REST_URL: "https://example.upstash.io",
-    UPSTASH_REDIS_REST_TOKEN: "token",
+    REDIS_URL: "redis://127.0.0.1:6379",
   },
 }));
 
@@ -61,8 +60,7 @@ describe("processOaiHttpRequest", () => {
     });
     expect(checkRateLimit).toHaveBeenCalledWith(
       expect.objectContaining({
-        url: "https://example.upstash.io",
-        token: "token",
+        redisUrl: "redis://127.0.0.1:6379",
       }),
       "oai:demo.localhost",
       expect.objectContaining({ requestsPerMinute: expect.any(Number) }),

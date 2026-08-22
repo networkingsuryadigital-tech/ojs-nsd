@@ -14,6 +14,15 @@ export function getPlatformHost(): string {
   }
 }
 
+/**
+ * When set, the platform apex host serves this journal (OJS-style single-journal
+ * domain) instead of the platform directory.
+ */
+export function getPrimaryJournalSubdomain(): string | null {
+  const value = process.env.JMS_PRIMARY_JOURNAL_SUBDOMAIN?.trim().toLowerCase();
+  return value || null;
+}
+
 export function toResolvedJournal(journal: {
   id: string;
   subdomain: string;

@@ -11,6 +11,7 @@ describe("protected-paths", () => {
     expect(isProtectedPath("/api/editorial/oai/validate")).toBe(true);
     expect(isProtectedPath("/privacy/account")).toBe(true);
     expect(isProtectedPath("/api/privacy/export")).toBe(true);
+    expect(isProtectedPath("/admin/journals")).toBe(true);
     expect(isProtectedPath("/")).toBe(false);
     expect(isProtectedPath("/issues")).toBe(false);
   });

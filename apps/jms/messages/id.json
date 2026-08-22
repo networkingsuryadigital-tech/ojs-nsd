@@ -8,10 +8,15 @@
   },
   "nav": {
     "home": "Beranda",
-    "issues": "Arsip Terbitan",
+    "issues": "Arsip",
+    "current": "Terbitan Terkini",
     "about": "Tentang",
     "guidelines": "Panduan Penulis",
+    "editorialBoard": "Dewan Editor",
+    "announcements": "Pengumuman",
+    "search": "Cari",
     "policies": "Kebijakan",
+    "register": "Daftar",
     "signIn": "Masuk",
     "signOut": "Keluar",
     "dashboard": "Editorial",
@@ -39,7 +44,12 @@
     "keywords": "Kata kunci",
     "howToCite": "Sitasi",
     "downloadGalley": "Unduh {label}",
-    "openAccessNotice": "Artikel ini diterbitkan sebagai open access melalui JMS."
+    "openAccessNotice": "Artikel ini diterbitkan sebagai open access melalui JMS.",
+    "currentIssue": "Terbitan terkini",
+    "searchPlaceholder": "Cari judul, abstrak, atau kata kunci",
+    "searchTooShort": "Masukkan minimal 2 karakter.",
+    "searchNoResults": "Tidak ada artikel yang cocok.",
+    "license": "Lisensi"
   },
   "locale": {
     "label": "Bahasa",

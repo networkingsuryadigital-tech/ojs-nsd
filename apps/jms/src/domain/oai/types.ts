@@ -81,6 +81,7 @@ export type OaiPublishedRecord = {
   authors: OaiAuthor[];
   galleys: OaiGalley[];
   issue: OaiIssueRef | null;
+  licenseRights: string;
 };
 
 export type OaiJournalContext = {

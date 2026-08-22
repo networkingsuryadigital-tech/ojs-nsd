@@ -88,6 +88,13 @@ enum ReviewModel {
   OPEN
 }
 
+enum ArticleLicense {
+  CC_BY_4
+  CC_BY_NC_4
+  CC_BY_SA_4
+  ALL_RIGHTS_RESERVED
+}
+
 enum InvoiceStatus {
   DRAFT
   ISSUED
@@ -101,6 +108,7 @@ enum InvoiceStatus {
 enum PaymentProvider {
   MIDTRANS
   XENDIT
+  DUITKU
   MANUAL_TRANSFER
 }
 
@@ -334,6 +342,8 @@ model Submission {
   reviewRound      Int              @default(0)
   doi              String?
   doiStatus        DoiStatus        @default(NONE)
+  license          ArticleLicense   @default(CC_BY_4)
+  customRightsUrl  String?
   similarityStatus    SimilarityStatus @default(NOT_RUN)
   similarityScore     Float?
   similarityReportUrl String?
@@ -675,4 +685,63 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId, isRead])
+}
+
+/// Better Auth tables (replaces Supabase Auth). App `User.supabaseId` stores AuthUser.id.
+model AuthUser {
+  id            String        @id
+  name          String
+  email         String        @unique
+  emailVerified Boolean       @default(false)
+  image         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  sessions      AuthSession[]
+  accounts      AuthAccount[]
+}
+
+model AuthSession {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      AuthUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AuthAccount {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  AuthUser  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  /// Better Auth ≥1.7 credential/OAuth issuer (e.g. local:credential)
+  issuer                String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model AuthVerification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  @@index([identifier])
 }

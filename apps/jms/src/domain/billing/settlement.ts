@@ -25,6 +25,8 @@ export function isPaymentSettled(
         transactionStatus: rawStatus,
         fraudStatus,
       });
+    case "DUITKU":
+      return rawStatus === "00";
     default:
       return false;
   }

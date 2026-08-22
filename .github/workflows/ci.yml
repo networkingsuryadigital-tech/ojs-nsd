@@ -9,12 +9,27 @@ on:
 jobs:
   lint-typecheck-test-build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jms
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
-      # Omit DATABASE_URL until S32 adds a Postgres service container — DB tests skip via describe.skipIf(!hasDatabase).
-      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jms
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/jms
+      BETTER_AUTH_SECRET: ci-better-auth-secret-change-me-32chars
+      BETTER_AUTH_URL: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000
-
+      CRON_SECRET: ci-cron-secret
     steps:
       - uses: actions/checkout@v4
 
@@ -31,6 +46,12 @@ jobs:
       - name: Generate Prisma client
         run: pnpm db:generate
 
+      - name: Ensure Postgres roles (jms_tenant, service_role)
+        run: pnpm --filter @nsd/jms exec prisma db execute --file prisma/ensure-vps-roles.sql --schema prisma/schema.prisma
+
+      - name: Migrate database
+        run: pnpm --filter @nsd/jms exec prisma migrate deploy
+
       - name: Lint
         run: pnpm lint
 
@@ -44,3 +65,48 @@ jobs:
         run: pnpm build
         env:
           NODE_ENV: production
+
+  e2e-smoke:
+    runs-on: ubuntu-latest
+    needs: lint-typecheck-test-build
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: jms
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/jms
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/jms
+      BETTER_AUTH_SECRET: ci-better-auth-secret-change-me-32chars
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      CRON_SECRET: ci-cron-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client
+        run: pnpm db:generate
+      - name: Ensure Postgres roles (jms_tenant, service_role)
+        run: pnpm --filter @nsd/jms exec prisma db execute --file prisma/ensure-vps-roles.sql --schema prisma/schema.prisma
+      - name: Migrate database
+        run: pnpm --filter @nsd/jms exec prisma migrate deploy
+      - name: Install Playwright Chromium
+        run: pnpm --filter @nsd/jms exec playwright install --with-deps chromium
+      - name: E2E smoke (platform home + health)
+        run: pnpm --filter @nsd/jms exec playwright test --project=ci-smoke
+        # workers: 1 is set in playwright.config.ts

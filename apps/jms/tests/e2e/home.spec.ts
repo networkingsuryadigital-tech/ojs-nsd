@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+test("unauthenticated admin area redirects to login", async ({ page }) => {
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/login/);
+});
+
+test("register page is available without a tenant host", async ({ page }) => {
+  const response = await page.goto("/login/register");
+  expect(response?.status()).toBe(200);
+  await expect(page.getByText("Daftar sebagai penulis")).toBeVisible();
+});
+
 test("platform home page renders JMS title", async ({ page }) => {
   await page.goto("/");
   await expect(

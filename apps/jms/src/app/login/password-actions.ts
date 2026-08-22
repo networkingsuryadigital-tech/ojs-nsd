@@ -33,8 +33,9 @@ export async function updatePasswordFormAction(
 ): Promise<UpdatePasswordFormState> {
   const password = String(formData.get("password") ?? "");
   const confirmPassword = String(formData.get("confirmPassword") ?? "");
+  const token = String(formData.get("token") ?? "").trim() || null;
 
-  const result = await updatePassword({ password, confirmPassword });
+  const result = await updatePassword({ password, confirmPassword, token });
   if (!result.ok) {
     return { error: result.error };
   }

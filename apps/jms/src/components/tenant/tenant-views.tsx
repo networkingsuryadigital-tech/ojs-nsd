@@ -41,11 +41,20 @@ export async function TenantHomeView({ site }: TenantHomeViewProps) {
               className="text-3xl font-bold tracking-tight"
               style={{ color: "var(--journal-primary)" }}
             >
-              {t("welcome", { journalName: site.name })}
+              {site.name}
             </h1>
+            <p className="mt-2 text-sm text-foreground/70">
+              {[
+                site.publisher ? `${t("publishedBy")}: ${site.publisher}` : null,
+                site.issnOnline ? `${t("issnOnline")}: ${site.issnOnline}` : null,
+                site.issnPrint ? `${t("issnPrint")}: ${site.issnPrint}` : null,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
             {focusPage ? (
               <div className="mt-4 max-w-prose text-foreground/80">
-                <JournalPageContent content={focusPage.content.slice(0, 600)} />
+                <JournalPageContent content={focusPage.content.slice(0, 900)} />
               </div>
             ) : (
               <p className="mt-4 text-foreground/70">{t("explorePages")}</p>
@@ -56,37 +65,47 @@ export async function TenantHomeView({ site }: TenantHomeViewProps) {
           </Button>
         </section>
 
-        {latestIssueDetail && latestIssueDetail.articles.length > 0 ? (
+        {latestIssueDetail ? (
           <section className="mt-12 space-y-4">
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-xl font-semibold">{t("latestArticles")}</h2>
+              <h2 className="text-xl font-semibold">
+                {t("currentIssue")}
+                <span className="ml-2 text-base font-normal text-foreground/70">
+                  {latestIssueDetail.citation}
+                </span>
+              </h2>
               <Link
                 href={`/issues/${latestIssueDetail.id}`}
                 className="text-sm underline-offset-4 hover:underline"
               >
-                {t("viewAllIssues")} — {latestIssueDetail.citation}
+                {t("viewAllIssues")}
               </Link>
             </div>
-            <ul className="grid gap-4 sm:grid-cols-2">
-              {latestIssueDetail.articles.slice(0, 4).map((article) => (
-                <li
-                  key={article.id}
-                  className="rounded-lg border border-border p-4 transition-colors hover:border-[var(--journal-primary)]"
-                >
-                  <Link href={`/articles/${article.id}`} className="block">
-                    <h3 className="font-semibold leading-snug hover:underline">
+            {latestIssueDetail.articles.length === 0 ? (
+              <p className="text-foreground/70">{t("noPublishedArticles")}</p>
+            ) : (
+              <ol className="space-y-3">
+                {latestIssueDetail.articles.map((article, index) => (
+                  <li
+                    key={article.id}
+                    className="rounded-lg border border-border p-4"
+                  >
+                    <p className="text-xs text-foreground/50">{index + 1}</p>
+                    <Link
+                      href={`/articles/${article.id}`}
+                      className="font-semibold hover:underline"
+                    >
                       {article.title}
-                    </h3>
-                    <p className="mt-2 line-clamp-2 text-sm text-foreground/70">
-                      {article.abstract}
-                    </p>
-                    <span className="mt-3 inline-block text-sm font-medium text-[var(--journal-primary)]">
-                      {t("readArticle")} →
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                    </Link>
+                    {article.authors.length > 0 ? (
+                      <p className="mt-1 text-sm text-foreground/70">
+                        {article.authors.map((author) => author.fullName).join(", ")}
+                      </p>
+                    ) : null}
+                  </li>
+                ))}
+              </ol>
+            )}
           </section>
         ) : null}
 

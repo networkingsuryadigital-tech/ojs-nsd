@@ -78,6 +78,7 @@ enum SubmissionStatus {
   PAYMENT_PENDING       // APC invoice dibuat, menunggu bayar
   IN_PRODUCTION         // copyediting/galley
   PUBLISHED
+  RETRACTED
 }
 
 enum ReviewRecommendation {
@@ -116,7 +117,15 @@ enum InvoiceStatus {
 enum PaymentProvider {
   MIDTRANS
   XENDIT
+  DUITKU
   MANUAL_TRANSFER
+}
+
+enum ArticleLicense {
+  CC_BY_4
+  CC_BY_NC_4
+  CC_BY_SA_4
+  ALL_RIGHTS_RESERVED
 }
 
 enum LedgerEntryType {
@@ -314,6 +323,8 @@ model Submission {
   reviewRound   Int      @default(0)      // bertambah tiap siklus revisi
   doi           String?
   doiStatus     DoiStatus @default(NONE)
+  license       ArticleLicense @default(CC_BY_4)
+  customRightsUrl String?
   similarityStatus    SimilarityStatus @default(NOT_RUN)
   similarityScore     Float?               // % kemiripan
   similarityReportUrl String?              // URL laporan provider

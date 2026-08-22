@@ -1,6 +1,6 @@
 /**
  * Grant JournalMembership roles on a journal (idempotent upsert).
- * Links Prisma User from existing Supabase Auth user when needed — does not create Supabase users.
+ * Links Prisma User from existing Better Auth user when needed — does not create auth users.
  *
  * Usage:
  *   pnpm db:grant:role -- --email=editor@example.com --roles=SECTION_EDITOR
@@ -8,7 +8,7 @@
  *   pnpm db:grant:role -- --config=scripts/uat-team-roles.example.json
  *   pnpm db:grant:role -- --config=... --dry-run
  *
- * Requires: apps/jms/.env (DATABASE_URL, SUPABASE_SERVICE_ROLE_KEY for Supabase lookup).
+ * Requires: apps/jms/.env (DATABASE_URL, BETTER_AUTH_SECRET for auth lookup).
  */
 
 import { readFileSync } from "node:fs";
@@ -18,7 +18,7 @@ import { pathToFileURL } from "node:url";
 import "./seed-setup-env";
 
 import type { JournalRole } from "@/domain/submission/types";
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
+import { findAuthUserIdByEmail } from "@/infrastructure/auth/seed-auth-user";
 import type { PrismaClient } from "@prisma/client";
 
 import {
@@ -64,11 +64,56 @@ export type GrantJournalRoleResult = {
   dryRun: boolean;
 };
 
-function hasSupabaseAdmin(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
-      process.env.SUPABASE_SERVICE_ROLE_KEY?.trim(),
-  );
+async function ensurePrismaUser(
+  db: PrismaClient,
+  email: string,
+  name?: string,
+): Promise<{ userId: string; created: boolean }> {
+  const normalizedEmail = email.trim().toLowerCase();
+
+  const existing = await db.user.findFirst({
+    where: { email: { equals: normalizedEmail, mode: "insensitive" } },
+    select: { id: true, supabaseId: true, name: true },
+  });
+
+  if (existing) {
+    const authUserId = await findAuthUserIdByEmail(normalizedEmail);
+    if (authUserId && existing.supabaseId !== authUserId) {
+      await db.user.update({
+        where: { id: existing.id },
+        data: { supabaseId: authUserId, ...(name?.trim() ? { name: name.trim() } : {}) },
+      });
+    } else if (name?.trim() && !existing.name) {
+      await db.user.update({
+        where: { id: existing.id },
+        data: { name: name.trim() },
+      });
+    }
+    return { userId: existing.id, created: false };
+  }
+
+  const authUserId = await findAuthUserIdByEmail(normalizedEmail);
+  if (!authUserId) {
+    throw new Error(
+      `User "${normalizedEmail}" tidak ditemukan di Prisma maupun Better Auth. ` +
+        "Buat user via seed/provision atau registrasi, lalu jalankan skrip ini lagi.",
+    );
+  }
+
+  const displayName =
+    name?.trim() ||
+    normalizedEmail.split("@")[0]?.replace(/[._-]/g, " ") ||
+    "JMS User";
+
+  const created = await db.user.create({
+    data: {
+      email: normalizedEmail,
+      name: displayName,
+      supabaseId: authUserId,
+    },
+  });
+
+  return { userId: created.id, created: true };
 }
 
 function parseRoles(raw: string): JournalRole[] {
@@ -177,87 +222,6 @@ function loadConfigFile(configPath: string): GrantJournalRoleConfig {
   return parsed;
 }
 
-async function findSupabaseUserIdByEmail(email: string): Promise<string | null> {
-  if (!hasSupabaseAdmin()) {
-    return null;
-  }
-
-  const supabase = getAdminSupabase();
-  let page = 1;
-  const perPage = 200;
-
-  while (page <= 10) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      throw new Error(`Supabase listUsers failed: ${error.message}`);
-    }
-    const match = data.users.find(
-      (user) => user.email?.toLowerCase() === email.toLowerCase(),
-    );
-    if (match) {
-      return match.id;
-    }
-    if (data.users.length < perPage) {
-      break;
-    }
-    page += 1;
-  }
-
-  return null;
-}
-
-async function ensurePrismaUser(
-  db: PrismaClient,
-  email: string,
-  name?: string,
-): Promise<{ userId: string; created: boolean }> {
-  const normalizedEmail = email.trim().toLowerCase();
-
-  const existing = await db.user.findFirst({
-    where: { email: { equals: normalizedEmail, mode: "insensitive" } },
-    select: { id: true, supabaseId: true, name: true },
-  });
-
-  if (existing) {
-    const supabaseId = await findSupabaseUserIdByEmail(normalizedEmail);
-    if (supabaseId && existing.supabaseId !== supabaseId) {
-      await db.user.update({
-        where: { id: existing.id },
-        data: { supabaseId, ...(name?.trim() ? { name: name.trim() } : {}) },
-      });
-    } else if (name?.trim() && !existing.name) {
-      await db.user.update({
-        where: { id: existing.id },
-        data: { name: name.trim() },
-      });
-    }
-    return { userId: existing.id, created: false };
-  }
-
-  const supabaseId = await findSupabaseUserIdByEmail(normalizedEmail);
-  if (!supabaseId) {
-    throw new Error(
-      `User "${normalizedEmail}" tidak ditemukan di Prisma maupun Supabase Auth. ` +
-        "Buat user di Supabase Dashboard (Authentication → Users → Add user), lalu jalankan skrip ini lagi.",
-    );
-  }
-
-  const displayName =
-    name?.trim() ||
-    normalizedEmail.split("@")[0]?.replace(/[._-]/g, " ") ||
-    "JMS User";
-
-  const created = await db.user.create({
-    data: {
-      email: normalizedEmail,
-      name: displayName,
-      supabaseId,
-    },
-  });
-
-  return { userId: created.id, created: true };
-}
-
 function rolesEqual(a: JournalRole[], b: JournalRole[]): boolean {
   if (a.length !== b.length) {
     return false;
@@ -344,10 +308,10 @@ export async function runGrantJournalRole(
       if (existingUser) {
         userId = existingUser.id;
       } else {
-        const supabaseId = await findSupabaseUserIdByEmail(email);
-        if (!supabaseId) {
+        const authUserId = await findAuthUserIdByEmail(email);
+        if (!authUserId) {
           throw new Error(
-            `[dry-run] User "${email}" tidak ada di Prisma/Supabase. Buat di Supabase Dashboard dulu.`,
+            `[dry-run] User "${email}" tidak ada di Prisma/Better Auth. Buat via seed atau registrasi dulu.`,
           );
         }
         userId = "(dry-run-new-user)";

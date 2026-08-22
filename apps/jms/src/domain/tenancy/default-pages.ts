@@ -11,7 +11,13 @@ export function buildDefaultJournalPages(journalName: string): DefaultJournalPag
     {
       slug: "about",
       title: "Tentang Jurnal",
-      content: `# Tentang ${journalName}\n\n${journalName} adalah jurnal ilmiah peer-reviewed yang diterbitkan melalui platform JMS PT. NSD.`,
+      content: `# Tentang ${journalName}\n\n${journalName} adalah jurnal ilmiah peer-reviewed yang diterbitkan melalui platform JMS PT. NSD.\n\nJurnal ini mendukung akses terbuka, OAI-PMH (Dublin Core), dan alur editorial double-blind.`,
+    },
+    {
+      slug: "announcements",
+      title: "Pengumuman",
+      content:
+        "# Pengumuman\n\nPengumuman redaksi akan ditampilkan di halaman ini. Hubungi editor in chief untuk menambahkan pengumuman terbaru.",
     },
     {
       slug: "author-guidelines",

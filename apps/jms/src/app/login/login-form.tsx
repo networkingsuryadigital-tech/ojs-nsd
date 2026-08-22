@@ -74,6 +74,12 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Memproses…" : "Masuk"}
       </Button>
+      <p className="text-center text-sm text-muted-foreground">
+        Belum punya akun?{" "}
+        <Link href="/login/register" className="underline-offset-4 hover:underline">
+          Daftar sebagai penulis
+        </Link>
+      </p>
     </form>
   );
 }

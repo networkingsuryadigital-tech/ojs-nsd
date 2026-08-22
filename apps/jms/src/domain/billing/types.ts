@@ -12,7 +12,12 @@ export const INVOICE_STATUSES = [
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
 /** Mirrors Prisma `PaymentProvider` without importing Prisma in domain. */
-export const PAYMENT_PROVIDERS = ["MIDTRANS", "XENDIT", "MANUAL_TRANSFER"] as const;
+export const PAYMENT_PROVIDERS = [
+  "MIDTRANS",
+  "XENDIT",
+  "DUITKU",
+  "MANUAL_TRANSFER",
+] as const;
 
 export type PaymentProvider = (typeof PAYMENT_PROVIDERS)[number];
 

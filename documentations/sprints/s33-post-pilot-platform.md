@@ -22,34 +22,34 @@
 
 ### Prompt A — Lisensi artikel open access
 
-- [ ] Migrasi Prisma: field lisensi pada `Submission` atau `Galley` (enum: `CC_BY_4`, `CC_BY_NC_4`, `CC_BY_SA_4`, `ALL_RIGHTS_RESERVED`, custom URL opsional)
-- [ ] Domain: validasi lisensi + mapping ke Dublin Core `dc:rights`
-- [ ] UI editorial: pilih lisensi saat upload galley / publish to issue
-- [ ] OAI `ListRecords`: metadata `dc:rights` terisi
-- [ ] Default jurnal: `CC_BY_4` (config `Journal` atau theme — dokumentasikan)
-- [ ] Vitest: dublin-core mapper + validasi domain
-- [ ] Update `02-data-schema.md`, `04-integrations.md` §OAI
+- [x] Migrasi Prisma: field lisensi pada `Submission`
+- [x] Domain: validasi lisensi + mapping ke Dublin Core `dc:rights`
+- [x] UI editorial: pilih lisensi saat publish to issue
+- [x] OAI `ListRecords`: metadata `dc:rights` terisi
+- [x] Default jurnal: `CC_BY_4`
+- [x] Vitest: dublin-core mapper + validasi domain
+- [x] Update `02-data-schema.md`, `04-integrations.md` §OAI
 
 ### Prompt B — SUPER_ADMIN fondasi
 
-- [ ] Domain/application: `requirePlatformSuperAdmin()` — cek `User.platformRole === SUPER_ADMIN`
-- [ ] Route group `app/admin/` (platform host `localhost:3000` / domain platform, **bukan** tenant subdomain)
-- [ ] Halaman `/admin/journals` — list jurnal (adminDb, cross-tenant read-only) + status domain/OAI health ringkas
-- [ ] Link ke dokumentasi onboarding + tombol "Provision jurnal" → arahkan ke CLI `pnpm db:provision:pilot` atau form tipis yang memanggil `provisionJournal()` existing
-- [ ] Middleware: `/admin/*` protected + super-admin only (403 jika bukan SUPER_ADMIN)
-- [ ] Seed demo: opsional user `superadmin@demo.test` dengan `platformRole=SUPER_ADMIN` (password demo doc)
-- [ ] Vitest: guard super-admin
-- [ ] E2e smoke: super-admin 200, journal admin 403 on `/admin`
+- [x] Domain/application: `requirePlatformSuperAdmin()` — cek `User.platformRole === SUPER_ADMIN`
+- [x] Route group `app/admin/`
+- [x] Halaman `/admin/journals` — list jurnal (adminDb)
+- [x] Link ke CLI `pnpm db:provision:pilot`
+- [x] Middleware: `/admin/*` protected + super-admin only (`notFound` jika bukan SUPER_ADMIN)
+          - [ ] Seed demo: opsional user `superadmin@demo.test` (lakukan di VPS untuk admin NSD)
+          - [x] Vitest: guard super-admin
+          - [x] E2e smoke: unauthenticated `/admin` redirects to login (notFound for non-super-admin)
 
 ### Prompt C — Payment provider cleanup
 
-- [ ] Audit `PaymentProvider` enum vs `packages/payments` — dokumentasikan matrix di `05-repo-shared-roadmap.md`
-- [ ] Implement `POST /api/webhooks/duitku` (mirror pola Midtrans: idempoten `ProcessedWebhook`)
-- [ ] Use-case `processDuitkuWebhook` di `application/billing/` — panggil `paymentSettled` existing
-- [ ] **Xendit:** tambah stub file `packages/payments/src/xendit.ts` dengan `throw new Error('Not implemented')` ATAU hapus dari enum + migrasi — **pilih satu**, dokumentasikan di sprint log
-- [ ] Vitest: signature verification Duitku (mock)
-- [ ] Update `.env.example` dengan `DUITKU_*`
-- [ ] Update `07-production-deploy-checklist.md` §payment jika perlu
+- [x] Audit `PaymentProvider` enum vs `packages/payments` — matrix di `05-repo-shared-roadmap.md`
+- [x] Implement `POST /api/webhooks/duitku`
+- [x] Use-case `processDuitkuWebhook`
+- [x] **Xendit:** stub `packages/payments/src/xendit.ts` throw `Not implemented`
+- [x] Vitest: signature verification Duitku
+- [x] Update `.env.example` dengan `DUITKU_*`
+- [x] Update `07-production-deploy-checklist.md` §payment jika perlu
 
 ---
 

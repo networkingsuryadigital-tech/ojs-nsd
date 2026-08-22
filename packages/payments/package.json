@@ -7,6 +7,7 @@
     ".": "./src/index.ts",
     "./midtrans": "./src/midtrans.ts",
     "./duitku": "./src/duitku.ts",
+    "./xendit": "./src/xendit.ts",
     "./webhook": "./src/webhook.ts"
   },
   "scripts": {

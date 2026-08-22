@@ -2,11 +2,12 @@ import "server-only";
 
 import {
   buildAnonymizedStorageKey,
+  stripDocxAppPropertiesXml,
+  stripDocxCorePropertiesXml,
   stripPdfMetadataMarkers,
 } from "@/domain/review/anonymization";
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
 import { withTenant } from "@/infrastructure/db/with-tenant";
-import { createSignedUrl, uploadFile } from "@nsd/storage";
+import { downloadFile, uploadFile } from "@nsd/storage";
 
 import { getSubmissionStorageBucket } from "./storage-config";
 
@@ -53,20 +54,16 @@ export async function ensureAnonymizedManuscript(
     throw new Error("Manuscript file is required before anonymization.");
   }
 
-  const supabase = getAdminSupabase();
   const bucket = getSubmissionStorageBucket();
-  const { data: downloaded, error: downloadError } = await supabase.storage
-    .from(bucket)
-    .download(manuscript.storageKey);
-  if (downloadError) {
-    throw new Error(downloadError.message);
-  }
-  const sourceBuffer = Buffer.from(await downloaded.arrayBuffer());
+  const sourceBuffer = await downloadFile({
+    bucket,
+    path: manuscript.storageKey,
+  });
 
-  const anonymizedBuffer =
-    manuscript.mimeType === "application/pdf"
-      ? stripPdfMetadataMarkers(sourceBuffer)
-      : sourceBuffer;
+  const anonymizedBuffer = await anonymizeManuscriptBuffer(
+    sourceBuffer,
+    manuscript.mimeType,
+  );
 
   const fileId = crypto.randomUUID();
   const storageKey = buildAnonymizedStorageKey({
@@ -77,7 +74,7 @@ export async function ensureAnonymizedManuscript(
     round,
   });
 
-  await uploadFile(supabase, {
+  await uploadFile({
     bucket,
     path: storageKey,
     file: anonymizedBuffer,
@@ -109,14 +106,43 @@ export async function ensureAnonymizedManuscript(
   };
 }
 
-export async function createAnonymizedManuscriptSignedUrl(
-  storageKey: string,
-  expiresInSeconds = 3600,
-): Promise<string> {
-  const supabase = getAdminSupabase();
-  return createSignedUrl(supabase, {
-    bucket: getSubmissionStorageBucket(),
-    path: storageKey,
-    expiresInSeconds,
-  });
+const DOCX_MIME =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+async function anonymizeManuscriptBuffer(
+  sourceBuffer: Buffer,
+  mimeType: string,
+): Promise<Buffer> {
+  if (mimeType === "application/pdf") {
+    return stripPdfMetadataMarkers(sourceBuffer);
+  }
+
+  if (mimeType === DOCX_MIME) {
+    try {
+      const JSZip = (await import("jszip")).default;
+      const zip = await JSZip.loadAsync(sourceBuffer);
+      const coreFile = zip.file("docProps/core.xml");
+      if (coreFile) {
+        const xml = await coreFile.async("string");
+        zip.file("docProps/core.xml", stripDocxCorePropertiesXml(xml));
+      }
+      const appFile = zip.file("docProps/app.xml");
+      if (appFile) {
+        const xml = await appFile.async("string");
+        zip.file("docProps/app.xml", stripDocxAppPropertiesXml(xml));
+      }
+      const output = await zip.generateAsync({
+        type: "nodebuffer",
+        compression: "DEFLATE",
+      });
+      return Buffer.from(output);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `DOCX anonymization failed; original file will not be sent to reviewers. ${message}`,
+      );
+    }
+  }
+
+  return sourceBuffer;
 }

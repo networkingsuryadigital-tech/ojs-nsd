@@ -20,6 +20,14 @@ export default defineConfig({
   },
   projects: [
     {
+      name: "ci-smoke",
+      testMatch: "**/home.spec.ts",
+      use: {
+        ...devices["Desktop Chrome"],
+        baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
+      },
+    },
+    {
       name: "platform",
       testMatch: "**/home.spec.ts",
       use: {
@@ -35,6 +43,7 @@ export default defineConfig({
         "**/oai-load.spec.ts",
         "**/auth-login.spec.ts",
         "**/author-portal.spec.ts",
+        "**/public-journal.spec.ts",
       ],
       fullyParallel: false,
       workers: 1,

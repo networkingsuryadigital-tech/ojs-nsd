@@ -2,7 +2,7 @@
 
 > Checklist operasional sebelum dan sesudah deploy production `apps/jms`. Melengkapi Definition of Done teknis di `AGENTS.md` §8 dan risiko di `05-repo-shared-roadmap.md` §3.
 
-**Terakhir diverifikasi:** 2026-06-13 — DoD penuh hijau; OAI internal & `ListRecords` diverifikasi lokal (`demo.localhost:3000`). Checklist administratif Garuda/CrossRef/Resend: [`11-pra-launch-operator-garuda-crossref.md`](./11-pra-launch-operator-garuda-crossref.md).
+**Terakhir diverifikasi:** 2026-08-22 — produksi di VPS Jagoan (`ejournal.ptnsd.co.id`). Deploy: lihat [`17-deploy-vps-jagoan.md`](./17-deploy-vps-jagoan.md). Vercel/Supabase = rollback saja.
 
 ---
 
@@ -46,23 +46,24 @@ E2e happy-path editorial membutuhkan `DATABASE_URL` + `pnpm db:seed:demo` (fixtu
 
 ## 2. Environment variables (production)
 
-Salin `.env.example` → env Vercel (atau secret store). **Jangan** commit `.env` production.
+Salin `.env.example` → `/home/jms/.env` di VPS (chmod 600). **Jangan** commit `.env` production.
 
 ### 2.1 Wajib
 
 | Variabel | Catatan |
 |----------|---------|
-| `DATABASE_URL` | Supabase pooler (port 6543, `pgbouncer=true`) |
-| `DIRECT_URL` | Direct connection untuk migrasi Prisma (port 5432) |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL project Supabase |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Server only** — jangan expose ke client |
-| `NEXT_PUBLIC_APP_URL` | URL production tanpa trailing slash, mis. `https://jms.nsd.id` |
-| `UPSTASH_REDIS_REST_URL` | Tenant cache + rate limit |
-| `UPSTASH_REDIS_REST_TOKEN` | |
+| `DATABASE_URL` | Postgres via PgBouncer (`127.0.0.1:6432`) |
+| `DIRECT_URL` | Direct Postgres (`127.0.0.1:5432`) untuk migrasi Prisma |
+| `BETTER_AUTH_SECRET` | `openssl rand -base64 32` |
+| `BETTER_AUTH_URL` | `https://ejournal.ptnsd.co.id` |
+| `NEXT_PUBLIC_APP_URL` | URL production tanpa trailing slash |
+| `JMS_PRIMARY_JOURNAL_SUBDOMAIN` | `nsd` — apex domain = situs jurnal |
+| `REDIS_URL` | `redis://127.0.0.1:6379` |
+| `MINIO_ENDPOINT` / `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` | Storage naskah |
+| `JMS_STORAGE_BUCKET` | `jms-manuscripts` |
 | `CRON_SECRET` | Bearer token untuk semua `/api/cron/*` |
 | `RESEND_API_KEY` | Email transaksional |
-| `RESEND_FROM_EMAIL` | Domain terverifikasi (lihat §5) |
+| `RESEND_FROM_EMAIL` | Domain terverifikasi |
 
 ### 2.2 MVP editorial & billing
 
@@ -71,7 +72,7 @@ Salin `.env.example` → env Vercel (atau secret store). **Jangan** commit `.env
 | `MIDTRANS_SERVER_KEY` | Production key |
 | `NEXT_PUBLIC_MIDTRANS_CLIENT_KEY` | |
 | `MIDTRANS_IS_PRODUCTION` | `"true"` di production |
-| `JMS_STORAGE_BUCKET` | Bucket Supabase Storage untuk naskah |
+| `JMS_STORAGE_BUCKET` | Bucket MinIO untuk naskah |
 
 ### 2.3 Integrasi lanjut (sesuai fitur aktif)
 

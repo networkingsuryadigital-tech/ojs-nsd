@@ -48,6 +48,6 @@ describe("evaluateProductionReadiness", () => {
       redisConfigured: false,
     });
     expect(result.productionReady).toBe(false);
-    expect(result.warnings.some((w) => w.includes("Redis"))).toBe(true);
+    expect(result.warnings.some((w) => w.toLowerCase().includes("redis"))).toBe(true);
   });
 });

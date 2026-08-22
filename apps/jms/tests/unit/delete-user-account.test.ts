@@ -8,27 +8,27 @@ import {
   loadUserForDeletion,
 } from "@/infrastructure/privacy/user-deletion-repository";
 
-const deleteUserMock = vi.fn();
+const { deleteAuthUserMock } = vi.hoisted(() => ({
+  deleteAuthUserMock: vi.fn(),
+}));
 
 vi.mock("@/infrastructure/privacy/user-deletion-repository", () => ({
   loadUserForDeletion: vi.fn(),
   anonymizeUserRecord: vi.fn(),
 }));
 
-vi.mock("@/infrastructure/auth/supabase", () => ({
-  getAdminSupabase: () => ({
-    auth: {
-      admin: {
-        deleteUser: deleteUserMock,
-      },
+vi.mock("@/infrastructure/db/prisma", () => ({
+  prisma: {
+    authUser: {
+      delete: deleteAuthUserMock,
     },
-  }),
+  },
 }));
 
 describe("deleteUserAccount", () => {
   beforeEach(() => {
-    deleteUserMock.mockReset();
-    deleteUserMock.mockResolvedValue({ error: null });
+    deleteAuthUserMock.mockReset();
+    deleteAuthUserMock.mockResolvedValue({});
     vi.mocked(anonymizeUserRecord).mockClear();
     vi.mocked(anonymizeUserRecord).mockResolvedValue(undefined);
   });
@@ -39,10 +39,10 @@ describe("deleteUserAccount", () => {
     ).rejects.toBeInstanceOf(SubmissionAuthorizationError);
   });
 
-  it("anonymizes DB then deletes Supabase auth on first call", async () => {
+  it("anonymizes DB then deletes auth user on first call", async () => {
     vi.mocked(loadUserForDeletion).mockResolvedValue({
       id: "user-a",
-      supabaseId: "supabase-a",
+      supabaseId: "auth-a",
       email: "author@example.com",
     });
 
@@ -52,14 +52,14 @@ describe("deleteUserAccount", () => {
     });
 
     expect(anonymizeUserRecord).toHaveBeenCalledWith("user-a");
-    expect(deleteUserMock).toHaveBeenCalledWith("supabase-a");
+    expect(deleteAuthUserMock).toHaveBeenCalledWith({ where: { id: "auth-a" } });
     expect(result).toEqual({ deleted: true, anonymizedUserId: "user-a" });
   });
 
   it("is idempotent when DB already anonymized but auth still exists", async () => {
     vi.mocked(loadUserForDeletion).mockResolvedValue({
       id: "user-a",
-      supabaseId: "supabase-a",
+      supabaseId: "auth-a",
       email: anonymizedUserEmail("user-a"),
     });
 
@@ -69,7 +69,7 @@ describe("deleteUserAccount", () => {
     });
 
     expect(anonymizeUserRecord).not.toHaveBeenCalled();
-    expect(deleteUserMock).toHaveBeenCalledWith("supabase-a");
+    expect(deleteAuthUserMock).toHaveBeenCalledWith({ where: { id: "auth-a" } });
     expect(result).toEqual({ deleted: true, anonymizedUserId: "user-a" });
   });
 });

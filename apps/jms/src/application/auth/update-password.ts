@@ -1,13 +1,15 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 
-import { getServerSupabase } from "@/infrastructure/auth/supabase";
+import { auth } from "@/lib/auth";
 
 const schema = z
   .object({
     password: z.string().min(8, "Kata sandi minimal 8 karakter."),
     confirmPassword: z.string().min(1),
+    token: z.string().trim().optional().nullable(),
   })
   .refine((value) => value.password === value.confirmPassword, {
     message: "Konfirmasi kata sandi tidak cocok.",
@@ -19,11 +21,12 @@ export type UpdatePasswordResult =
   | { ok: false; error: string };
 
 /**
- * Sets a new password for the current recovery/authenticated Supabase session.
+ * Sets a new password via reset token (email link) or authenticated session.
  */
 export async function updatePassword(input: {
   password: string;
   confirmPassword: string;
+  token?: string | null;
 }): Promise<UpdatePasswordResult> {
   const parsed = schema.safeParse(input);
   if (!parsed.success) {
@@ -32,30 +35,39 @@ export async function updatePassword(input: {
     return { ok: false, error: message };
   }
 
-  const supabase = await getServerSupabase();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    if (parsed.data.token) {
+      await auth.api.resetPassword({
+        body: {
+          newPassword: parsed.data.password,
+          token: parsed.data.token,
+        },
+      });
+      return { ok: true };
+    }
 
-  if (!user) {
-    return {
-      ok: false,
-      error:
-        "Sesi reset tidak valid atau sudah kedaluwarsa. Minta tautan reset baru.",
-    };
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return {
+        ok: false,
+        error:
+          "Sesi reset tidak valid atau sudah kedaluwarsa. Minta tautan reset baru.",
+      };
+    }
+
+    await auth.api.changePassword({
+      body: {
+        newPassword: parsed.data.password,
+        currentPassword: "",
+      },
+      headers: await headers(),
+    });
+
+    await auth.api.signOut({ headers: await headers() });
+    return { ok: true };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Gagal memperbarui kata sandi.";
+    return { ok: false, error: message };
   }
-
-  const { error } = await supabase.auth.updateUser({
-    password: parsed.data.password,
-  });
-
-  if (error) {
-    return {
-      ok: false,
-      error: error.message || "Gagal memperbarui kata sandi.",
-    };
-  }
-
-  await supabase.auth.signOut();
-  return { ok: true };
 }

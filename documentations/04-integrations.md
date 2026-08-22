@@ -44,7 +44,7 @@ Route Handler `app/api/oai/route.ts` membaca tenant dari host (lihat `01`).
 | `dc:source` | `Journal.name`, Vol/No/Tahun (dari `Issue`) + ISSN |
 | `dc:language` | `Submission.primaryLanguage` (ISO 639) |
 | `dc:relation` | URL issue |
-| `dc:rights` | lisensi (mis. CC-BY 4.0) |
+| `dc:rights` | lisensi dari `Submission.license` (default CC BY 4.0) + `customRightsUrl` opsional |
 
 ### 1.5 Implementasi
 

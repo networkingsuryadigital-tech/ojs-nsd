@@ -24,9 +24,10 @@ import { submitSubmission } from "@/application/submission/submit-submission";
 import { transitionSubmission } from "@/application/submission/transition-submission";
 import { uploadManuscript } from "@/application/submission/upload-manuscript";
 import type { JournalRole } from "@/domain/submission/types";
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
+import { upsertSeedAuthUser } from "@/infrastructure/auth/seed-auth-user";
 import { withTenant } from "@/infrastructure/db/with-tenant";
 import { addSubmissionParticipant } from "@/infrastructure/submission/submission-repository";
+import { ensureBucket } from "@nsd/storage";
 import type { PrismaClient } from "@prisma/client";
 
 import {
@@ -61,75 +62,36 @@ export type SeedPilotPublishedSummary = {
   users: Array<{ email: string; userId: string; roles: JournalRole[] }>;
 };
 
-function hasSupabaseAdmin(): boolean {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  return Boolean(key && !key.includes("...") && key !== "your-service-role-key");
-}
-
-async function findSupabaseUserIdByEmail(email: string): Promise<string | null> {
-  const supabase = getAdminSupabase();
-  let page = 1;
-  const perPage = 200;
-
-  while (page <= 10) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      throw new Error(`Supabase listUsers failed: ${error.message}`);
-    }
-    const match = data.users.find(
-      (user) => user.email?.toLowerCase() === email.toLowerCase(),
+async function ensureSubmissionStorageBucket(): Promise<void> {
+  if (!process.env.MINIO_ENDPOINT?.trim() || !process.env.MINIO_ACCESS_KEY?.trim()) {
+    throw new Error(
+      "MINIO_ENDPOINT / MINIO_ACCESS_KEY / MINIO_SECRET_KEY wajib untuk upload naskah/galley.",
     );
-    if (match) {
-      return match.id;
-    }
-    if (data.users.length < perPage) {
-      break;
-    }
-    page += 1;
   }
 
-  return null;
-}
-
-async function upsertSupabaseAuthUser(email: string, name: string): Promise<string | null> {
-  if (!hasSupabaseAdmin()) {
-    return null;
-  }
-
-  const supabase = getAdminSupabase();
-  const existingId = await findSupabaseUserIdByEmail(email);
-
-  if (existingId) {
-    const { error } = await supabase.auth.admin.updateUserById(existingId, {
-      password: SEED_PASSWORD,
-      email_confirm: true,
-      user_metadata: { name, pilot_uat: true },
-    });
-    if (error) {
-      throw new Error(`Supabase updateUser failed for ${email}: ${error.message}`);
-    }
-    return existingId;
-  }
-
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password: SEED_PASSWORD,
-    email_confirm: true,
-    user_metadata: { name, pilot_uat: true },
-  });
-
-  if (error) {
-    throw new Error(`Supabase createUser failed for ${email}: ${error.message}`);
-  }
-
-  return data.user.id;
+  const bucket = process.env.JMS_STORAGE_BUCKET?.trim() || "jms-manuscripts";
+  await ensureBucket(bucket);
+  console.log(`[seed:pilot-published] Bucket MinIO "${bucket}" siap.`);
 }
 
 async function upsertSeedUser(
   seedDb: PrismaClient,
   spec: (typeof PILOT_UAT_USERS)[number],
 ): Promise<string> {
-  const supabaseIdFromAuth = await upsertSupabaseAuthUser(spec.email, spec.name);
+  let authUserId: string | null = null;
+  try {
+    authUserId = await upsertSeedAuthUser({
+      email: spec.email,
+      password: SEED_PASSWORD,
+      name: spec.name,
+    });
+  } catch (error) {
+    console.warn(
+      `[pilot-uat] Better Auth upsert gagal untuk ${spec.email}:`,
+      error instanceof Error ? error.message : error,
+    );
+  }
+
   const fallbackSupabaseId = `pilot-uat-${spec.email.replace(/[@.]/g, "-")}`;
 
   const existing = await seedDb.user.findUnique({
@@ -137,7 +99,7 @@ async function upsertSeedUser(
     select: { id: true, supabaseId: true },
   });
 
-  const supabaseId = supabaseIdFromAuth ?? existing?.supabaseId ?? fallbackSupabaseId;
+  const supabaseId = authUserId ?? existing?.supabaseId ?? fallbackSupabaseId;
 
   let userId: string;
   if (existing) {
@@ -229,39 +191,6 @@ async function loadPilotJournal(seedDb: PrismaClient): Promise<{
   }
 
   return { journalId: journal.id, sectionId, editorUserId: admin.id };
-}
-
-async function ensureSubmissionStorageBucket(): Promise<void> {
-  if (!hasSupabaseAdmin()) {
-    throw new Error(
-      "SUPABASE_SERVICE_ROLE_KEY wajib untuk upload naskah/galley (bucket Supabase Storage).",
-    );
-  }
-
-  const bucket = process.env.JMS_STORAGE_BUCKET?.trim() || "submissions";
-  const supabase = getAdminSupabase();
-  const { data: buckets, error: listError } = await supabase.storage.listBuckets();
-
-  if (listError) {
-    throw new Error(`Gagal list Supabase buckets: ${listError.message}`);
-  }
-
-  if (buckets?.some((row) => row.name === bucket)) {
-    return;
-  }
-
-  const { error: createError } = await supabase.storage.createBucket(bucket, {
-    public: false,
-    fileSizeLimit: 52_428_800,
-  });
-
-  if (createError) {
-    throw new Error(
-      `Bucket "${bucket}" belum ada dan gagal dibuat: ${createError.message}. Buat manual di Supabase Dashboard → Storage.`,
-    );
-  }
-
-  console.log(`[seed:pilot-published] Bucket Storage "${bucket}" dibuat.`);
 }
 
 async function cleanupPilotSeedSubmissions(

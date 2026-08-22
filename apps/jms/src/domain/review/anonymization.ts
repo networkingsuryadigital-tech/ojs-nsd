@@ -50,3 +50,26 @@ export function stripPdfMetadataMarkers(buffer: Buffer): Buffer {
     .replace(/\/Title\s*\([^)]*\)/g, "/Title (Anonymized Manuscript)");
   return Buffer.from(sanitized, "latin1");
 }
+
+/**
+ * Redacts author identity from OOXML core/app properties XML (DOCX).
+ * Domain-pure: string transform only.
+ */
+export function stripDocxCorePropertiesXml(xml: string): string {
+  return xml
+    .replace(/<dc:creator\b[^>]*>[\s\S]*?<\/dc:creator>/gi, "<dc:creator></dc:creator>")
+    .replace(
+      /<cp:lastModifiedBy\b[^>]*>[\s\S]*?<\/cp:lastModifiedBy>/gi,
+      "<cp:lastModifiedBy></cp:lastModifiedBy>",
+    )
+    .replace(/<dc:title\b[^>]*>[\s\S]*?<\/dc:title>/gi, "<dc:title></dc:title>")
+    .replace(/<Company\b[^>]*>[\s\S]*?<\/Company>/gi, "<Company></Company>")
+    .replace(/<Company\b[^>]*\/>/gi, "<Company/>");
+}
+
+export function stripDocxAppPropertiesXml(xml: string): string {
+  return xml
+    .replace(/<Company\b[^>]*>[\s\S]*?<\/Company>/gi, "<Company></Company>")
+    .replace(/<Company\b[^>]*\/>/gi, "<Company/>")
+    .replace(/<Manager\b[^>]*>[\s\S]*?<\/Manager>/gi, "<Manager></Manager>");
+}

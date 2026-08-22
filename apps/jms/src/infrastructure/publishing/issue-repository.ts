@@ -174,6 +174,8 @@ export async function listPublishedArticlesInIssue(
 export type PublishedArticleDetailRecord = {
   id: string;
   doi: string | null;
+  license: string;
+  customRightsUrl: string | null;
   publishedAt: Date | null;
   issueCitation: string | null;
   translations: Array<{
@@ -201,6 +203,8 @@ export async function findPublishedArticleInJournal(
       select: {
         id: true,
         doi: true,
+        license: true,
+        customRightsUrl: true,
         publishedAt: true,
         issue: {
           select: { volume: true, number: true, year: true, title: true },
@@ -237,6 +241,8 @@ export async function findPublishedArticleInJournal(
     return {
       id: submission.id,
       doi: submission.doi,
+      license: submission.license,
+      customRightsUrl: submission.customRightsUrl,
       publishedAt: submission.publishedAt,
       issueCitation,
       translations: submission.translations,

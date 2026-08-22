@@ -83,6 +83,11 @@ export default async function PublishedArticlePage({ params }: PageProps) {
           </p>
         ) : null}
 
+        <p className="mt-2 text-sm text-foreground/70">
+          <span className="font-medium">{t("license")}:</span>{" "}
+          {article.customRightsUrl ?? article.license}
+        </p>
+
         {primary?.abstract ? (
           <section className="mt-8">
             <h2 className="text-lg font-semibold">{t("abstract")}</h2>

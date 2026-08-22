@@ -7,7 +7,7 @@
  * Or JSON config:
  *   pnpm db:provision:pilot -- --config=./pilot.json
  *
- * Requires: apps/jms/.env with DATABASE_URL and SUPABASE_SERVICE_ROLE_KEY (for login).
+ * Requires: apps/jms/.env with DATABASE_URL and BETTER_AUTH_SECRET (for login).
  */
 
 import { readFileSync } from "node:fs";
@@ -20,7 +20,7 @@ import { provisionJournal } from "@/application/journal/provision-journal";
 import { assertValidCustomDomain } from "@/domain/tenancy/custom-domain";
 import { journalHostnames } from "@/domain/tenancy/host";
 import type { JournalRole } from "@/domain/submission/types";
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
+import { upsertSeedAuthUser } from "@/infrastructure/auth/seed-auth-user";
 import type { PrismaClient, ReviewModel } from "@prisma/client";
 
 import {
@@ -67,7 +67,7 @@ export type ProvisionPilotSummary = {
   admin: {
     userId: string;
     email: string;
-    supabaseLinked: boolean;
+    authLinked: boolean;
     loginPath: string;
     temporaryPassword?: string;
   };
@@ -188,78 +188,10 @@ export function resolvePilotJournalConfig(
   return merged;
 }
 
-function hasSupabaseAdmin(): boolean {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  return Boolean(key && !key.includes("...") && key !== "your-service-role-key");
-}
-
-async function findSupabaseUserIdByEmail(email: string): Promise<string | null> {
-  const supabase = getAdminSupabase();
-  let page = 1;
-  const perPage = 200;
-
-  while (page <= 10) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      throw new Error(`Supabase listUsers failed: ${error.message}`);
-    }
-    const match = data.users.find(
-      (user) => user.email?.toLowerCase() === email.toLowerCase(),
-    );
-    if (match) {
-      return match.id;
-    }
-    if (data.users.length < perPage) {
-      break;
-    }
-    page += 1;
-  }
-
-  return null;
-}
-
-async function upsertSupabaseAuthUser(
-  email: string,
-  name: string,
-  password: string,
-): Promise<string | null> {
-  if (!hasSupabaseAdmin()) {
-    return null;
-  }
-
-  const supabase = getAdminSupabase();
-  const existingId = await findSupabaseUserIdByEmail(email);
-
-  if (existingId) {
-    const { error } = await supabase.auth.admin.updateUserById(existingId, {
-      password,
-      email_confirm: true,
-      user_metadata: { name, pilot_journal: true },
-    });
-    if (error) {
-      throw new Error(`Supabase updateUser failed for ${email}: ${error.message}`);
-    }
-    return existingId;
-  }
-
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { name, pilot_journal: true },
-  });
-
-  if (error) {
-    throw new Error(`Supabase createUser failed for ${email}: ${error.message}`);
-  }
-
-  return data.user.id;
-}
-
 async function upsertAdminUser(
   seedDb: PrismaClient,
   config: PilotJournalConfig,
-): Promise<{ userId: string; supabaseLinked: boolean }> {
+): Promise<{ userId: string; authLinked: boolean }> {
   const password =
     config.adminPassword?.trim() ||
     `Pilot-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -270,11 +202,20 @@ async function upsertAdminUser(
     );
   }
 
-  const supabaseIdFromAuth = await upsertSupabaseAuthUser(
-    config.adminEmail,
-    config.adminName,
-    password,
-  );
+  let authUserId: string | null = null;
+  try {
+    authUserId = await upsertSeedAuthUser({
+      email: config.adminEmail,
+      password,
+      name: config.adminName,
+    });
+  } catch (error) {
+    console.warn(
+      `[pilot] Better Auth upsert gagal untuk ${config.adminEmail}:`,
+      error instanceof Error ? error.message : error,
+    );
+  }
+
   const fallbackSupabaseId = `pilot-seed-${config.adminEmail.replace(/[@.]/g, "-")}`;
 
   const existing = await seedDb.user.findUnique({
@@ -282,7 +223,7 @@ async function upsertAdminUser(
     select: { id: true, supabaseId: true },
   });
 
-  const supabaseId = supabaseIdFromAuth ?? existing?.supabaseId ?? fallbackSupabaseId;
+  const supabaseId = authUserId ?? existing?.supabaseId ?? fallbackSupabaseId;
 
   let userId: string;
   if (existing) {
@@ -307,7 +248,7 @@ async function upsertAdminUser(
       password;
   }
 
-  return { userId, supabaseLinked: Boolean(supabaseIdFromAuth) };
+  return { userId, authLinked: Boolean(authUserId) };
 }
 
 function buildJournalSiteUrl(subdomain: string): string {
@@ -452,7 +393,7 @@ export async function runProvisionPilotJournal(
     );
   }
 
-  const { userId, supabaseLinked } = await upsertAdminUser(seedDb, config);
+  const { userId, authLinked } = await upsertAdminUser(seedDb, config);
 
   const provisioned = await provisionJournal({
     name: config.name.trim(),
@@ -556,16 +497,16 @@ export async function runProvisionPilotJournal(
     admin: {
       userId,
       email: config.adminEmail.trim(),
-      supabaseLinked,
+      authLinked,
       loginPath: `${publicSiteUrl}/login`,
       ...(generatedPassword ? { temporaryPassword: generatedPassword } : {}),
     },
     sectionId,
     membershipId: provisioned.membershipId,
     pageIds: provisioned.pageIds,
-    note: supabaseLinked
-      ? "Login admin aktif via Supabase Auth. Verifikasi §5 di documentations/12-onboarding-jurnal-pilot.md."
-      : "SUPABASE_SERVICE_ROLE_KEY tidak tersedia — buat user Auth manual lalu samakan supabaseId di Prisma.",
+    note: authLinked
+      ? "Login admin aktif via Better Auth. Verifikasi §5 di documentations/12-onboarding-jurnal-pilot.md."
+      : "BETTER_AUTH_SECRET tidak tersedia — buat user Auth manual lalu samakan supabaseId di Prisma.",
   };
 }
 

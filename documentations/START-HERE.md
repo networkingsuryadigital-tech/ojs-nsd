@@ -1,7 +1,7 @@
 # ⭐ MULAI DARI SINI — Urutan Eksekusi JMS
 
 > Halaman jangkar. Kerjakan dari atas ke bawah. Jangan lompat.
-> Status kode: S0–S30 selesai. Sisa = hardening (S31–S35) + deploy + onboarding pilot.
+> Status kode: S0–S35 selesai. Produksi: VPS Jagoan — [`17-deploy-vps-jagoan.md`](./17-deploy-vps-jagoan.md).
 
 ---
 
@@ -22,10 +22,10 @@
 | 3 | Data dummy untuk tim uji coba | 🤖 Cursor | [`sprints/s34-dummy-data-generator.md`](./sprints/s34-dummy-data-generator.md) → blok **Prompt eksekusi** |
 | 4 | Tampilan menarik (UI/UX) | 🤖 Cursor | [`sprints/s35-ui-ux-engagement.md`](./sprints/s35-ui-ux-engagement.md) → blok **Prompt eksekusi** |
 | 5 | Rapikan dokumen + header cron | 🤖 Cursor | [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md) → **Prompt Cursor** (paling bawah) |
-| 6 | **Deploy** (Vercel + Supabase + Guardian cron + domain) | 🧑 Anda | [`15-deploy-dewaweb-guardian.md`](./15-deploy-dewaweb-guardian.md) (Guardian) · [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md) (generik) |
+| 6 | **Deploy VPS** (bukan Vercel) | 🧑 Anda | [`17-deploy-vps-jagoan.md`](./17-deploy-vps-jagoan.md) |
 | 7 | Onboard jurnal pilot | 🧑 Anda | [`12-onboarding-jurnal-pilot.md`](./12-onboarding-jurnal-pilot.md) |
 
-**Nanti (tidak mendesak, 🤖 Cursor):** [`13-...md`](./13-eksekusi-post-s30-hardening.md) Prompt 3–8 (S32, S33).
+**S32/S33:** sudah dikerjakan di kode (CI, DOCX anonymization, lisensi, SUPER_ADMIN, stub pembayaran). Lihat [`06-sprint-log.md`](./06-sprint-log.md).
 
 ---
 
@@ -65,10 +65,10 @@ onboarding) dikerjakan operator manusia, bukan kamu.
 
 ## Setelah Autopilot selesai → giliran Anda (🧑)
 
-- **Langkah 6 — Deploy:** ikuti [`15-deploy-dewaweb-guardian.md`](./15-deploy-dewaweb-guardian.md) jika pakai **DewaWeb Guardian** (DNS + cron; app di Vercel free). Alternatif generik: [`14-deploy-vercel-cpanelcron.md`](./14-deploy-vercel-cpanelcron.md). Inti: domain → Vercel, 7 cron di cPanel, env di Vercel, Custom SMTP Supabase (Resend), smoke test.
+- **Langkah 6 — Deploy produksi:** ikuti [`17-deploy-vps-jagoan.md`](./17-deploy-vps-jagoan.md) (VPS self-hosted: Better Auth, Postgres, MinIO, Redis). Dokumen Vercel/Supabase (`14`, `15`) hanya **rollback**.
 - **Langkah 7 — Pilot:** ikuti [`12-onboarding-jurnal-pilot.md`](./12-onboarding-jurnal-pilot.md) untuk menyiapkan satu jurnal nyata + akun admin.
 
-> Deploy & onboarding **tidak bisa unattended** — perlu Anda klik di Vercel/cPanel/Supabase. Itu wajar.
+> Deploy VPS: `git pull` + `pnpm --filter @nsd/jms build` + `pm2 reload jms`. Secret hanya di `/home/jms/.env`.
 
 ---
 
@@ -80,5 +80,4 @@ Mulai sekarang karena prosesnya berminggu-minggu: keanggotaan **CrossRef** + pre
 
 ## Patokan biaya (uji coba)
 
-Vercel free + Supabase free + cPanel (sudah punya) + domain (sudah punya) = **Rp 0**.
-Naikkan **Supabase → Pro** hanya saat pilot nyata mulai (auto-pause/koneksi). Itu biaya penting berikutnya.
+Produksi: VPS Jagoan (lihat dok 17). Rollback: Vercel + Supabase (dok 14/15).

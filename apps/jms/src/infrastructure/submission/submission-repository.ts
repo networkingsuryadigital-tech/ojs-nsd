@@ -72,6 +72,22 @@ export async function loadSubmission(
   );
 }
 
+export async function setSubmissionLicense(
+  journalId: string,
+  submissionId: string,
+  data: { license: string; customRightsUrl?: string | null },
+): Promise<void> {
+  await withTenant(journalId, (tx) =>
+    tx.submission.update({
+      where: { id: submissionId },
+      data: {
+        license: data.license as never,
+        customRightsUrl: data.customRightsUrl?.trim() || null,
+      },
+    }),
+  );
+}
+
 export type SubmissionTransitionLoadOptions = {
   actorId?: string;
   issueId?: string;

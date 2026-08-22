@@ -39,6 +39,8 @@ nsd-platform/                      # monorepo
 
 Prinsip: **shared = infrastruktur generik tanpa domain**. Begitu logika tahu soal "submission" atau "course", ia milik app, bukan package. Ini menjaga e-learning & JMS saling memanfaatkan tanpa saling mengikat (package tidak boleh impor dari `apps/*`).
 
+Payment matrix (S33): **Midtrans** = produksi (sandbox default); **Duitku** = webhook opsional; **Xendit** = stub `createXenditAdapter()` throw; **manual transfer** = waiver/editorial.
+
 ### 1.2 Migrasi e-learning ke monorepo (opsional, bertahap)
 
 Tidak wajib serentak. Urutan aman:

@@ -1,10 +1,11 @@
 import "server-only";
 
+import { headers } from "next/headers";
 import { z } from "zod";
 
 import { resolvePostLoginRedirect } from "@/application/auth/resolve-post-login-redirect";
-import { findUserBySupabaseId } from "@/infrastructure/identity/user-repository";
-import { getServerSupabase } from "@/infrastructure/auth/supabase";
+import { findUserByAuthUserId } from "@/infrastructure/identity/user-repository";
+import { auth } from "@/lib/auth";
 
 const signInSchema = z.object({
   email: z.string().trim().email(),
@@ -28,19 +29,28 @@ export async function signInWithPassword(input: {
     return { ok: false, error: "Email dan kata sandi wajib diisi." };
   }
 
-  const supabase = await getServerSupabase();
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  });
-
-  if (error || !data.user) {
+  let authUserId: string | undefined;
+  try {
+    const result = await auth.api.signInEmail({
+      body: {
+        email: parsed.data.email,
+        password: parsed.data.password,
+      },
+      headers: await headers(),
+    });
+    // Prefer user id from sign-in result. getSession() in the same Server Action
+    // often cannot see the new Set-Cookie yet (request headers are unchanged).
+    authUserId = result?.user?.id;
+    if (!authUserId) {
+      return { ok: false, error: "Email atau kata sandi tidak valid." };
+    }
+  } catch {
     return { ok: false, error: "Email atau kata sandi tidak valid." };
   }
 
-  const appUser = await findUserBySupabaseId(data.user.id);
+  const appUser = await findUserByAuthUserId(authUserId);
   if (!appUser) {
-    await supabase.auth.signOut();
+    await auth.api.signOut({ headers: await headers() });
     return {
       ok: false,
       error: "Akun belum terdaftar di JMS. Hubungi administrator jurnal.",

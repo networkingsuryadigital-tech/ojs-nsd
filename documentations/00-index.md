@@ -37,6 +37,7 @@
 | `14-deploy-vercel-cpanelcron.md` | Deploy uji coba: Vercel Free + Supabase + **cPanel cron** + domain | — |
 | `15-deploy-dewaweb-guardian.md` | Deploy **DewaWeb Guardian** (DNS + cron) tanpa VPS — pilot `ejournal.ptnsd.co.id` | — |
 | `16-onboarding-tim-uat.md` | Onboarding **tim UAT** jurnal pilot: akun, `pnpm db:grant:role`, brief 5 skenario editorial | — |
+| `17-deploy-vps-jagoan.md` | Deploy **VPS Jagoan** (self-hosted tanpa Supabase) — Better Auth, MinIO, Redis lokal | — |
 | [`START-HERE.md`](./START-HERE.md) | **Mulai di sini** — urutan autopilot Langkah 1–7 | — |
 | `sprints/` | Detail per sprint selesai + **prompt langkah selanjutnya** | — |
 
@@ -44,7 +45,8 @@
 
 - **Multi-tenant**: Shared database, satu kolom `journalId` di semua tabel tenant-scoped + **Postgres Row-Level Security (RLS)**. (Bukan schema-per-tenant / db-per-tenant.)
 - **Repo**: **Monorepo** (pnpm + Turborepo) berisi app e-learning, app JMS, dan `packages/*` bersama (payment, auth, email, ui, config).
-- **Stack inti** (mengikuti e-learning yang sudah matang): Next.js (App Router) + TypeScript + Prisma + PostgreSQL (Supabase) + Supabase Auth + Tailwind/shadcn + Resend (email) + Midtrans/Xendit (payment) + Upstash Redis (rate-limit/queue) + Sentry.
+- **Stack inti**: Next.js (App Router) + TypeScript + Prisma + PostgreSQL + **Better Auth** + MinIO + Redis + Tailwind/shadcn + Resend (email) + Midtrans (payment) + Sentry.
+- **Deploy produksi**: VPS Jagoan (self-hosted) — lihat `17-deploy-vps-jagoan.md`. Legacy: Supabase/Vercel (rollback).
 - **Integrasi**: dirancang penuh sejak awal; roadmap menandai mana **MVP** vs **fase lanjut**.
 
 ## Glosarium singkat

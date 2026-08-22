@@ -3,15 +3,12 @@ import { expect, test } from "@playwright/test";
 import { loginAsDemoUser } from "./helpers/auth";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL?.trim());
-const hasSupabase = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim(),
-);
+const hasAuth = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
 
 test.describe("editorial dashboard (demo tenant)", () => {
   test.skip(
-    !hasDatabase || !hasSupabase,
-    "Membutuhkan DATABASE_URL dan Supabase di .env.",
+    !hasDatabase || !hasAuth,
+    "Membutuhkan DATABASE_URL dan BETTER_AUTH_SECRET di .env.",
   );
 
   test("journal admin dashboard returns 200 with statistics", async ({ page }) => {

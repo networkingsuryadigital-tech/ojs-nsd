@@ -1,50 +1,68 @@
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
 export type RateLimitConfig = {
+  /** Prefer REDIS_URL. Kept for backward-compatible callers. */
+  redisUrl?: string;
+  /** @deprecated Use redisUrl / REDIS_URL instead of Upstash REST. */
   url?: string;
+  /** @deprecated Ignored — local Redis does not use a REST token. */
   token?: string;
 };
 
-const ratelimitByWindow = new Map<string, Ratelimit>();
+type LimiterState = {
+  redis: Redis;
+  requestsPerMinute: number;
+};
 
-function isConfiguredUpstash(url?: string, token?: string): boolean {
-  if (!url || !token) {
+const limiterByWindow = new Map<string, LimiterState>();
+
+function isConfiguredRedisUrl(url?: string): boolean {
+  if (!url?.trim()) {
     return false;
   }
-  if (url.includes("...") || url.includes("[") || token.includes("...")) {
+  if (url.includes("...") || url.includes("[")) {
     return false;
   }
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname.includes(".");
+    return parsed.protocol === "redis:" || parsed.protocol === "rediss:";
   } catch {
     return false;
   }
 }
 
-function getRatelimit(
+function resolveRedisUrl(config: RateLimitConfig): string | undefined {
+  return (
+    config.redisUrl?.trim() ||
+    process.env.REDIS_URL?.trim() ||
+    // Legacy Upstash URL is not usable with ioredis — ignore.
+    undefined
+  );
+}
+
+function getLimiter(
   config: RateLimitConfig,
   requestsPerMinute = 30,
-): Ratelimit | null {
-  if (!isConfiguredUpstash(config.url, config.token)) {
+): LimiterState | null {
+  const redisUrl = resolveRedisUrl(config);
+  if (!isConfiguredRedisUrl(redisUrl)) {
     return null;
   }
 
-  const windowKey = String(requestsPerMinute);
-  const cached = ratelimitByWindow.get(windowKey);
+  const windowKey = `${redisUrl}:${requestsPerMinute}`;
+  const cached = limiterByWindow.get(windowKey);
   if (cached) {
     return cached;
   }
 
-  const redis = new Redis({ url: config.url, token: config.token });
-  const limiter = new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(requestsPerMinute, "1 m"),
-    analytics: true,
+  const redis = new Redis(redisUrl!, {
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+    enableOfflineQueue: false,
   });
-  ratelimitByWindow.set(windowKey, limiter);
-  return limiter;
+  const state = { redis, requestsPerMinute };
+  limiterByWindow.set(windowKey, state);
+  return state;
 }
 
 export type RateLimitResult = {
@@ -59,16 +77,25 @@ export async function checkRateLimit(
   options?: { requestsPerMinute?: number },
 ): Promise<RateLimitResult> {
   const requestsPerMinute = options?.requestsPerMinute ?? 30;
-  const limiter = getRatelimit(config, requestsPerMinute);
+  const limiter = getLimiter(config, requestsPerMinute);
   if (!limiter) return { success: true };
-  const result = await limiter.limit(identifier);
-  const retryAfterSeconds =
-    result.success || !result.reset
-      ? undefined
-      : Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
-  return {
-    success: result.success,
-    remaining: result.remaining,
-    retryAfterSeconds,
-  };
+
+  try {
+    if (limiter.redis.status !== "ready") {
+      await limiter.redis.connect();
+    }
+    const key = `rl:${identifier}`;
+    const count = await limiter.redis.incr(key);
+    if (count === 1) {
+      await limiter.redis.expire(key, 60);
+    }
+    const remaining = Math.max(0, requestsPerMinute - count);
+    return {
+      success: count <= requestsPerMinute,
+      remaining,
+      retryAfterSeconds: count <= requestsPerMinute ? undefined : 60,
+    };
+  } catch {
+    return { success: true };
+  }
 }

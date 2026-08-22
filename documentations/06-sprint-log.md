@@ -40,7 +40,8 @@
 | **S29** | Portal author & landing platform | ✅ Selesai | [`sprints/s29-author-reviewer-portal.md`](./sprints/s29-author-reviewer-portal.md) |
 | **S30** | Eksekusi go-live pilot | ✅ Selesai (kode) | [`sprints/s30-go-live-execution.md`](./sprints/s30-go-live-execution.md) |
 | **S31** | Security & production guardrails | ✅ Selesai | [`sprints/s31-security-production-guardrails.md`](./sprints/s31-security-production-guardrails.md) |
-| **S32** | CI, anonimisasi DOCX, sync docs | ⏳ Belum | [`sprints/s32-ci-anonymization-docs-sync.md`](./sprints/s32-ci-anonymization-docs-sync.md) |
+| **S32** | CI, anonimisasi DOCX, sync docs | ✅ Selesai | [`sprints/s32-ci-anonymization-docs-sync.md`](./sprints/s32-ci-anonymization-docs-sync.md) |
+| **S33** | Lisensi, SUPER_ADMIN, payment cleanup | ✅ Selesai | [`sprints/s33-post-pilot-platform.md`](./sprints/s33-post-pilot-platform.md) |
 | **S34** | Generator data dummy | ✅ Selesai | [`sprints/s34-dummy-data-generator.md`](./sprints/s34-dummy-data-generator.md) |
 | **S35** | UI/UX engagement | ✅ Selesai | [`sprints/s35-ui-ux-engagement.md`](./sprints/s35-ui-ux-engagement.md) |
 

@@ -54,6 +54,8 @@ describe("billing domain", () => {
     it("delegates to Midtrans rules", () => {
       expect(isPaymentSettled("MIDTRANS", "settlement")).toBe(true);
       expect(isPaymentSettled("XENDIT", "settlement")).toBe(false);
+      expect(isPaymentSettled("DUITKU", "00")).toBe(true);
+      expect(isPaymentSettled("DUITKU", "01")).toBe(false);
     });
   });
 

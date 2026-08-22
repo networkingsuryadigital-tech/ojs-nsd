@@ -1,4 +1,4 @@
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
 import type { ResolvedJournal } from "@/domain/tenancy/types";
 
@@ -8,22 +8,21 @@ const NEGATIVE_TTL_SECONDS = 60;
 const NEGATIVE_SENTINEL = "__none__";
 
 type TenantCacheConfig = {
-  url?: string;
-  token?: string;
+  redisUrl?: string;
 };
 
 let redisClient: Redis | null | undefined;
 
-function isConfiguredUpstash(url?: string, token?: string): boolean {
-  if (!url || !token) {
+function isConfiguredRedisUrl(url?: string): boolean {
+  if (!url?.trim()) {
     return false;
   }
-  if (url.includes("...") || url.includes("[") || token.includes("...")) {
+  if (url.includes("...") || url.includes("[")) {
     return false;
   }
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname.includes(".");
+    return parsed.protocol === "redis:" || parsed.protocol === "rediss:";
   } catch {
     return false;
   }
@@ -34,19 +33,36 @@ function getRedis(config?: TenantCacheConfig): Redis | null {
     return redisClient;
   }
 
-  const url = config?.url ?? process.env.UPSTASH_REDIS_REST_URL;
-  const token = config?.token ?? process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!isConfiguredUpstash(url, token)) {
+  const url = config?.redisUrl ?? process.env.REDIS_URL;
+  if (!isConfiguredRedisUrl(url)) {
     redisClient = null;
     return null;
   }
 
-  redisClient = new Redis({ url: url!, token: token! });
+  redisClient = new Redis(url!, {
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+    enableOfflineQueue: false,
+  });
   return redisClient;
 }
 
 function cacheKey(host: string): string {
   return `${CACHE_PREFIX}${host.trim().toLowerCase()}`;
+}
+
+async function withRedis<T>(
+  redis: Redis,
+  operation: () => Promise<T>,
+): Promise<T | undefined> {
+  try {
+    if (redis.status !== "ready") {
+      await redis.connect();
+    }
+    return await operation();
+  } catch {
+    return undefined;
+  }
 }
 
 /** Returns undefined on cache miss. */
@@ -59,7 +75,7 @@ export async function getCachedJournalByHost(
     return undefined;
   }
 
-  const cached = await redis.get<string>(cacheKey(host));
+  const cached = await withRedis(redis, () => redis.get(cacheKey(host)));
   if (cached === null || cached === undefined) {
     return undefined;
   }
@@ -81,12 +97,13 @@ export async function setCachedJournalByHost(
   }
 
   const key = cacheKey(host);
-  if (journal === null) {
-    await redis.set(key, NEGATIVE_SENTINEL, { ex: NEGATIVE_TTL_SECONDS });
-    return;
-  }
-
-  await redis.set(key, JSON.stringify(journal), { ex: POSITIVE_TTL_SECONDS });
+  await withRedis(redis, async () => {
+    if (journal === null) {
+      await redis.set(key, NEGATIVE_SENTINEL, "EX", NEGATIVE_TTL_SECONDS);
+      return;
+    }
+    await redis.set(key, JSON.stringify(journal), "EX", POSITIVE_TTL_SECONDS);
+  });
 }
 
 export async function warmTenantHostCache(
@@ -108,11 +125,16 @@ export async function invalidateTenantHostCache(
     return;
   }
 
-  await redis.del(...hosts.map((host) => cacheKey(host)));
+  await withRedis(redis, () =>
+    redis.del(...hosts.map((host) => cacheKey(host))),
+  );
 }
 
 /** Test helper — reset singleton between tests. */
 export function resetTenantCacheForTests(): void {
+  if (redisClient) {
+    void redisClient.quit().catch(() => undefined);
+  }
   redisClient = undefined;
 }
 

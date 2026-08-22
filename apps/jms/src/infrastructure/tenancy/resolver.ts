@@ -1,5 +1,5 @@
 import type { ResolvedJournal } from "@/domain/tenancy/types";
-import { lookupJournalByHostFromSupabase } from "./journal-lookup-edge";
+import { lookupJournalByHostFromDb } from "./journal-lookup";
 import {
   getCachedJournalByHost,
   setCachedJournalByHost,
@@ -9,7 +9,8 @@ export type { ResolvedJournal };
 
 /**
  * Resolves active journal from HTTP Host (subdomain platform or custom domain).
- * Uses Upstash cache with Supabase lookup on miss — Edge-safe for middleware.
+ * Uses Redis cache with Postgres (Prisma) lookup on miss.
+ * Call from Node server code only (not Edge middleware).
  */
 export async function resolveJournalByHost(
   host: string,
@@ -24,7 +25,7 @@ export async function resolveJournalByHost(
     return cached;
   }
 
-  const journal = await lookupJournalByHostFromSupabase(normalizedHost);
+  const journal = await lookupJournalByHostFromDb(normalizedHost);
   await setCachedJournalByHost(normalizedHost, journal);
   return journal;
 }

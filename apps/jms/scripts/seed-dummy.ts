@@ -28,7 +28,7 @@ import { uploadManuscript } from "@/application/submission/upload-manuscript";
 import { buildDoi, buildDoiSuffix } from "@/domain/doi/identifier";
 import { journalHostnames } from "@/domain/tenancy/host";
 import type { JournalRole } from "@/domain/submission/types";
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
+import { upsertSeedAuthUser } from "@/infrastructure/auth/seed-auth-user";
 import { updateSubmissionDoi } from "@/infrastructure/crossref/doi-repository";
 import type { PrismaClient } from "@prisma/client";
 import fs from "fs";
@@ -149,7 +149,7 @@ export type DummyTraceEntry = {
 
 export type SeedDummySummary = {
   config: { journals: number; submissionsPerJournal: number };
-  auth: { supabaseLinked: boolean; password: string; note: string };
+  auth: { authLinked: boolean; password: string; note: string };
   crossJournalUser: { email: string; note: string };
   journals: Array<{
     id: string;
@@ -194,66 +194,24 @@ function journalBaseUrl(subdomain: string): string {
   return `http://${subdomain}.${getPlatformHost()}`;
 }
 
-function hasSupabaseAdmin(): boolean {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  return Boolean(key && !key.includes("...") && key !== "your-service-role-key");
-}
-
-async function findSupabaseUserIdByEmail(email: string): Promise<string | null> {
-  const supabase = getAdminSupabase();
-  let page = 1;
-  const perPage = 200;
-
-  while (page <= 10) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      throw new Error(`Supabase listUsers failed: ${error.message}`);
-    }
-    const match = data.users.find(
-      (user) => user.email?.toLowerCase() === email.toLowerCase(),
-    );
-    if (match) return match.id;
-    if (data.users.length < perPage) break;
-    page += 1;
-  }
-  return null;
-}
-
-async function upsertSupabaseAuthUser(email: string, name: string): Promise<string | null> {
-  if (!hasSupabaseAdmin()) return null;
-
-  const supabase = getAdminSupabase();
-  const existingId = await findSupabaseUserIdByEmail(email);
-
-  if (existingId) {
-    const { error } = await supabase.auth.admin.updateUserById(existingId, {
-      password: DUMMY_PASSWORD,
-      email_confirm: true,
-      user_metadata: { name, dummy_seed: true },
-    });
-    if (error) {
-      throw new Error(`Supabase updateUser failed for ${email}: ${error.message}`);
-    }
-    return existingId;
-  }
-
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password: DUMMY_PASSWORD,
-    email_confirm: true,
-    user_metadata: { name, dummy_seed: true },
-  });
-  if (error) {
-    throw new Error(`Supabase createUser failed for ${email}: ${error.message}`);
-  }
-  return data.user.id;
-}
-
 async function upsertDummyUser(
   seedDb: PrismaClient,
   spec: { email: string; name: string; affiliation?: string },
 ): Promise<string> {
-  const supabaseIdFromAuth = await upsertSupabaseAuthUser(spec.email, spec.name);
+  let authUserId: string | null = null;
+  try {
+    authUserId = await upsertSeedAuthUser({
+      email: spec.email,
+      password: DUMMY_PASSWORD,
+      name: spec.name,
+    });
+  } catch (error) {
+    console.warn(
+      `[dummy-seed] Better Auth upsert gagal untuk ${spec.email}:`,
+      error instanceof Error ? error.message : error,
+    );
+  }
+
   const fallbackSupabaseId = `dummy-seed-${spec.email.replace(/[@.]/g, "-")}`;
 
   const existing = await seedDb.user.findUnique({
@@ -261,7 +219,7 @@ async function upsertDummyUser(
     select: { id: true, supabaseId: true },
   });
 
-  const supabaseId = supabaseIdFromAuth ?? existing?.supabaseId ?? fallbackSupabaseId;
+  const supabaseId = authUserId ?? existing?.supabaseId ?? fallbackSupabaseId;
 
   if (existing) {
     await seedDb.user.update({
@@ -1354,16 +1312,16 @@ async function runSeedDummyCore(seedDb: PrismaClient): Promise<SeedDummySummary>
     });
   }
 
-  const supabaseLinked = hasSupabaseAdmin();
+  const authLinked = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
 
   const summary: SeedDummySummary = {
     config: { journals: journalCount, submissionsPerJournal },
     auth: {
-      supabaseLinked,
+      authLinked,
       password: DUMMY_PASSWORD,
-      note: supabaseLinked
-        ? "Login dummy aktif via Supabase Auth."
-        : "SUPABASE_SERVICE_ROLE_KEY tidak tersedia — baris User lokal dibuat.",
+      note: authLinked
+        ? "Login dummy aktif via Better Auth."
+        : "BETTER_AUTH_SECRET tidak tersedia — baris User lokal dibuat.",
     },
     crossJournalUser: {
       email: CROSS_JOURNAL_EMAIL,

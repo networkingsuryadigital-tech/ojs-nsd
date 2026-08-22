@@ -8,9 +8,7 @@ import { env } from "@/lib/env";
 
 export function getOperationalHealth() {
   const oaiRateLimitPerMinute = resolveOaiRateLimitPerMinute();
-  const redisConfigured = Boolean(
-    env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN,
-  );
+  const redisConfigured = Boolean(env.REDIS_URL);
   const resendConfigured = Boolean(env.RESEND_API_KEY);
   const similarityProviderActive = getActivePlatformProviderName();
   const embeddingProviderActive = getActiveEmbeddingProviderName();

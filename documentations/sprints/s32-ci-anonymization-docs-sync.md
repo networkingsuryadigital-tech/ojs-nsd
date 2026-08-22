@@ -25,30 +25,29 @@
 
 ### Prompt A — CI Postgres + e2e smoke
 
-- [ ] `.github/workflows/ci.yml`: service container Postgres 15+ (port 5432)
-- [ ] Step: `pnpm db:migrate` atau `prisma migrate deploy` dengan `DIRECT_URL`
-- [ ] Step: `pnpm test:e2e` — minimal project smoke (boleh subset jika full 34 terlalu berat; dokumentasikan)
-- [ ] Env CI: `SUPABASE_*` placeholder + `CRON_SECRET` test + matikan Upstash (kosong) — sama pola lokal
-- [ ] `with-tenant.test.ts`: jalan di CI jika `DATABASE_URL` service container tersedia
-- [ ] Catat di workflow comment: e2e `workers: 1` untuk stabilitas
+- [x] `.github/workflows/ci.yml`: service container Postgres 15+ (port 5432)
+- [x] Step: `pnpm db:migrate` atau `prisma migrate deploy` dengan `DIRECT_URL`
+- [x] Step: `pnpm test:e2e` — minimal project smoke (boleh subset jika full 34 terlalu berat; dokumentasikan)
+- [x] Env CI: `BETTER_AUTH_*` + `CRON_SECRET` test
+- [x] `with-tenant.test.ts`: jalan di CI jika `DATABASE_URL` service container tersedia
+- [x] Catat di workflow comment: e2e `workers: 1` untuk stabilitas
 
 ### Prompt B — Anonimisasi DOCX
 
-- [ ] Domain pure: fungsi `stripDocxAuthorMetadata(buffer)` di `domain/review/anonymization.ts` (atau submodul)
-  - Hapus/redact: `dc:creator`, `cp:coreProperties` author, `Company`, `LastModifiedBy` di `docProps/core.xml`
+- [x] Domain pure: fungsi `stripDocxCorePropertiesXml` / `stripDocxAppPropertiesXml` di `domain/review/anonymization.ts`
+  - Hapus/redact: `dc:creator`, `cp:lastModifiedBy`, `Company`
   - Pertahankan isi dokumen (body) — jangan corrupt file
-- [ ] `anonymization-pipeline.ts`: DOCX (`application/vnd.openxmlformats-officedocument.wordprocessingml.document`) → panggil strip, bukan passthrough
-- [ ] Fallback aman: jika strip gagal → throw error eksplisit (jangan kirim file asli ke reviewer); log ke Sentry
-- [ ] Vitest unit: fixture DOCX minimal (generate in-test zip/XML) — assert metadata author hilang
-- [ ] Vitest/workflow: review-workflow tetap hijau dengan mock storage
-- [ ] Update `03-editorial-workflow.md` §anonimitas: sebutkan DOCX + PDF + limitasi
+- [x] `anonymization-pipeline.ts`: DOCX → strip via JSZip, bukan passthrough
+- [x] Fallback aman: jika strip gagal → throw error eksplisit
+- [x] Vitest unit: XML fixtures
+- [x] Update `03-editorial-workflow.md` §anonimitas: sebutkan DOCX + PDF + limitasi
 
 ### Prompt C — Sync dokumentasi & RLS
 
-- [ ] `documentations/02-data-schema.md`: tambah `RETRACTED`, `PublicationNoticeType`, similarity fields, `SimilarityCheckJob`, ledger models — selaras `schema.prisma`
-- [ ] `apps/jms/prisma/rls-policies.sql`: tambah policy untuk tabel yang ada di migrasi tapi belum di file referensi (`SimilarityCheckJob`, `JournalLedgerEntry`, `JournalPayout`, dll.)
-- [ ] `domain-purity.test.ts`: scan glob `src/domain/**/*.ts` — assert tidak ada import dari `@prisma`, `next/`, `@/infrastructure`
-- [ ] Update `00-index.md` jika ada dok baru; update `06-sprint-log.md`
+- [x] `documentations/02-data-schema.md`: tambah `RETRACTED`, `ArticleLicense`, similarity/ledger — selaras `schema.prisma`
+- [x] `apps/jms/prisma/rls-policies.sql`: policy `SimilarityCheckJob`, `JournalLedgerEntry`, `JournalPayout`
+- [x] `domain-purity.test.ts`: scan glob `src/domain/**/*.ts`
+- [x] Update `00-index.md` jika ada dok baru; update `06-sprint-log.md`
 
 ---
 

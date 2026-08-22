@@ -54,11 +54,12 @@ describe("subdomain validation", () => {
 });
 
 describe("default journal pages", () => {
-  it("seeds six policy pages including privacy", () => {
+  it("seeds seven policy pages including privacy and announcements", () => {
     const pages = buildDefaultJournalPages("Jurnal Test");
-    expect(pages).toHaveLength(6);
+    expect(pages).toHaveLength(7);
     expect(pages.map((page) => page.slug)).toEqual([
       "about",
+      "announcements",
       "author-guidelines",
       "peer-review-policy",
       "focus-and-scope",

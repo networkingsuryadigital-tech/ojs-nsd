@@ -2,13 +2,10 @@ import { expect, test } from "@playwright/test";
 
 import { loginAsDemoUser } from "./helpers/auth";
 
-const hasSupabase = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim(),
-);
+const hasAuth = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
 
 test.describe("auth UI (demo tenant)", () => {
-  test.skip(!hasSupabase, "Membutuhkan kredensial Supabase di .env");
+  test.skip(!hasAuth, "Membutuhkan BETTER_AUTH_SECRET di .env");
 
   test("unauthenticated editorial redirects to login", async ({ page }) => {
     await page.goto("/editorial/dashboard");

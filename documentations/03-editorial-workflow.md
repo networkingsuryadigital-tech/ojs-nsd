@@ -126,7 +126,7 @@ export async function transitionSubmission(input) {
 `Journal.reviewModel` menentukan derajat penyamaran:
 
 - **DOUBLE_BLIND**: author tidak tahu reviewer, reviewer tidak tahu author.
-  - Reviewer hanya boleh mengakses `SubmissionFile{type:ANONYMIZED_MANUSCRIPT}` (versi tanpa nama/afiliasi/metadata dokumen). Use-case unggah menandai `isAnonymized` setelah pipeline pembersih metadata berjalan (hapus author di properti PDF/DOCX, cek halaman pertama).
+  - Reviewer hanya boleh mengakses `SubmissionFile{type:ANONYMIZED_MANUSCRIPT}` (versi tanpa nama/afiliasi/metadata dokumen). Pipeline: PDF (best-effort strip `/Author` dkk.) + DOCX (`docProps/core.xml` `dc:creator`/`cp:lastModifiedBy` + `docProps/app.xml` Company). Jika strip DOCX gagal, file asli **tidak** dikirim ke reviewer.
   - API yang melayani reviewer **tidak** mengembalikan `SubmissionAuthor`/`participants` author.
   - Author melihat komentar via `ReviewAssignment.anonymousLabel` ("Reviewer A/B"), bukan nama.
   - `Review.commentsToEditor` tidak pernah dikirim ke author.

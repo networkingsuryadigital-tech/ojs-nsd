@@ -4,14 +4,20 @@ import { z } from "zod";
 
 import { assertJournalRoles } from "@/application/identity/assert-journal-roles";
 import { transitionSubmission } from "@/application/submission/transition-submission";
+import { validateLicense } from "@/domain/publishing/license";
 import { findIssueInJournal } from "@/infrastructure/publishing/issue-repository";
-import { loadSubmission } from "@/infrastructure/submission/submission-repository";
+import {
+  loadSubmission,
+  setSubmissionLicense,
+} from "@/infrastructure/submission/submission-repository";
 
 const publishSubmissionToIssueSchema = z.object({
   journalId: z.string().trim().min(1),
   submissionId: z.string().trim().min(1),
   actorId: z.string().trim().min(1),
   issueId: z.string().trim().min(1),
+  license: z.string().trim().min(1).optional(),
+  customRightsUrl: z.string().trim().optional().nullable(),
 });
 
 export async function publishSubmissionToIssue(
@@ -37,6 +43,14 @@ export async function publishSubmissionToIssue(
   const issue = await findIssueInJournal(parsed.journalId, parsed.issueId);
   if (!issue) {
     throw new Error("Issue not found.");
+  }
+
+  if (parsed.license) {
+    const license = validateLicense(parsed.license);
+    await setSubmissionLicense(parsed.journalId, parsed.submissionId, {
+      license,
+      customRightsUrl: parsed.customRightsUrl,
+    });
   }
 
   return transitionSubmission({

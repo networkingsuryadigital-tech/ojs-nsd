@@ -10,10 +10,20 @@ const journal: ResolvedJournal = {
 
 const memoryStore = new Map<string, string>();
 
-vi.mock("@upstash/redis", () => ({
-  Redis: class MockRedis {
-    async get<T>(key: string): Promise<T | null> {
-      return (memoryStore.get(key) as T | undefined) ?? null;
+vi.mock("ioredis", () => {
+  class MockRedis {
+    status = "ready";
+
+    async connect(): Promise<void> {
+      this.status = "ready";
+    }
+
+    async quit(): Promise<"OK"> {
+      return "OK";
+    }
+
+    async get(key: string): Promise<string | null> {
+      return memoryStore.get(key) ?? null;
     }
 
     async set(key: string, value: string): Promise<"OK"> {
@@ -30,14 +40,15 @@ vi.mock("@upstash/redis", () => ({
       }
       return removed;
     }
-  },
-}));
+  }
+
+  return { default: MockRedis };
+});
 
 describe("tenant host cache", () => {
   beforeEach(() => {
     memoryStore.clear();
-    process.env.UPSTASH_REDIS_REST_URL = "https://valid.upstash.io";
-    process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
+    process.env.REDIS_URL = "redis://127.0.0.1:6379";
   });
 
   afterEach(async () => {
@@ -45,13 +56,11 @@ describe("tenant host cache", () => {
       "@/infrastructure/tenancy/tenant-cache"
     );
     resetTenantCacheForTests();
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+    delete process.env.REDIS_URL;
   });
 
-  it("returns undefined when Upstash is not configured", async () => {
-    delete process.env.UPSTASH_REDIS_REST_URL;
-    delete process.env.UPSTASH_REDIS_REST_TOKEN;
+  it("returns undefined when Redis is not configured", async () => {
+    delete process.env.REDIS_URL;
     const { resetTenantCacheForTests, getCachedJournalByHost } = await import(
       "@/infrastructure/tenancy/tenant-cache"
     );

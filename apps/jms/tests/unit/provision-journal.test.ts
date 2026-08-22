@@ -51,7 +51,7 @@ describe.skipIf(!hasDatabase)("provisionJournal", () => {
     createdJournalIds.push(result.journalId);
 
     expect(result.subdomain).toBe(subdomain);
-    expect(result.pageIds).toHaveLength(6);
+    expect(result.pageIds).toHaveLength(7);
 
     const journal = await adminDb.journal.findUniqueOrThrow({
       where: { id: result.journalId },
@@ -68,6 +68,7 @@ describe.skipIf(!hasDatabase)("provisionJournal", () => {
     expect(journal.theme?.locale).toBe("id");
     expect(journal.pages.map((page) => page.slug)).toEqual([
       "about",
+      "announcements",
       "author-guidelines",
       "focus-and-scope",
       "open-access-policy",
@@ -163,12 +164,25 @@ describe.skipIf(!hasDatabase)("tenant resolution", () => {
     expect(resolved?.id).toBe(journalId);
   });
 
-  it("returns null for platform admin host", async () => {
+  it("returns null for platform admin host when no primary journal is set", async () => {
+    const previous = process.env.JMS_PRIMARY_JOURNAL_SUBDOMAIN;
+    delete process.env.JMS_PRIMARY_JOURNAL_SUBDOMAIN;
     const platformHost = getPlatformHost();
     await expect(lookupJournalByHostFromDb(platformHost, platformHost)).resolves.toBeNull();
     await expect(
       lookupJournalByHostFromDb(`app.${platformHost}`, platformHost),
     ).resolves.toBeNull();
+    if (previous) {
+      process.env.JMS_PRIMARY_JOURNAL_SUBDOMAIN = previous;
+    }
+  });
+
+  it("resolves platform apex to the primary journal subdomain", async () => {
+    process.env.JMS_PRIMARY_JOURNAL_SUBDOMAIN = subdomain;
+    const platformHost = getPlatformHost();
+    const resolved = await lookupJournalByHostFromDb(platformHost, platformHost);
+    expect(resolved?.id).toBe(journalId);
+    delete process.env.JMS_PRIMARY_JOURNAL_SUBDOMAIN;
   });
 
   it("uses cache after db lookup in resolveJournalByHost", async () => {
@@ -189,8 +203,8 @@ describe.skipIf(!hasDatabase)("tenant resolution", () => {
 
     const lookupSpy = vi
       .spyOn(
-        await import("@/infrastructure/tenancy/journal-lookup-edge"),
-        "lookupJournalByHostFromSupabase",
+        await import("@/infrastructure/tenancy/journal-lookup"),
+        "lookupJournalByHostFromDb",
       )
       .mockResolvedValue(resolvedJournal);
 

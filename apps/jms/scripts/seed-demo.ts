@@ -21,8 +21,9 @@ import { transitionSubmission } from "@/application/submission/transition-submis
 import { uploadManuscript } from "@/application/submission/upload-manuscript";
 import { journalHostnames } from "@/domain/tenancy/host";
 import type { JournalRole } from "@/domain/submission/types";
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
 import type { PrismaClient } from "@prisma/client";
+
+import { upsertSeedAuthUser } from "@/infrastructure/auth/seed-auth-user";
 
 import {
   disconnectSeedClients,
@@ -104,7 +105,7 @@ export type SeedDemoSummary = {
     previewUrl: string;
   };
   auth: {
-    supabaseLinked: boolean;
+    authLinked: boolean;
     note: string;
   };
   users: Array<{ email: string; userId: string; roles: JournalRole[] }>;
@@ -129,75 +130,24 @@ function previewBaseUrl(): string {
   return `http://${DEMO_SUBDOMAIN}.${platformHost}`;
 }
 
-function hasSupabaseAdmin(): boolean {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
-  return Boolean(key && !key.includes("...") && key !== "your-service-role-key");
-}
-
-async function findSupabaseUserIdByEmail(email: string): Promise<string | null> {
-  const supabase = getAdminSupabase();
-  let page = 1;
-  const perPage = 200;
-
-  while (page <= 10) {
-    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage });
-    if (error) {
-      throw new Error(`Supabase listUsers failed: ${error.message}`);
-    }
-    const match = data.users.find(
-      (user) => user.email?.toLowerCase() === email.toLowerCase(),
-    );
-    if (match) {
-      return match.id;
-    }
-    if (data.users.length < perPage) {
-      break;
-    }
-    page += 1;
-  }
-
-  return null;
-}
-
-async function upsertSupabaseAuthUser(email: string, name: string): Promise<string | null> {
-  if (!hasSupabaseAdmin()) {
-    return null;
-  }
-
-  const supabase = getAdminSupabase();
-  const existingId = await findSupabaseUserIdByEmail(email);
-
-  if (existingId) {
-    const { error } = await supabase.auth.admin.updateUserById(existingId, {
-      password: DEMO_PASSWORD,
-      email_confirm: true,
-      user_metadata: { name, demo_seed: true },
-    });
-    if (error) {
-      throw new Error(`Supabase updateUser failed for ${email}: ${error.message}`);
-    }
-    return existingId;
-  }
-
-  const { data, error } = await supabase.auth.admin.createUser({
-    email,
-    password: DEMO_PASSWORD,
-    email_confirm: true,
-    user_metadata: { name, demo_seed: true },
-  });
-
-  if (error) {
-    throw new Error(`Supabase createUser failed for ${email}: ${error.message}`);
-  }
-
-  return data.user.id;
-}
-
 async function upsertDemoUser(
   seedDb: PrismaClient,
   spec: DemoUserSpec,
 ): Promise<string> {
-  const supabaseIdFromAuth = await upsertSupabaseAuthUser(spec.email, spec.name);
+  let authUserId: string | null = null;
+  try {
+    authUserId = await upsertSeedAuthUser({
+      email: spec.email,
+      password: DEMO_PASSWORD,
+      name: spec.name,
+    });
+  } catch (error) {
+    console.warn(
+      `[demo-seed] Better Auth upsert gagal untuk ${spec.email}:`,
+      error instanceof Error ? error.message : error,
+    );
+  }
+
   const fallbackSupabaseId = `demo-seed-${spec.email.replace(/[@.]/g, "-")}`;
 
   const existing = await seedDb.user.findUnique({
@@ -205,7 +155,7 @@ async function upsertDemoUser(
     select: { id: true, supabaseId: true },
   });
 
-  const supabaseId = supabaseIdFromAuth ?? existing?.supabaseId ?? fallbackSupabaseId;
+  const supabaseId = authUserId ?? existing?.supabaseId ?? fallbackSupabaseId;
 
   if (existing) {
     await seedDb.user.update({
@@ -809,7 +759,7 @@ async function runSeedDemoCore(seedDb: PrismaClient): Promise<SeedDemoSummary> {
     { label: "E — PUBLISHED", id: seeded.published.submissionId },
   ]);
 
-  const supabaseLinked = hasSupabaseAdmin();
+  const authLinked = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
 
   return {
     journal: {
@@ -819,10 +769,10 @@ async function runSeedDemoCore(seedDb: PrismaClient): Promise<SeedDemoSummary> {
       previewUrl: previewBaseUrl(),
     },
     auth: {
-      supabaseLinked,
-      note: supabaseLinked
-        ? "Login demo aktif via Supabase Auth (password seragam di bawah)."
-        : "SUPABASE_SERVICE_ROLE_KEY tidak tersedia — baris User lokal dibuat, login penuh membutuhkan Supabase.",
+      authLinked,
+      note: authLinked
+        ? "Login demo aktif via Better Auth (password seragam Demo12345!)."
+        : "BETTER_AUTH_SECRET tidak tersedia — baris User lokal dibuat, login penuh membutuhkan Better Auth.",
     },
     users: DEMO_USERS.map((spec) => ({
       email: spec.email,

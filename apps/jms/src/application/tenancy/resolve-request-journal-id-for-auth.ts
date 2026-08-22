@@ -7,14 +7,15 @@ import { getJournalIdFromRequestHeaders } from "@/infrastructure/tenancy/request
 
 /**
  * Resolves tenant journal id for auth flows (login action).
- * Middleware sets x-journal-id on page GET; Server Actions may miss it — fall back to Host lookup.
+ * Uses shared request-tenant resolution (header or Host → Postgres).
  */
 export async function resolveRequestJournalIdForAuth(): Promise<string | null> {
-  const fromHeader = await getJournalIdFromRequestHeaders();
-  if (fromHeader) {
-    return fromHeader;
+  const fromRequest = await getJournalIdFromRequestHeaders();
+  if (fromRequest) {
+    return fromRequest;
   }
 
+  // Extra Host pass if headers() was empty in an unusual context.
   const headerStore = await headers();
   const host = headerStore.get("host")?.trim();
   if (!host) {

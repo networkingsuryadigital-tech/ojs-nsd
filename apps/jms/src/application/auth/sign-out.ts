@@ -1,8 +1,9 @@
 import "server-only";
 
-import { getServerSupabase } from "@/infrastructure/auth/supabase";
+import { headers } from "next/headers";
+
+import { auth } from "@/lib/auth";
 
 export async function signOut(): Promise<void> {
-  const supabase = await getServerSupabase();
-  await supabase.auth.signOut();
+  await auth.api.signOut({ headers: await headers() });
 }

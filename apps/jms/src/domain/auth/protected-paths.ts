@@ -1,4 +1,5 @@
 const PROTECTED_PREFIXES = [
+  "/admin",
   "/editorial",
   "/author",
   "/reviewer",

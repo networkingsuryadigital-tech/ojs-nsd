@@ -5,7 +5,6 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 const nextConfig: NextConfig = {
   transpilePackages: [
-    "@nsd/auth",
     "@nsd/email",
     "@nsd/payments",
     "@nsd/storage",

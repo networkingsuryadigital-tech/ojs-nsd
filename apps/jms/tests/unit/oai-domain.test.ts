@@ -59,6 +59,7 @@ const sampleRecord = {
   authors: [{ fullName: "Budi Santoso", order: 1 }],
   galleys: [{ mimeType: "application/pdf" }],
   issue: { id: "issue-1", volume: 1, number: 1, year: 2026 },
+  licenseRights: "https://creativecommons.org/licenses/by/4.0/",
 };
 
 describe("OAI domain", () => {
@@ -116,6 +117,9 @@ describe("OAI domain", () => {
         elements.find((e) => e.name === "identifier" && e.value.startsWith("doi:"))
           ?.value,
       ).toBe("doi:10.1234/example");
+      expect(elements.find((e) => e.name === "rights")?.value).toBe(
+        "https://creativecommons.org/licenses/by/4.0/",
+      );
     });
   });
 

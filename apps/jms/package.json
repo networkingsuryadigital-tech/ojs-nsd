@@ -22,7 +22,6 @@
     "db:grant:role": "node --import ./scripts/stub-server-only.ts --import tsx scripts/grant-journal-role.ts"
   },
   "dependencies": {
-    "@nsd/auth": "workspace:*",
     "@nsd/email": "workspace:*",
     "@nsd/notifications": "workspace:*",
     "@nsd/observability": "workspace:*",
@@ -30,8 +29,9 @@
     "@nsd/storage": "workspace:*",
     "@nsd/ui": "workspace:*",
     "@prisma/client": "^6.19.2",
-    "@supabase/supabase-js": "^2.95.3",
-    "@upstash/redis": "^1.38.0",
+    "better-auth": "^1.4.18",
+    "jszip": "^3.10.1",
+    "ioredis": "^5.6.1",
     "next": "16.2.6",
     "next-intl": "^4.13.0",
     "react": "19.2.4",
@@ -41,6 +41,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/jszip": "^3.4.1",
     "@faker-js/faker": "^10.4.0",
     "@nsd/eslint-config": "workspace:*",
     "@nsd/tailwind-config": "workspace:*",

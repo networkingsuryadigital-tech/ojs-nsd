@@ -1,21 +1,19 @@
 import "server-only";
 
-import { getServerSupabase } from "@/infrastructure/auth/supabase";
+import { headers } from "next/headers";
+
 import {
-  findUserBySupabaseId,
+  findUserByAuthUserId,
   type ResolvedAppUser,
 } from "@/infrastructure/identity/user-repository";
+import { auth } from "@/lib/auth";
 
 export async function resolveSessionUser(): Promise<ResolvedAppUser | null> {
-  const supabase = await getServerSupabase();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  const authUserId = session?.user?.id;
+  if (!authUserId) {
     return null;
   }
 
-  return findUserBySupabaseId(user.id);
+  return findUserByAuthUserId(authUserId);
 }

@@ -231,6 +231,7 @@ export async function publishSubmissionAction(input: {
   submissionId: string;
   actorId: string;
   issueId: string;
+  license?: string;
 }) {
   const journalId = await resolveRequestJournalId();
   return publishSubmissionToIssue({ journalId, ...input });
@@ -262,5 +263,6 @@ export async function publishSubmissionFormAction(formData: FormData) {
   const submissionId = String(formData.get("submissionId") ?? "");
   const actorId = await requireAuthenticatedUserId();
   const issueId = String(formData.get("issueId") ?? "");
-  await publishSubmissionAction({ submissionId, actorId, issueId });
+  const license = String(formData.get("license") ?? "CC_BY_4");
+  await publishSubmissionAction({ submissionId, actorId, issueId, license });
 }

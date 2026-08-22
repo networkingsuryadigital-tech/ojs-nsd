@@ -14,11 +14,19 @@ const envSchema = z.object({
     .url()
     .or(z.string().startsWith("postgresql://")),
   DIRECT_URL: z.string().optional(),
-  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  BETTER_AUTH_SECRET: optionalEnvString(),
+  BETTER_AUTH_URL: optionalEnvString(),
+  MINIO_ENDPOINT: optionalEnvString(),
+  MINIO_ACCESS_KEY: optionalEnvString(),
+  MINIO_SECRET_KEY: optionalEnvString(),
+  MINIO_PUBLIC_ENDPOINT: optionalEnvString(),
+  REDIS_URL: optionalEnvString(),
+  NEXT_PUBLIC_SUPABASE_URL: optionalEnvString(),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: optionalEnvString(),
   SUPABASE_SERVICE_ROLE_KEY: optionalEnvString(),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   JMS_PLATFORM_HOST: optionalEnvString(),
+  JMS_PRIMARY_JOURNAL_SUBDOMAIN: optionalEnvString(),
   MIDTRANS_SERVER_KEY: optionalEnvString(),
   NEXT_PUBLIC_MIDTRANS_CLIENT_KEY: optionalEnvString(),
   MIDTRANS_IS_PRODUCTION: z
@@ -97,11 +105,10 @@ function parseEnv(): Env {
       DIRECT_URL:
         process.env.DIRECT_URL ??
         "postgresql://postgres:postgres@localhost:5432/jms",
-      NEXT_PUBLIC_SUPABASE_URL:
-        process.env.NEXT_PUBLIC_SUPABASE_URL ??
-        "https://placeholder.supabase.co",
-      NEXT_PUBLIC_SUPABASE_ANON_KEY:
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "placeholder-anon-key",
+      BETTER_AUTH_SECRET:
+        process.env.BETTER_AUTH_SECRET ?? "dev-better-auth-secret-change-me",
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     });
   }
   return parsed.data;

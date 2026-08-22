@@ -55,8 +55,7 @@ export async function processOaiHttpRequest(
 
   const rateLimit = await checkRateLimit(
     {
-      url: env.UPSTASH_REDIS_REST_URL,
-      token: env.UPSTASH_REDIS_REST_TOKEN,
+      redisUrl: env.REDIS_URL,
     },
     `oai:${repositoryHost}`,
     { requestsPerMinute: resolveOaiRateLimitPerMinute() },

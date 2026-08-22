@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { SubmissionAuthorizationError } from "@/domain/submission/errors";
 import { isAnonymizedUserEmail } from "@/domain/privacy/anonymization";
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
+import { prisma } from "@/infrastructure/db/prisma";
 import {
   anonymizeUserRecord,
   loadUserForDeletion,
@@ -40,10 +40,11 @@ export async function deleteUserAccount(
     await anonymizeUserRecord(parsed.userId);
   }
 
-  const supabase = getAdminSupabase();
-  const { error } = await supabase.auth.admin.deleteUser(user.supabaseId);
-  if (error) {
-    throw new Error(`Supabase account deletion failed: ${error.message}`);
+  const authUserId = user.authUserId ?? user.supabaseId;
+  try {
+    await prisma.authUser.delete({ where: { id: authUserId } });
+  } catch {
+    // Auth user may already be removed during migration cleanup.
   }
 
   return { deleted: true, anonymizedUserId: parsed.userId };

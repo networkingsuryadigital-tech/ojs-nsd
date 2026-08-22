@@ -1,8 +1,6 @@
 import "server-only";
 
-import { createSignedUrl, uploadFile } from "@nsd/storage";
-
-import { getAdminSupabase } from "@/infrastructure/auth/supabase";
+import { createSignedUrl, downloadFile, uploadFile } from "@nsd/storage";
 
 import { getSubmissionStorageBucket } from "./storage-config";
 
@@ -78,8 +76,7 @@ export async function uploadManuscriptToStorage(input: {
   file: Buffer;
   mimeType: string;
 }): Promise<void> {
-  const supabase = getAdminSupabase();
-  await uploadFile(supabase, {
+  await uploadFile({
     bucket: getSubmissionStorageBucket(),
     path: input.storageKey,
     file: input.file,
@@ -92,8 +89,7 @@ export async function createManuscriptSignedUrl(
   storageKey: string,
   expiresInSeconds = 3600,
 ): Promise<string> {
-  const supabase = getAdminSupabase();
-  return createSignedUrl(supabase, {
+  return createSignedUrl({
     bucket: getSubmissionStorageBucket(),
     path: storageKey,
     expiresInSeconds,
@@ -103,15 +99,8 @@ export async function createManuscriptSignedUrl(
 export async function downloadManuscriptBytes(
   storageKey: string,
 ): Promise<Buffer> {
-  const supabase = getAdminSupabase();
-  const { data, error } = await supabase.storage
-    .from(getSubmissionStorageBucket())
-    .download(storageKey);
-
-  if (error || !data) {
-    throw new Error(error?.message ?? "Failed to download manuscript file.");
-  }
-
-  const arrayBuffer = await data.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  return downloadFile({
+    bucket: getSubmissionStorageBucket(),
+    path: storageKey,
+  });
 }

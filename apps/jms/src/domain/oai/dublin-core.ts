@@ -118,7 +118,10 @@ export function buildDublinCoreElements(
     elements.push({ name: "relation", value: issueUrl });
   }
 
-  elements.push({ name: "rights", value: DEFAULT_ARTICLE_RIGHTS });
+  elements.push({
+    name: "rights",
+    value: record.licenseRights || DEFAULT_ARTICLE_RIGHTS,
+  });
 
   return elements;
 }

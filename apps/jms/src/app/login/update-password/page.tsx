@@ -13,12 +13,17 @@ import {
 
 import { UpdatePasswordForm } from "./update-password-form";
 
-export default async function UpdatePasswordPage() {
+export default async function UpdatePasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ token?: string }>;
+}) {
+  const { token } = await searchParams;
   const tenantContext = await getRequestTenantContext();
   const journalName =
     tenantContext.kind === "tenant" ? tenantContext.site.name : "JMS Platform";
 
-  const hasSession = await hasAuthSession();
+  const hasSession = token ? true : await hasAuthSession();
 
 
   return (
@@ -41,7 +46,7 @@ export default async function UpdatePasswordPage() {
         </CardHeader>
         <CardContent>
           {hasSession ? (
-            <UpdatePasswordForm />
+            <UpdatePasswordForm token={token} />
           ) : (
             <p className="text-center text-sm text-muted-foreground">
               <Link

@@ -14,6 +14,8 @@ export {
   verifyDuitkuCallbackSignature,
 } from "./duitku";
 
+export { createXenditAdapter } from "./xendit";
+
 export {
   createMidtransAdapter,
   createMidtransSnapTransaction,

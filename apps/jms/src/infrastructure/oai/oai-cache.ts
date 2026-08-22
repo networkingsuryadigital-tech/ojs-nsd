@@ -1,6 +1,6 @@
 import "server-only";
 
-import { Redis } from "@upstash/redis";
+import Redis from "ioredis";
 
 const CACHE_TTL_SECONDS = 300;
 const VERSION_KEY_PREFIX = "oai:version:";
@@ -8,16 +8,16 @@ const RESPONSE_KEY_PREFIX = "oai:response:";
 
 let redisClient: Redis | null | undefined;
 
-function isConfiguredUpstash(url?: string, token?: string): boolean {
-  if (!url || !token) {
+function isConfiguredRedisUrl(url?: string): boolean {
+  if (!url?.trim()) {
     return false;
   }
-  if (url.includes("...") || url.includes("[") || token.includes("...")) {
+  if (url.includes("...") || url.includes("[")) {
     return false;
   }
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname.includes(".");
+    return parsed.protocol === "redis:" || parsed.protocol === "rediss:";
   } catch {
     return false;
   }
@@ -27,14 +27,31 @@ function getRedis(): Redis | null {
   if (redisClient !== undefined) {
     return redisClient;
   }
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
-  if (!isConfiguredUpstash(url, token)) {
+  const url = process.env.REDIS_URL;
+  if (!isConfiguredRedisUrl(url)) {
     redisClient = null;
     return null;
   }
-  redisClient = new Redis({ url: url!, token: token! });
+  redisClient = new Redis(url!, {
+    maxRetriesPerRequest: 1,
+    lazyConnect: true,
+    enableOfflineQueue: false,
+  });
   return redisClient;
+}
+
+async function withRedis<T>(
+  redis: Redis,
+  operation: () => Promise<T>,
+): Promise<T | undefined> {
+  try {
+    if (redis.status !== "ready") {
+      await redis.connect();
+    }
+    return await operation();
+  } catch {
+    return undefined;
+  }
 }
 
 export async function getOaiCacheVersion(journalId: string): Promise<number> {
@@ -42,8 +59,14 @@ export async function getOaiCacheVersion(journalId: string): Promise<number> {
   if (!redis) {
     return 0;
   }
-  const value = await redis.get<number>(`${VERSION_KEY_PREFIX}${journalId}`);
-  return typeof value === "number" ? value : 0;
+  const value = await withRedis(redis, () =>
+    redis.get(`${VERSION_KEY_PREFIX}${journalId}`),
+  );
+  if (value === undefined || value === null) {
+    return 0;
+  }
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 export async function bumpOaiCacheVersion(journalId: string): Promise<void> {
@@ -51,7 +74,7 @@ export async function bumpOaiCacheVersion(journalId: string): Promise<void> {
   if (!redis) {
     return;
   }
-  await redis.incr(`${VERSION_KEY_PREFIX}${journalId}`);
+  await withRedis(redis, () => redis.incr(`${VERSION_KEY_PREFIX}${journalId}`));
 }
 
 export async function getCachedOaiResponse(
@@ -61,7 +84,9 @@ export async function getCachedOaiResponse(
   if (!redis) {
     return null;
   }
-  const value = await redis.get<string>(`${RESPONSE_KEY_PREFIX}${cacheKey}`);
+  const value = await withRedis(redis, () =>
+    redis.get(`${RESPONSE_KEY_PREFIX}${cacheKey}`),
+  );
   return typeof value === "string" ? value : null;
 }
 
@@ -73,9 +98,9 @@ export async function setCachedOaiResponse(
   if (!redis) {
     return;
   }
-  await redis.set(`${RESPONSE_KEY_PREFIX}${cacheKey}`, xml, {
-    ex: CACHE_TTL_SECONDS,
-  });
+  await withRedis(redis, () =>
+    redis.set(`${RESPONSE_KEY_PREFIX}${cacheKey}`, xml, "EX", CACHE_TTL_SECONDS),
+  );
 }
 
 export function buildOaiResponseCacheKey(parts: Record<string, string>): string {
@@ -87,5 +112,8 @@ export function buildOaiResponseCacheKey(parts: Record<string, string>): string 
 
 /** Test helper — reset module-level Redis client between tests. */
 export function resetOaiCacheClientForTests(): void {
+  if (redisClient) {
+    void redisClient.quit().catch(() => undefined);
+  }
   redisClient = undefined;
 }

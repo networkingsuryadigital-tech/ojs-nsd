@@ -9,6 +9,10 @@ import type {
   OaiPublishedRecord,
   OaiSet,
 } from "@/domain/oai/types";
+import {
+  mapLicenseToDublinCoreRights,
+  type ArticleLicense,
+} from "@/domain/publishing/license";
 import type { SubmissionStatus } from "@/domain/submission/types";
 import { withTenant } from "@/infrastructure/db/with-tenant";
 
@@ -34,6 +38,8 @@ function mapSubmissionToOaiRecord(
     }>;
     authors: Array<{ fullName: string; order: number }>;
     galleys: Array<{ mimeType: string }>;
+    license: ArticleLicense;
+    customRightsUrl: string | null;
     issue: {
       id: string;
       volume: number;
@@ -62,6 +68,10 @@ function mapSubmissionToOaiRecord(
     translations: submission.translations,
     authors: submission.authors,
     galleys: submission.galleys,
+    licenseRights: mapLicenseToDublinCoreRights(
+      submission.license,
+      submission.customRightsUrl,
+    ),
     issue:
       submission.issue && submission.issue.isPublished
         ? {
@@ -81,6 +91,8 @@ const publishedSubmissionSelect = {
   updatedAt: true,
   doi: true,
   status: true,
+  license: true,
+  customRightsUrl: true,
   publicationNoticeType: true,
   publicationNoticeReason: true,
   translations: {

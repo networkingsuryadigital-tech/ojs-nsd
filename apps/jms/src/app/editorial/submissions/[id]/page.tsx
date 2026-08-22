@@ -521,6 +521,19 @@ export default async function DeskReviewPage({ params, searchParams }: PageProps
                     ))}
                   </select>
                 </label>
+                <label className="block text-sm">
+                  Lisensi open access
+                  <select
+                    name="license"
+                    defaultValue="CC_BY_4"
+                    className="mt-1 block w-full rounded-md border px-3 py-2 text-sm"
+                  >
+                    <option value="CC_BY_4">CC BY 4.0</option>
+                    <option value="CC_BY_NC_4">CC BY-NC 4.0</option>
+                    <option value="CC_BY_SA_4">CC BY-SA 4.0</option>
+                    <option value="ALL_RIGHTS_RESERVED">All rights reserved</option>
+                  </select>
+                </label>
                 <Button type="submit">Publish to issue</Button>
               </form>
             )}

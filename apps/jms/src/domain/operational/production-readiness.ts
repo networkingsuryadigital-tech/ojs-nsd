@@ -41,7 +41,7 @@ export function evaluateProductionReadiness(
 
   if (!input.redisConfigured) {
     warnings.push(
-      "Upstash Redis not configured — OAI rate limiting and tenant cache may be degraded.",
+      "REDIS_URL not configured — OAI rate limiting and tenant cache may be degraded.",
     );
   }
 

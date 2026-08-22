@@ -8,10 +8,15 @@
   },
   "nav": {
     "home": "Home",
-    "issues": "Issues",
+    "issues": "Archives",
+    "current": "Current",
     "about": "About",
     "guidelines": "Author Guidelines",
+    "editorialBoard": "Editorial Board",
+    "announcements": "Announcements",
+    "search": "Search",
     "policies": "Policies",
+    "register": "Register",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "dashboard": "Editorial",
@@ -39,7 +44,12 @@
     "keywords": "Keywords",
     "howToCite": "How to cite",
     "downloadGalley": "Download {label}",
-    "openAccessNotice": "This article is published as open access via JMS."
+    "openAccessNotice": "This article is published as open access via JMS.",
+    "currentIssue": "Current issue",
+    "searchPlaceholder": "Search title, abstract, or keywords",
+    "searchTooShort": "Enter at least 2 characters.",
+    "searchNoResults": "No matching articles.",
+    "license": "License"
   },
   "locale": {
     "label": "Language",

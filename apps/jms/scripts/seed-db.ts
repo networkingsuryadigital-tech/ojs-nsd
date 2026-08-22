@@ -6,18 +6,11 @@ const SEED_POOL_PARAMS = {
 } as const;
 
 /**
- * Builds a conservative Prisma URL for Supabase free-tier seed runs.
- * Prefers the transaction pooler (6543) over direct 5432.
+ * Builds a conservative Prisma URL for seed runs (local Postgres or VPS PgBouncer).
+ * Does not remap ports — the old 5432→6543 rewrite was specific to Supabase pooler.
  */
 export function buildSeedDatabaseUrl(rawUrl: string): string {
   const url = new URL(rawUrl);
-
-  if (url.port === "5432") {
-    url.port = "6543";
-    if (!url.searchParams.has("pgbouncer")) {
-      url.searchParams.set("pgbouncer", "true");
-    }
-  }
 
   for (const [key, value] of Object.entries(SEED_POOL_PARAMS)) {
     url.searchParams.set(key, value);
@@ -36,7 +29,7 @@ export function getSeedPrismaClient(): PrismaClient {
   const rawUrl = process.env.DATABASE_URL?.trim();
   if (!rawUrl) {
     throw new Error(
-      "DATABASE_URL is required. Copy apps/jms/.env.example → apps/jms/.env and configure Supabase Postgres.",
+      "DATABASE_URL is required. Copy .env.example → apps/jms/.env and configure PostgreSQL.",
     );
   }
 

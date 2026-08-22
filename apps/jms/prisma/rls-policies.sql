@@ -243,4 +243,22 @@ CREATE POLICY tenant_isolation ON "DoiDepositJob"
   USING ("journalId" = current_setting('app.current_journal_id', true))
   WITH CHECK ("journalId" = current_setting('app.current_journal_id', true));
 
--- Global tables (no RLS): User, ReviewerProfile, ProcessedWebhook
+-- Global tables (no RLS): User, ReviewerProfile, ProcessedWebhook, AuthUser, AuthSession, AuthAccount, AuthVerification
+
+ALTER TABLE "SimilarityCheckJob" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "SimilarityCheckJob" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON "SimilarityCheckJob"
+  USING ("journalId" = current_setting('app.current_journal_id', true))
+  WITH CHECK ("journalId" = current_setting('app.current_journal_id', true));
+
+ALTER TABLE "JournalLedgerEntry" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "JournalLedgerEntry" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON "JournalLedgerEntry"
+  USING ("journalId" = current_setting('app.current_journal_id', true))
+  WITH CHECK ("journalId" = current_setting('app.current_journal_id', true));
+
+ALTER TABLE "JournalPayout" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "JournalPayout" FORCE ROW LEVEL SECURITY;
+CREATE POLICY tenant_isolation ON "JournalPayout"
+  USING ("journalId" = current_setting('app.current_journal_id', true))
+  WITH CHECK ("journalId" = current_setting('app.current_journal_id', true));

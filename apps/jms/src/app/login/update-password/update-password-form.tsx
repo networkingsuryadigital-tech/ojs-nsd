@@ -10,7 +10,7 @@ import {
   type UpdatePasswordFormState,
 } from "../password-actions";
 
-export function UpdatePasswordForm() {
+export function UpdatePasswordForm({ token }: { token?: string }) {
   const [state, formAction, pending] = useActionState<
     UpdatePasswordFormState,
     FormData
@@ -36,6 +36,7 @@ export function UpdatePasswordForm() {
 
   return (
     <form action={formAction} className="space-y-4">
+      {token ? <input type="hidden" name="token" value={token} /> : null}
       {state.error ? (
         <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
           {state.error}

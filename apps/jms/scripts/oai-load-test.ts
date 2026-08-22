@@ -5,7 +5,7 @@
  *   pnpm oai:load-test
  *   pnpm oai:load-test -- --baseUrl=http://demo.localhost:3000 --requests=50 --concurrency=5
  *
- * Optional: set OAI_RATE_LIMIT_PER_MIN=5 and valid UPSTASH_REDIS_* to verify 429 + Retry-After.
+ * Optional: set OAI_RATE_LIMIT_PER_MIN=5 and valid REDIS_URL to verify 429 + Retry-After.
  */
 
 type LoadTestOptions = {

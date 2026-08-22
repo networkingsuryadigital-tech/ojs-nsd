@@ -5,13 +5,10 @@ import { loginAsDemoUser } from "./helpers/auth";
 const DEMO_AUTHOR_EMAIL = "author@demo.test";
 const DEMO_PASSWORD = "Demo12345!";
 
-const hasSupabase = Boolean(
-  process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim(),
-);
+const hasAuth = Boolean(process.env.BETTER_AUTH_SECRET?.trim());
 
 test.describe("author portal (demo tenant)", () => {
-  test.skip(!hasSupabase, "Membutuhkan kredensial Supabase di .env");
+  test.skip(!hasAuth, "Membutuhkan BETTER_AUTH_SECRET di .env");
 
   test("unauthenticated author portal redirects to login", async ({ page }) => {
     await page.goto("/author/submissions");
