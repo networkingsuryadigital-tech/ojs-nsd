@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { isPlatformSuperAdmin } from "@/application/identity/is-platform-super-admin";
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
 import { resolveJournalRoles } from "@/application/identity/resolve-journal-roles";
 import type { JournalPublicSite } from "@/domain/tenancy/public-site";
@@ -34,6 +35,9 @@ export async function EditorialLayoutShell({
     ? await resolveJournalRoles(site.journalId, sessionUser.id)
     : [];
   const showSettings = roles.includes("JOURNAL_ADMIN");
+  const showPlatformAdmin = sessionUser
+    ? await isPlatformSuperAdmin(sessionUser.id)
+    : false;
 
   return (
     <WorkspaceLayoutShell
@@ -42,6 +46,7 @@ export async function EditorialLayoutShell({
       sidebar={
         <EditorialSidebar
           showSettings={showSettings}
+          showPlatformAdmin={showPlatformAdmin}
           journalName={site.name}
           activeRole={primaryRole(roles)}
         />

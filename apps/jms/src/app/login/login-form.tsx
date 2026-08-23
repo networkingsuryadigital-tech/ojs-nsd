@@ -79,7 +79,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
       </Button>
       <p className="text-center text-sm text-muted-foreground">
         Penulis baru wajib daftar dulu. Peran editor/reviewer/admin jurnal
-        ditetapkan oleh SUPER_ADMIN di /admin.
+        ditetapkan oleh SUPER_ADMIN lewat menu Platform.
       </p>
     </form>
   );

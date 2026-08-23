@@ -1,16 +1,39 @@
 "use client";
 
-import { ClipboardCheck } from "lucide-react";
+import { ClipboardCheck, LayoutGrid } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
+import {
+  WorkspaceSidebar,
+  type WorkspaceNavItem,
+} from "@/components/workspace/workspace-sidebar";
 
 type ReviewerSidebarProps = {
   journalName: string;
+  showPlatformAdmin?: boolean;
 };
 
-export function ReviewerSidebar({ journalName }: ReviewerSidebarProps) {
+export function ReviewerSidebar({
+  journalName,
+  showPlatformAdmin = false,
+}: ReviewerSidebarProps) {
   const t = useTranslations("reviewer");
+  const items: WorkspaceNavItem[] = [
+    {
+      href: "/reviewer/assignments",
+      label: t("assignments"),
+      icon: ClipboardCheck,
+      isActive: (pathname) => pathname.startsWith("/reviewer/assignments"),
+    },
+  ];
+  if (showPlatformAdmin) {
+    items.push({
+      href: "/admin/journals",
+      label: t("platform"),
+      icon: LayoutGrid,
+      isActive: (pathname) => pathname.startsWith("/admin"),
+    });
+  }
 
   return (
     <WorkspaceSidebar
@@ -20,14 +43,7 @@ export function ReviewerSidebar({ journalName }: ReviewerSidebarProps) {
       navLabel={t("navLabel")}
       openMenuLabel={t("openMenu")}
       closeMenuLabel={t("closeMenu")}
-      items={[
-        {
-          href: "/reviewer/assignments",
-          label: t("assignments"),
-          icon: ClipboardCheck,
-          isActive: (pathname) => pathname.startsWith("/reviewer/assignments"),
-        },
-      ]}
+      items={items}
     />
   );
 }

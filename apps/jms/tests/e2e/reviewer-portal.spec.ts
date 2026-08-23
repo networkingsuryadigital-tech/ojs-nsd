@@ -27,6 +27,11 @@ test.describe("reviewer portal (demo tenant)", () => {
       page.getByRole("navigation", { name: "Navigasi reviewer" }),
     ).toBeVisible();
     await expect(
+      page.getByRole("navigation", { name: "Navigasi reviewer" }).getByRole("link", {
+        name: "Platform",
+      }),
+    ).toHaveCount(0);
+    await expect(
       page.locator("header").getByRole("link", { name: "Beranda" }),
     ).toHaveCount(0);
   });

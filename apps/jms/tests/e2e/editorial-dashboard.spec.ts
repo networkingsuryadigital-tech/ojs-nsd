@@ -27,6 +27,11 @@ test.describe("editorial dashboard (demo tenant)", () => {
       }),
     ).toBeVisible();
     await expect(
+      page.getByRole("navigation", { name: "Navigasi editorial" }).getByRole("link", {
+        name: "Platform",
+      }),
+    ).toHaveCount(0);
+    await expect(
       page.locator("header").getByRole("link", { name: "Beranda" }),
     ).toHaveCount(0);
   });

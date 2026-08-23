@@ -5,6 +5,7 @@
     "issues": "Issues",
     "published": "Published",
     "settings": "Settings",
+    "platform": "Platform",
     "submissions": "Submissions",
     "openMenu": "Open editorial menu",
     "closeMenu": "Close editorial menu",
@@ -39,6 +40,7 @@
     "roleLabel": "Author",
     "mySubmissions": "My submissions",
     "newSubmission": "New submission",
+    "platform": "Platform",
     "openMenu": "Open author menu",
     "closeMenu": "Close author menu"
   },
@@ -46,6 +48,7 @@
     "navLabel": "Reviewer navigation",
     "roleLabel": "Reviewer",
     "assignments": "Review assignments",
+    "platform": "Platform",
     "openMenu": "Open reviewer menu",
     "closeMenu": "Close reviewer menu"
   },

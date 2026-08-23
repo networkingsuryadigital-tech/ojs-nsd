@@ -24,6 +24,11 @@ test.describe("author portal (demo tenant)", () => {
       page.getByRole("navigation", { name: "Navigasi penulis" }),
     ).toBeVisible();
     await expect(
+      page.getByRole("navigation", { name: "Navigasi penulis" }).getByRole("link", {
+        name: "Platform",
+      }),
+    ).toHaveCount(0);
+    await expect(
       page.locator("header").getByRole("link", { name: "Beranda" }),
     ).toHaveCount(0);
     const draftLink = page

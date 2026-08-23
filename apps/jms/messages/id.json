@@ -5,6 +5,7 @@
     "issues": "Terbitan",
     "published": "Artikel terbit",
     "settings": "Pengaturan",
+    "platform": "Platform",
     "submissions": "Naskah",
     "openMenu": "Buka menu editorial",
     "closeMenu": "Tutup menu editorial",
@@ -39,6 +40,7 @@
     "roleLabel": "Penulis",
     "mySubmissions": "Naskah saya",
     "newSubmission": "Naskah baru",
+    "platform": "Platform",
     "openMenu": "Buka menu penulis",
     "closeMenu": "Tutup menu penulis"
   },
@@ -46,6 +48,7 @@
     "navLabel": "Navigasi reviewer",
     "roleLabel": "Reviewer",
     "assignments": "Tugas review",
+    "platform": "Platform",
     "openMenu": "Buka menu reviewer",
     "closeMenu": "Tutup menu reviewer"
   },

@@ -1,20 +1,21 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { FileText, Library, Newspaper, Settings } from "lucide-react";
+import { FileText, LayoutGrid, Library, Newspaper, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
 
 type EditorialSidebarProps = {
   showSettings: boolean;
+  showPlatformAdmin: boolean;
   journalName: string;
   activeRole: string | null;
 };
 
 type NavItem = {
   href: string;
-  labelKey: "dashboard" | "issues" | "published" | "settings";
+  labelKey: "dashboard" | "issues" | "published" | "settings" | "platform";
   icon: ComponentType<{ className?: string }>;
   isActive: (pathname: string) => boolean;
 };
@@ -46,6 +47,12 @@ const NAV_ITEMS: NavItem[] = [
     icon: Settings,
     isActive: (pathname) => pathname.startsWith("/editorial/settings"),
   },
+  {
+    href: "/admin/journals",
+    labelKey: "platform",
+    icon: LayoutGrid,
+    isActive: (pathname) => pathname.startsWith("/admin"),
+  },
 ];
 
 function roleLabel(
@@ -74,13 +81,16 @@ function roleLabel(
 
 export function EditorialSidebar({
   showSettings,
+  showPlatformAdmin,
   journalName,
   activeRole,
 }: EditorialSidebarProps) {
   const t = useTranslations("editorial");
-  const items = showSettings
-    ? NAV_ITEMS
-    : NAV_ITEMS.filter((item) => item.labelKey !== "settings");
+  const items = NAV_ITEMS.filter((item) => {
+    if (item.labelKey === "settings") return showSettings;
+    if (item.labelKey === "platform") return showPlatformAdmin;
+    return true;
+  });
 
   return (
     <WorkspaceSidebar

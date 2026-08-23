@@ -93,6 +93,14 @@ Hamburger mobile: `Buka menu penulis` / `Buka menu reviewer`. Hover link sidebar
 
 ---
 
+## 5. Menu Platform (SUPER_ADMIN saja)
+
+Tautan `/admin` **tidak** ada di header publik (Beranda, Tentang, Arsip, …). Hanya user dengan `User.platformRole = SUPER_ADMIN` yang melihat item **Platform** di sidebar workspace (editorial / penulis / reviewer). Item itu menuju `/admin/journals`.
+
+`/admin/*` sendiri memakai sidebar platform (Jurnal, Dashboard jurnal, Situs jurnal). Pengunjung lain yang membuka URL itu tetap `404` (`requirePlatformSuperAdmin`).
+
+---
+
 ## Verifikasi (hasil aktual, 22 Agustus 2026)
 
 ### Kredensial
