@@ -34,6 +34,21 @@
       "RETRACTED": "Retracted"
     }
   },
+  "author": {
+    "navLabel": "Author navigation",
+    "roleLabel": "Author",
+    "mySubmissions": "My submissions",
+    "newSubmission": "New submission",
+    "openMenu": "Open author menu",
+    "closeMenu": "Close author menu"
+  },
+  "reviewer": {
+    "navLabel": "Reviewer navigation",
+    "roleLabel": "Reviewer",
+    "assignments": "Review assignments",
+    "openMenu": "Open reviewer menu",
+    "closeMenu": "Close reviewer menu"
+  },
   "nav": {
     "home": "Home",
     "issues": "Archives",

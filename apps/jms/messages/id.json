@@ -34,6 +34,21 @@
       "RETRACTED": "Ditarik terbit"
     }
   },
+  "author": {
+    "navLabel": "Navigasi penulis",
+    "roleLabel": "Penulis",
+    "mySubmissions": "Naskah saya",
+    "newSubmission": "Naskah baru",
+    "openMenu": "Buka menu penulis",
+    "closeMenu": "Tutup menu penulis"
+  },
+  "reviewer": {
+    "navLabel": "Navigasi reviewer",
+    "roleLabel": "Reviewer",
+    "assignments": "Tugas review",
+    "openMenu": "Buka menu reviewer",
+    "closeMenu": "Tutup menu reviewer"
+  },
   "nav": {
     "home": "Beranda",
     "issues": "Arsip",

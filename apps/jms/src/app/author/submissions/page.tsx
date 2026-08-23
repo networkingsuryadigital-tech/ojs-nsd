@@ -44,7 +44,7 @@ export default async function AuthorSubmissionsPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
+    <div className="space-y-6">
       <Card>
         <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
@@ -87,6 +87,6 @@ export default async function AuthorSubmissionsPage() {
           )}
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

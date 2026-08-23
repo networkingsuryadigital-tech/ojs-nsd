@@ -67,16 +67,29 @@ Query data (`loadEditorialDashboardData`) dan seluruh section lain di halaman in
 
 Setelah sidebar aktif, header situs publik (`TenantHeader`) yang lama masih tampil penuh di atas sidebar — 8 link publik (Beranda, Tentang, Terbitan Terkini, Arsip, Dewan Editor, Panduan Penulis, Pengumuman, Cari) + menu akun teks panjang, jadi dobel dengan sidebar dan terasa penuh. Operator minta dirapikan.
 
-**Pendekatan:** `TenantHeader` diberi prop opsional `variant` (`"public"` default, `"editorial"` baru). Situs publik **tidak berubah sama sekali** (jalur `variant === "public"` identik dengan kode lama). Untuk `variant="editorial"` (dipakai di `EditorialLayoutShell`), header dipangkas jadi: logo + nama jurnal di kiri, dan di kanan hanya ikon utilitas (bahasa, tema, portal penulis/reviewer bila peran user punya akses, notifikasi, keluar) — 8 link publik dihilangkan karena sudah tidak relevan bagi staf yang sedang berada di dalam workspace editorial (klik logo untuk kembali ke situs publik).
+**Pendekatan:** `TenantHeader` punya `variant` (`"public"` default; `"workspace"` / alias `"editorial"` = versi ringkas). Situs publik **tidak berubah**. Header workspace: logo + nama jurnal di kiri; kanan hanya ikon utilitas (bahasa, tema, pintasan portal lain sesuai peran, notifikasi, keluar). Delapan link publik dihilangkan. Ikon portal yang sedang dibuka disembunyikan (`activePortal`). Klik logo untuk kembali ke situs publik.
 
 **File:**
 
 | File | Perubahan |
 |------|-----------|
-| `apps/jms/src/components/tenant/tenant-header.tsx` | Tambah prop `variant`; render diringkas khusus `"editorial"`. Jalur `"public"` (default) tidak berubah — nol risiko ke situs publik |
-| `apps/jms/src/components/editorial/editorial-layout-shell.tsx` | `<TenantHeader variant="editorial" />` |
+| `apps/jms/src/components/tenant/tenant-header.tsx` | `variant` + `activePortal`; jalur `"public"` tidak berubah |
+| `apps/jms/src/components/workspace/workspace-layout-shell.tsx` | Shell bersama: header ringkas + sidebar + konten + footer |
+| `apps/jms/src/components/workspace/workspace-sidebar.tsx` | Sidebar generik (pill aktif, drawer mobile) |
+| `apps/jms/src/components/editorial/editorial-layout-shell.tsx` | Memakai `WorkspaceLayoutShell` |
 
-**Belum dikerjakan:** portal `/author` dan `/reviewer` masih pakai header publik penuh (varian `"editorial"` baru dipasang di layout editorial saja, sesuai permintaan). Bisa disamakan kalau operator mau.
+---
+
+## 4. Portal penulis & reviewer — chrome yang sama (23 Agustus 2026)
+
+`/author/*` dan `/reviewer/*` sebelumnya halaman kartu tanpa header jurnal. Disamakan dengan workspace editorial (UI saja, tanpa ubah use-case).
+
+| Area | Sidebar | Header |
+|---|---|---|
+| `/author/submissions`, `/new`, `/[id]` | Naskah saya, Naskah baru; label peran "Penulis" | Ringkas; tanpa Beranda/Arsip/Cari |
+| `/reviewer/assignments`, `/[submissionId]` | Tugas review; label "Reviewer" | Sama |
+
+Hamburger mobile: `Buka menu penulis` / `Buka menu reviewer`. Hover link sidebar memakai class `.workspace-sidebar` (warna inherit, seperti editorial).
 
 ---
 
@@ -97,6 +110,7 @@ Setelah sidebar aktif, header situs publik (`TenantHeader`) yang lama masih tamp
 - Playwright dijalankan langsung (`pnpm exec playwright test` di `apps/jms`) terhadap server yang sudah jalan:
   - Smoke + platform + public journal (sebelum secret diisi): **63 passed, 9 skipped, 0 failed**.
   - Setelah secret lokal + reseed: `tests/e2e/editorial-dashboard.spec.ts` (**3/3 passed**) — dashboard 200 + sidebar, issues/published tetap sidebar, hamburger mobile `Buka menu editorial`.
+  - 23 Agustus 2026: `editorial-dashboard` + `author-portal` + `reviewer-portal` bersama **10/10 passed** (header ringkas tanpa Beranda, sidebar penulis/reviewer, hamburger mobile).
 - Helper login e2e memakai `#email` / `#password` (lebih andal daripada `getByLabel`).
 
 ### Cek visual localhost (`demo.localhost:3000`) — sudah dilihat (login berhasil)

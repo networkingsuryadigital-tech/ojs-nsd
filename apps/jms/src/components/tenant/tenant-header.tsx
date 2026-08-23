@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, FileEdit, ClipboardCheck } from "lucide-react";
+import { Bell, ClipboardCheck, FileEdit, LayoutDashboard } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
@@ -15,11 +15,18 @@ import { TenantPublicNav } from "./tenant-public-nav";
 
 type TenantHeaderProps = {
   site: JournalPublicSite;
-  /** "public" (default) = header situs jurnal lengkap, tidak berubah. "editorial" = versi ringkas (logo + ikon utilitas saja), dipakai di layout /editorial. */
-  variant?: "public" | "editorial";
+  /** "public" (default) = header situs jurnal lengkap. "workspace" / "editorial" = versi ringkas (logo + ikon utilitas), dipakai di /editorial, /author, /reviewer. */
+  variant?: "public" | "editorial" | "workspace";
+  /** Portal yang sedang dibuka — ikon portal itu disembunyikan di header ringkas. */
+  activePortal?: "editorial" | "author" | "reviewer";
 };
 
-export async function TenantHeader({ site, variant = "public" }: TenantHeaderProps) {
+export async function TenantHeader({
+  site,
+  variant = "public",
+  activePortal,
+}: TenantHeaderProps) {
+  const isWorkspace = variant === "editorial" || variant === "workspace";
   const t = await getTranslations("nav");
   const sessionUser = await resolveSessionUser();
   const roles = sessionUser
@@ -108,7 +115,7 @@ export async function TenantHeader({ site, variant = "public" }: TenantHeaderPro
       <span
         className={cn(
           "truncate",
-          variant === "editorial" && "max-sm:hidden",
+          isWorkspace && "max-sm:hidden",
         )}
       >
         {site.name}
@@ -116,7 +123,10 @@ export async function TenantHeader({ site, variant = "public" }: TenantHeaderPro
     </Link>
   );
 
-  if (variant === "editorial") {
+  const iconLinkClassName =
+    "flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-foreground/5 hover:text-foreground";
+
+  if (isWorkspace) {
     return (
       <header
         className="relative border-b border-border"
@@ -130,22 +140,32 @@ export async function TenantHeader({ site, variant = "public" }: TenantHeaderPro
           <div className="flex min-w-0 shrink-0 flex-wrap items-center justify-end gap-1 text-sm">
             <LocaleSwitcher />
             <ThemeToggle />
-            {hasAuthorAccess ? (
+            {hasEditorialAccess && activePortal !== "editorial" ? (
+              <Link
+                href="/editorial/dashboard"
+                aria-label={t("dashboard")}
+                title={t("dashboard")}
+                className={iconLinkClassName}
+              >
+                <LayoutDashboard className="h-4 w-4" />
+              </Link>
+            ) : null}
+            {hasAuthorAccess && activePortal !== "author" ? (
               <Link
                 href="/author/submissions"
                 aria-label={t("authorPortal")}
                 title={t("authorPortal")}
-                className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                className={iconLinkClassName}
               >
                 <FileEdit className="h-4 w-4" />
               </Link>
             ) : null}
-            {hasReviewerAccess ? (
+            {hasReviewerAccess && activePortal !== "reviewer" ? (
               <Link
                 href="/reviewer/assignments"
                 aria-label={t("reviewerPortal")}
                 title={t("reviewerPortal")}
-                className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+                className={iconLinkClassName}
               >
                 <ClipboardCheck className="h-4 w-4" />
               </Link>
@@ -154,7 +174,7 @@ export async function TenantHeader({ site, variant = "public" }: TenantHeaderPro
               href="/notifications"
               aria-label={t("notifications")}
               title={t("notifications")}
-              className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-foreground/5 hover:text-foreground"
+              className={iconLinkClassName}
             >
               <Bell className="h-4 w-4" />
             </Link>

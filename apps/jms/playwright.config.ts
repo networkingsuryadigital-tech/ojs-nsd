@@ -43,6 +43,7 @@ export default defineConfig({
         "**/oai-load.spec.ts",
         "**/auth-login.spec.ts",
         "**/author-portal.spec.ts",
+        "**/reviewer-portal.spec.ts",
         "**/public-journal.spec.ts",
       ],
       fullyParallel: false,

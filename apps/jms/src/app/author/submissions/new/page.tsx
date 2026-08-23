@@ -36,7 +36,7 @@ export default async function NewAuthorSubmissionPage() {
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
           <CardTitle>Naskah baru</CardTitle>
@@ -121,6 +121,6 @@ export default async function NewAuthorSubmissionPage() {
           </form>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

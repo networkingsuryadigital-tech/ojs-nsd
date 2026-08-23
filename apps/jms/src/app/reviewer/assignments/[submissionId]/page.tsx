@@ -83,7 +83,7 @@ export default async function ReviewerAssignmentDetailPage({
   }
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
+    <div className="space-y-6">
       <div>
         <Button asChild variant="ghost" size="sm">
           <Link href="/reviewer/assignments">← Kembali ke daftar</Link>
@@ -217,6 +217,6 @@ export default async function ReviewerAssignmentDetailPage({
           </CardHeader>
         </Card>
       ) : null}
-    </main>
+    </div>
   );
 }

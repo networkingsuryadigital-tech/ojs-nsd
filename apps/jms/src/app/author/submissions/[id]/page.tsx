@@ -69,7 +69,7 @@ export default async function AuthorSubmissionDetailPage({
     detail.status === "DRAFT" && detail.manuscriptFile !== null;
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
+    <div className="space-y-6">
       <div>
         <Button asChild variant="ghost" size="sm">
           <Link href="/author/submissions">← Kembali ke daftar</Link>
@@ -155,6 +155,6 @@ export default async function AuthorSubmissionDetailPage({
           </CardContent>
         </Card>
       ) : null}
-    </main>
+    </div>
   );
 }
