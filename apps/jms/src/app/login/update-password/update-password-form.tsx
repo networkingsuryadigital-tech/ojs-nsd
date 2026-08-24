@@ -5,6 +5,8 @@ import Link from "next/link";
 
 import { Button, Input, Label } from "@nsd/ui";
 
+import { AUTH_BUTTON_CLASS, AUTH_FIELD_CLASS } from "../auth-field";
+
 import {
   updatePasswordFormAction,
   type UpdatePasswordFormState,
@@ -53,7 +55,7 @@ export function UpdatePasswordForm({ token }: { token?: string }) {
           required
           minLength={8}
           disabled={pending}
-          className="h-11 rounded-lg"
+          className={AUTH_FIELD_CLASS}
         />
       </div>
       <div className="space-y-2">
@@ -66,11 +68,11 @@ export function UpdatePasswordForm({ token }: { token?: string }) {
           required
           minLength={8}
           disabled={pending}
-          className="h-11 rounded-lg"
+          className={AUTH_FIELD_CLASS}
         />
       </div>
 
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className={AUTH_BUTTON_CLASS} disabled={pending}>
         {pending ? "Menyimpan…" : "Simpan kata sandi"}
       </Button>
     </form>

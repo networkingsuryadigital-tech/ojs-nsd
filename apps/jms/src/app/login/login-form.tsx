@@ -6,14 +6,13 @@ import { useRouter } from "next/navigation";
 
 import { Button, Input, Label } from "@nsd/ui";
 
+import { AUTH_BUTTON_CLASS, AUTH_FIELD_CLASS } from "./auth-field";
 import { signInFormAction, type SignInFormState } from "./actions";
 
 type LoginFormProps = {
   next?: string;
   initialError?: string;
 };
-
-const fieldClassName = "h-11 rounded-lg";
 
 export function LoginForm({ next, initialError }: LoginFormProps) {
   const router = useRouter();
@@ -52,7 +51,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           required
           placeholder="nama@email.ac.id"
           disabled={pending}
-          className={fieldClassName}
+          className={AUTH_FIELD_CLASS}
         />
       </div>
       <div className="space-y-2">
@@ -72,10 +71,10 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           autoComplete="current-password"
           required
           disabled={pending}
-          className={fieldClassName}
+          className={AUTH_FIELD_CLASS}
         />
       </div>
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className={AUTH_BUTTON_CLASS} disabled={pending}>
         {pending ? "Memproses…" : "Masuk"}
       </Button>
     </form>

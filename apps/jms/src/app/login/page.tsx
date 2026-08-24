@@ -46,25 +46,15 @@ export default async function LoginPage({ searchParams }: PageProps) {
           : `Masuk ke ${journalName}.`
       }
       footer={
-        <>
-          <p className="text-muted-foreground">
-            Belum punya akun?{" "}
-            <Link
-              href="/login/register"
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              Daftar sebagai penulis
-            </Link>
-          </p>
-          <p>
-            <Link
-              href="/"
-              className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              Kembali ke beranda
-            </Link>
-          </p>
-        </>
+        <p className="text-muted-foreground">
+          Belum punya akun?{" "}
+          <Link
+            href="/login/register"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Daftar sebagai penulis
+          </Link>
+        </p>
       }
     >
       <LoginForm next={next} initialError={error} />

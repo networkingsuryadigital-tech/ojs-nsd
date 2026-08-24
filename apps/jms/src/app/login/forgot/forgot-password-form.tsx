@@ -4,6 +4,8 @@ import { useActionState } from "react";
 
 import { Button, Input, Label } from "@nsd/ui";
 
+import { AUTH_BUTTON_CLASS, AUTH_FIELD_CLASS } from "../auth-field";
+
 import {
   forgotPasswordFormAction,
   type ForgotPasswordFormState,
@@ -41,11 +43,11 @@ export function ForgotPasswordForm() {
           required
           placeholder="nama@email.ac.id"
           disabled={pending}
-          className="h-11 rounded-lg"
+          className={AUTH_FIELD_CLASS}
         />
       </div>
 
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className={AUTH_BUTTON_CLASS} disabled={pending}>
         {pending ? "Mengirim…" : "Kirim tautan reset"}
       </Button>
     </form>

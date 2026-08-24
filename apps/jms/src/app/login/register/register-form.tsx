@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button, Input, Label } from "@nsd/ui";
 
+import { AUTH_BUTTON_CLASS, AUTH_FIELD_CLASS } from "../auth-field";
 import { registerFormAction, type RegisterFormState } from "../actions";
 
 export function RegisterForm() {
@@ -40,7 +41,7 @@ export function RegisterForm() {
           required
           minLength={2}
           disabled={pending}
-          className="h-11 rounded-lg"
+          className={AUTH_FIELD_CLASS}
         />
       </div>
       <div className="space-y-2">
@@ -52,7 +53,7 @@ export function RegisterForm() {
           autoComplete="email"
           required
           disabled={pending}
-          className="h-11 rounded-lg"
+          className={AUTH_FIELD_CLASS}
         />
       </div>
       <div className="space-y-2">
@@ -65,11 +66,11 @@ export function RegisterForm() {
           required
           minLength={8}
           disabled={pending}
-          className="h-11 rounded-lg"
+          className={AUTH_FIELD_CLASS}
         />
         <p className="text-xs text-muted-foreground">Minimal 8 karakter.</p>
       </div>
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className={AUTH_BUTTON_CLASS} disabled={pending}>
         {pending ? "Memproses…" : "Daftar sebagai penulis"}
       </Button>
     </form>
