@@ -80,9 +80,10 @@ Di VPS, sebagai superuser Postgres, jalankan `apps/jms/prisma/ensure-vps-roles.s
 
 ---
 
-## Status produksi (22 Aug 2026)
+## Status produksi (24 Aug 2026)
 
 - `https://ejournal.ptnsd.co.id` → situs jurnal **nsd** (OJS-style), bukan landing platform
+- `https://infomanet.ptnsd.co.id` → jurnal **infomanet** (custom domain sibling, vhost Nginx + origin cert)
 - Health `GET /api/health` → **200** (Postgres connected)
 - Auth: Better Auth seeded; registrasi penulis di `/login/register`
 - Platform admin `/admin` (SUPER_ADMIN) di host yang sama
