@@ -29,6 +29,30 @@ export function parseJournalEmailFromAddressInput(
   return trimmed;
 }
 
+export function hostFromAbsoluteUrl(url: string): string | null {
+  try {
+    const host = new URL(url).host.trim().toLowerCase();
+    return host || null;
+  } catch {
+    return null;
+  }
+}
+
+export function formatJournalEmailFrom(
+  journalFromName: string | null,
+  journalFromAddress: string | null,
+): string | undefined {
+  const address = journalFromAddress?.trim();
+  if (!address) {
+    return undefined;
+  }
+  const name = journalFromName?.trim();
+  if (name) {
+    return `${name} <${address}>`;
+  }
+  return address;
+}
+
 export function evaluateEmailDeliverabilityReadiness(input: {
   settings: JournalEmailFromSettings;
   platformFallbackFrom: string | null;

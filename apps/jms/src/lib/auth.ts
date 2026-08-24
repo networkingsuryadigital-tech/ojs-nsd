@@ -4,6 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import { sendEmail, escapeHtml } from "@nsd/email";
 
 import { prisma } from "@/infrastructure/db/prisma";
+import { resolveTransactionalFromEmail } from "@/infrastructure/notification/transactional-from";
 import { env } from "@/lib/env";
 import { parseAuthTrustedOrigins } from "@/lib/auth-trusted-origins";
 
@@ -31,10 +32,11 @@ export const auth = betterAuth({
         });
         return;
       }
+      const fromEmail = await resolveTransactionalFromEmail(url);
       void sendEmail(
         {
           apiKey: env.RESEND_API_KEY,
-          fromEmail: env.RESEND_FROM_EMAIL,
+          fromEmail,
         },
         {
           to: user.email,

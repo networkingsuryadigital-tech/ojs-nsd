@@ -21,6 +21,7 @@ export type ProvisionJournalInput = {
   publisher?: string;
   issnPrint?: string;
   issnOnline?: string;
+  emailFromAddress?: string;
 };
 
 export type ProvisionJournalResult = {

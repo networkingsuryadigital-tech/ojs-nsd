@@ -2,7 +2,7 @@
  * Provision one real pilot journal via application use-cases (not raw Journal insert).
  *
  * Usage:
- *   pnpm db:provision:pilot -- --name="..." --subdomain=... --admin-email=... --admin-name="..."
+ *   pnpm db:provision:pilot -- --name="..." --subdomain=... --admin-email=... --admin-name="..." --email-from=jurnal@example.ac.id
  *
  * Or JSON config:
  *   pnpm db:provision:pilot -- --config=./pilot.json
@@ -52,6 +52,7 @@ export type PilotJournalConfig = {
   sectionTitle?: string;
   policies?: Record<string, string>;
   customDomain?: string;
+  emailFromAddress?: string;
   membershipRoles?: JournalRole[];
 };
 
@@ -135,6 +136,8 @@ function parseCliArgs(argv: string[]): Partial<PilotJournalConfig> & { configPat
       result.sectionTitle = arg.slice("--section-title=".length);
     } else if (arg.startsWith("--custom-domain=")) {
       result.customDomain = arg.slice("--custom-domain=".length);
+    } else if (arg.startsWith("--email-from=")) {
+      result.emailFromAddress = arg.slice("--email-from=".length);
     }
   }
 
@@ -169,6 +172,7 @@ export function resolvePilotJournalConfig(
     sectionTitle: cli.sectionTitle ?? fromFile.sectionTitle ?? "Artikel",
     policies: cli.policies ?? fromFile.policies,
     customDomain: cli.customDomain ?? fromFile.customDomain,
+    emailFromAddress: cli.emailFromAddress ?? fromFile.emailFromAddress,
     membershipRoles: cli.membershipRoles ?? fromFile.membershipRoles,
   };
 
@@ -402,6 +406,7 @@ export async function runProvisionPilotJournal(
     publisher: config.publisher?.trim(),
     issnPrint: config.issnPrint?.trim(),
     issnOnline: config.issnOnline?.trim(),
+    emailFromAddress: config.emailFromAddress?.trim(),
   });
 
   const journalUpdate: {

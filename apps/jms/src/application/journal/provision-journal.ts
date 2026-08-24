@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { parseJournalEmailFromAddressInput } from "@/domain/notification/email-from";
 import { buildDefaultJournalPages } from "@/domain/tenancy/default-pages";
 import { journalHostnames } from "@/domain/tenancy/host";
 import { assertValidSubdomain } from "@/domain/tenancy/subdomain";
@@ -21,6 +22,7 @@ const provisionJournalSchema = z.object({
   publisher: z.string().trim().min(1).max(200).optional(),
   issnPrint: z.string().trim().min(1).max(20).optional(),
   issnOnline: z.string().trim().min(1).max(20).optional(),
+  emailFromAddress: z.string().trim().min(1).max(200).optional(),
 });
 
 export async function provisionJournal(
@@ -72,6 +74,9 @@ export async function provisionJournal(
       data: {
         journalId: journal.id,
         emailFromName: parsed.name,
+        emailFromAddress: parsed.emailFromAddress
+          ? parseJournalEmailFromAddressInput(parsed.emailFromAddress)
+          : null,
         locale: "id",
       },
     });

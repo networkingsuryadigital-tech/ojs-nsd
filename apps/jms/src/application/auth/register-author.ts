@@ -3,9 +3,9 @@ import "server-only";
 import { headers } from "next/headers";
 import { z } from "zod";
 
+import { ensureJmsUserFromAuth } from "@/application/auth/ensure-jms-user-from-auth";
 import { resolvePostLoginRedirect } from "@/application/auth/resolve-post-login-redirect";
-import { prisma } from "@/infrastructure/db/prisma";
-import { findUserByAuthUserId } from "@/infrastructure/identity/user-repository";
+import { findAuthUserIdByEmail } from "@/infrastructure/identity/user-repository";
 import { auth } from "@/lib/auth";
 
 const schema = z.object({
@@ -19,9 +19,14 @@ export type RegisterAuthorResult =
   | { ok: true; redirectTo: string }
   | { ok: false; error: string };
 
+type SignUpEmailResult = {
+  user?: { id?: string | null } | null;
+};
+
 /**
  * Self-register as AUTHOR on the current journal (OJS-style).
- * Creates Better Auth + Prisma User + JournalMembership.
+ * Creates Better Auth + Prisma User + JournalMembership even if the
+ * signup session cookie is not yet visible in this Server Action.
  */
 export async function registerAuthor(input: {
   email: string;
@@ -39,15 +44,17 @@ export async function registerAuthor(input: {
   const email = parsed.data.email.toLowerCase();
   const requestHeaders = await headers();
 
+  let authUserId: string | undefined;
   try {
-    await auth.api.signUpEmail({
+    const result = (await auth.api.signUpEmail({
       body: {
         email,
         password: parsed.data.password,
         name: parsed.data.name,
       },
       headers: requestHeaders,
-    });
+    })) as SignUpEmailResult | undefined;
+    authUserId = result?.user?.id ?? undefined;
   } catch {
     return {
       ok: false,
@@ -55,8 +62,13 @@ export async function registerAuthor(input: {
     };
   }
 
-  const session = await auth.api.getSession({ headers: await headers() });
-  const authUserId = session?.user?.id;
+  if (!authUserId) {
+    const session = await auth.api.getSession({ headers: await headers() });
+    authUserId = session?.user?.id;
+  }
+  if (!authUserId) {
+    authUserId = (await findAuthUserIdByEmail(email)) ?? undefined;
+  }
   if (!authUserId) {
     return {
       ok: false,
@@ -64,62 +76,12 @@ export async function registerAuthor(input: {
     };
   }
 
-  let appUser = await findUserByAuthUserId(authUserId);
-  if (!appUser) {
-    const existingByEmail = await prisma.user.findFirst({
-      where: { email: { equals: email, mode: "insensitive" } },
-    });
-    if (existingByEmail) {
-      const updated = await prisma.user.update({
-        where: { id: existingByEmail.id },
-        data: {
-          supabaseId: authUserId,
-          name: parsed.data.name || existingByEmail.name,
-        },
-      });
-      appUser = {
-        id: updated.id,
-        authUserId: updated.supabaseId,
-        supabaseId: updated.supabaseId,
-        email: updated.email,
-        name: updated.name,
-      };
-    } else {
-      const created = await prisma.user.create({
-        data: {
-          email,
-          name: parsed.data.name,
-          supabaseId: authUserId,
-        },
-      });
-      appUser = {
-        id: created.id,
-        authUserId: created.supabaseId,
-        supabaseId: created.supabaseId,
-        email: created.email,
-        name: created.name,
-      };
-    }
-  }
-
-  if (parsed.data.journalId) {
-    await prisma.journalMembership.upsert({
-      where: {
-        journalId_userId: {
-          journalId: parsed.data.journalId,
-          userId: appUser.id,
-        },
-      },
-      create: {
-        journalId: parsed.data.journalId,
-        userId: appUser.id,
-        roles: ["AUTHOR"],
-      },
-      update: {
-        isActive: true,
-      },
-    });
-  }
+  const appUser = await ensureJmsUserFromAuth({
+    authUserId,
+    email,
+    name: parsed.data.name,
+    journalId: parsed.data.journalId,
+  });
 
   const redirectTo = await resolvePostLoginRedirect({
     userId: appUser.id,

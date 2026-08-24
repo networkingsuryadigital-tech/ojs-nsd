@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   evaluateEmailDeliverabilityReadiness,
+  formatJournalEmailFrom,
+  hostFromAbsoluteUrl,
   parseJournalEmailFromAddressInput,
   parseJournalEmailFromNameInput,
 } from "@/domain/notification/email-from";
@@ -13,6 +15,23 @@ describe("journal email from settings", () => {
       "noreply@jurnal.id",
     );
     expect(parseJournalEmailFromNameInput("")).toBeNull();
+  });
+
+  it("reads host from an absolute URL", () => {
+    expect(hostFromAbsoluteUrl("https://infomanet.ptnsd.co.id/login/forgot")).toBe(
+      "infomanet.ptnsd.co.id",
+    );
+    expect(hostFromAbsoluteUrl("not-a-url")).toBeNull();
+  });
+
+  it("formats From as Name <address>", () => {
+    expect(formatJournalEmailFrom("Infomanet", "infomanet@ptnsd.co.id")).toBe(
+      "Infomanet <infomanet@ptnsd.co.id>",
+    );
+    expect(formatJournalEmailFrom(null, "infomanet@ptnsd.co.id")).toBe(
+      "infomanet@ptnsd.co.id",
+    );
+    expect(formatJournalEmailFrom("Infomanet", null)).toBeUndefined();
   });
 
   it("rejects invalid address", () => {

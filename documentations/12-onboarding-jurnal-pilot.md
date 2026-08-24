@@ -166,9 +166,11 @@ Alur auth produksi: [`sprints/s28-auth-ui.md`](./sprints/s28-auth-ui.md).
 
 ### 3.1 Prasyarat login
 
-1. **Supabase Auth** — user dengan email + password (skrip pilot membuat via Admin API jika `SUPABASE_SERVICE_ROLE_KEY` ada).
-2. **Prisma `User`** — baris dengan `supabaseId` yang cocok; tanpa ini login gagal dengan *"Akun belum terdaftar di JMS"* ([`sign-in-with-password.ts`](../apps/jms/src/application/auth/sign-in-with-password.ts)).
-3. **`JournalMembership`** — role `JOURNAL_ADMIN` (sudah dibuat `provisionJournal()` untuk `adminUserId`).
+1. **Better Auth** — user dengan email + password (skrip pilot: `upsertSeedAuthUser`).
+2. **Prisma `User`** — baris dengan `supabaseId` = AuthUser.id. Daftar penulis (`/login/register`) dan masuk (`signInWithPassword`) memanggil `ensureJmsUserFromAuth()` sehingga profil JMS dibuat/ditempel otomatis meski cookie sesi belum terlihat di Server Action yang sama.
+3. **`JournalMembership`** — `JOURNAL_ADMIN` dibuat `provisionJournal()` untuk admin; penulis self-register mendapat `AUTHOR` di jurnal host saat itu.
+
+Pengirim email jurnal (notifikasi editorial, peringatan, reset kata sandi dari host jurnal) = `JournalTheme.emailFromName` + `emailFromAddress`. Set lewat `/editorial/settings/email` atau `--email-from` pada `pnpm db:provision:pilot`. Domain itu harus terverifikasi di Resend. Fallback platform: `RESEND_FROM_EMAIL`.
 
 ### 3.2 Langkah operator
 

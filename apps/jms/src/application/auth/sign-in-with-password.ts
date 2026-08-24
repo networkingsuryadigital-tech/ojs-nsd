@@ -3,8 +3,8 @@ import "server-only";
 import { headers } from "next/headers";
 import { z } from "zod";
 
+import { ensureJmsUserFromAuth } from "@/application/auth/ensure-jms-user-from-auth";
 import { resolvePostLoginRedirect } from "@/application/auth/resolve-post-login-redirect";
-import { findUserByAuthUserId } from "@/infrastructure/identity/user-repository";
 import { auth } from "@/lib/auth";
 
 const signInSchema = z.object({
@@ -18,6 +18,10 @@ export type SignInResult =
   | { ok: true; redirectTo: string }
   | { ok: false; error: string };
 
+type SignInEmailResult = {
+  user?: { id?: string | null; name?: string | null; email?: string | null } | null;
+};
+
 export async function signInWithPassword(input: {
   email: string;
   password: string;
@@ -29,33 +33,30 @@ export async function signInWithPassword(input: {
     return { ok: false, error: "Email dan kata sandi wajib diisi." };
   }
 
-  let authUserId: string | undefined;
+  let signedIn: SignInEmailResult | undefined;
   try {
-    const result = await auth.api.signInEmail({
+    signedIn = (await auth.api.signInEmail({
       body: {
         email: parsed.data.email,
         password: parsed.data.password,
       },
       headers: await headers(),
-    });
-    // Prefer user id from sign-in result. getSession() in the same Server Action
-    // often cannot see the new Set-Cookie yet (request headers are unchanged).
-    authUserId = result?.user?.id;
-    if (!authUserId) {
-      return { ok: false, error: "Email atau kata sandi tidak valid." };
-    }
+    })) as SignInEmailResult | undefined;
   } catch {
     return { ok: false, error: "Email atau kata sandi tidak valid." };
   }
 
-  const appUser = await findUserByAuthUserId(authUserId);
-  if (!appUser) {
-    await auth.api.signOut({ headers: await headers() });
-    return {
-      ok: false,
-      error: "Akun belum terdaftar di JMS. Hubungi administrator jurnal.",
-    };
+  const authUserId = signedIn?.user?.id ?? undefined;
+  if (!authUserId || !signedIn?.user) {
+    return { ok: false, error: "Email atau kata sandi tidak valid." };
   }
+
+  const appUser = await ensureJmsUserFromAuth({
+    authUserId,
+    email: signedIn.user.email ?? parsed.data.email,
+    name: signedIn.user.name,
+    journalId: parsed.data.journalId,
+  });
 
   const redirectTo = await resolvePostLoginRedirect({
     userId: appUser.id,

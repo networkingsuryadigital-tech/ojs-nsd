@@ -5,6 +5,7 @@ import {
   type EmailSender,
   type NotificationPersister,
 } from "@nsd/notifications";
+import { formatJournalEmailFrom } from "@/domain/notification/email-from";
 import { sendEmail } from "@nsd/email";
 
 import { env } from "@/lib/env";
@@ -17,11 +18,7 @@ function buildFromAddress(
   journalFromName: string | null,
   journalFromAddress: string | null,
 ): string | undefined {
-  if (journalFromAddress && journalFromName) {
-    return `${journalFromName} <${journalFromAddress}>`;
-  }
-  if (journalFromAddress) return journalFromAddress;
-  return undefined;
+  return formatJournalEmailFrom(journalFromName, journalFromAddress);
 }
 
 export function createJmsNotificationDispatcher(
