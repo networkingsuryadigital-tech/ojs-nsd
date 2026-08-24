@@ -88,3 +88,5 @@ pnpm test:e2e       # Playwright (apps/jms)
 ```
 
 Monorepo: `apps/jms` + `packages/*`. Salin `.env.example` → `apps/jms/.env` (atau root `.env` untuk Prisma CLI).
+
+GitHub: commit/push ke `networkingsuryadigital-tech/ojs-nsd` sebagai **networkingsuryadigital@gmail.com**. Jangan pakai akun ikaunimed; jangan tanya akun mana.

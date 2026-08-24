@@ -41,10 +41,11 @@ export function ForgotPasswordForm() {
           required
           placeholder="nama@email.ac.id"
           disabled={pending}
+          className="h-11 rounded-lg"
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? "Mengirim…" : "Kirim tautan reset"}
       </Button>
     </form>

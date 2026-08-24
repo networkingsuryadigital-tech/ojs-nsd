@@ -13,6 +13,8 @@ type LoginFormProps = {
   initialError?: string;
 };
 
+const fieldClassName = "h-11 rounded-lg";
+
 export function LoginForm({ next, initialError }: LoginFormProps) {
   const router = useRouter();
   const [state, formAction, pending] = useActionState<SignInFormState, FormData>(
@@ -35,7 +37,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
       {next ? <input type="hidden" name="next" value={next} /> : null}
 
       {error ? (
-        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
         </p>
       ) : null}
@@ -50,6 +52,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           required
           placeholder="nama@email.ac.id"
           disabled={pending}
+          className={fieldClassName}
         />
       </div>
       <div className="space-y-2">
@@ -69,16 +72,12 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           autoComplete="current-password"
           required
           disabled={pending}
+          className={fieldClassName}
         />
       </div>
-      <div className="space-y-3 pt-1">
-        <Button type="submit" className="w-full" disabled={pending}>
-          {pending ? "Memproses…" : "Masuk"}
-        </Button>
-        <Button asChild variant="outline" className="w-full">
-          <Link href="/login/register">Daftar sebagai penulis</Link>
-        </Button>
-      </div>
+      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+        {pending ? "Memproses…" : "Masuk"}
+      </Button>
     </form>
   );
 }

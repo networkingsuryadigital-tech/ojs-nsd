@@ -40,6 +40,7 @@ export function RegisterForm() {
           required
           minLength={2}
           disabled={pending}
+          className="h-11 rounded-lg"
         />
       </div>
       <div className="space-y-2">
@@ -51,6 +52,7 @@ export function RegisterForm() {
           autoComplete="email"
           required
           disabled={pending}
+          className="h-11 rounded-lg"
         />
       </div>
       <div className="space-y-2">
@@ -63,10 +65,11 @@ export function RegisterForm() {
           required
           minLength={8}
           disabled={pending}
+          className="h-11 rounded-lg"
         />
         <p className="text-xs text-muted-foreground">Minimal 8 karakter.</p>
       </div>
-      <Button type="submit" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? "Memproses…" : "Daftar sebagai penulis"}
       </Button>
     </form>

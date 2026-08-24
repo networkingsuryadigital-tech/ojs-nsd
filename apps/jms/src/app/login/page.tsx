@@ -5,14 +5,6 @@ import { resolvePostLoginRedirect } from "@/application/auth/resolve-post-login-
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
 import { getRequestTenantContext } from "@/application/journal/get-journal-public-site";
 import { resolveRequestJournalIdOptional } from "@/application/tenancy/resolve-request-journal-id-optional";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@nsd/ui";
 
 import { AuthSplitLayout } from "./auth-split-layout";
 import { LoginForm } from "./login-form";
@@ -44,34 +36,38 @@ export default async function LoginPage({ searchParams }: PageProps) {
   return (
     <AuthSplitLayout
       journalName={journalName}
+      isJournal={Boolean(journalId)}
       primaryColor={theme?.primaryColor}
       logoUrl={theme?.logoUrl}
-      headline={
-        journalId ? "Portal editorial & penulis" : "Journal Management System"
+      title="Masuk"
+      subtitle={
+        journalId
+          ? "Gunakan email dan kata sandi akun jurnal ini."
+          : `Masuk ke ${journalName}.`
       }
-      description="Kelola peer review, terbitan, OAI-PMH, dan APC dalam satu platform yang siap indeksasi SINTA & Garuda."
+      footer={
+        <>
+          <p className="text-muted-foreground">
+            Belum punya akun?{" "}
+            <Link
+              href="/login/register"
+              className="font-medium text-primary underline-offset-4 hover:underline"
+            >
+              Daftar sebagai penulis
+            </Link>
+          </p>
+          <p>
+            <Link
+              href="/"
+              className="text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              Kembali ke beranda
+            </Link>
+          </p>
+        </>
+      }
     >
-      <Card className="border-border/80 shadow-sm">
-        <CardHeader className="space-y-1.5">
-          <CardTitle className="text-xl">Masuk</CardTitle>
-          <CardDescription>
-            {journalId
-              ? "Masuk dengan email dan kata sandi akun Anda."
-              : `Masuk ke ${journalName}.`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LoginForm next={next} initialError={error} />
-        </CardContent>
-        <CardFooter className="justify-center px-6 pb-6 pt-0">
-          <Link
-            href="/"
-            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-          >
-            Kembali ke beranda
-          </Link>
-        </CardFooter>
-      </Card>
+      <LoginForm next={next} initialError={error} />
     </AuthSplitLayout>
   );
 }

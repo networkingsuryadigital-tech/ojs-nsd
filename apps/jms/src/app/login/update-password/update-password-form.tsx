@@ -53,6 +53,7 @@ export function UpdatePasswordForm({ token }: { token?: string }) {
           required
           minLength={8}
           disabled={pending}
+          className="h-11 rounded-lg"
         />
       </div>
       <div className="space-y-2">
@@ -65,10 +66,11 @@ export function UpdatePasswordForm({ token }: { token?: string }) {
           required
           minLength={8}
           disabled={pending}
+          className="h-11 rounded-lg"
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={pending}>
+      <Button type="submit" size="lg" className="w-full" disabled={pending}>
         {pending ? "Menyimpan…" : "Simpan kata sandi"}
       </Button>
     </form>
