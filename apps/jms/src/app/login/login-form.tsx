@@ -71,7 +71,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           disabled={pending}
         />
       </div>
-      <div className="space-y-2.5 pt-1">
+      <div className="space-y-3 pt-1">
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? "Memproses…" : "Masuk"}
         </Button>
@@ -79,10 +79,6 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           <Link href="/login/register">Daftar sebagai penulis</Link>
         </Button>
       </div>
-      <p className="text-xs leading-5 text-muted-foreground">
-        Penulis baru daftar dulu. Peran editor dan reviewer diberikan pengelola
-        jurnal.
-      </p>
     </form>
   );
 }

@@ -58,7 +58,7 @@ export default async function UpdatePasswordPage({
             </p>
           )}
         </CardContent>
-        <CardFooter className="justify-center border-t border-border/70 px-6 py-4">
+        <CardFooter className="justify-center px-6 pb-6 pt-0">
           <Link
             href={hasSession ? "/login" : "/login/forgot"}
             className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
