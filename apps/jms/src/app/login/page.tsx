@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -6,15 +5,16 @@ import { resolvePostLoginRedirect } from "@/application/auth/resolve-post-login-
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
 import { getRequestTenantContext } from "@/application/journal/get-journal-public-site";
 import { resolveRequestJournalIdOptional } from "@/application/tenancy/resolve-request-journal-id-optional";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@nsd/ui";
 
+import { AuthSplitLayout } from "./auth-split-layout";
 import { LoginForm } from "./login-form";
 
 type PageProps = {
@@ -42,68 +42,36 @@ export default async function LoginPage({ searchParams }: PageProps) {
     tenantContext.kind === "tenant" ? tenantContext.site.theme : null;
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-2">
-      <section
-        className="hidden flex-col justify-between p-10 text-white lg:flex"
-        style={{
-          background: theme?.primaryColor ?? "#1e3a5f",
-        }}
-      >
-        <div>
-          {theme?.logoUrl ? (
-            <Image
-              src={theme.logoUrl}
-              alt={journalName}
-              width={64}
-              height={64}
-              className="mb-6 h-16 w-16 object-contain"
-              unoptimized
-            />
-          ) : (
-            <p className="text-2xl font-bold">{journalName}</p>
-          )}
-          <h1 className="mt-8 max-w-md text-3xl font-bold leading-tight">
+    <AuthSplitLayout
+      journalName={journalName}
+      primaryColor={theme?.primaryColor}
+      logoUrl={theme?.logoUrl}
+      headline={
+        journalId ? "Portal editorial & penulis" : "Journal Management System"
+      }
+      description="Kelola peer review, terbitan, OAI-PMH, dan APC dalam satu platform yang siap indeksasi SINTA & Garuda."
+    >
+      <Card className="border-border/80 shadow-sm">
+        <CardHeader className="space-y-1.5">
+          <CardTitle className="text-xl">Masuk</CardTitle>
+          <CardDescription>
             {journalId
-              ? `Portal editorial & penulis ${journalName}`
-              : "Journal Management System — PT. NSD"}
-          </h1>
-          <p className="mt-4 max-w-md text-sm text-white/80">
-            Kelola peer review, terbitan, OAI-PMH, dan APC dalam satu platform
-            multi-tenant yang siap indeksasi SINTA & Garuda.
-          </p>
-        </div>
-        <p className="text-xs text-white/60">© PT. NSD — JMS Platform</p>
-      </section>
-
-      <section className="flex flex-col justify-center p-8">
-        <div className="mb-6 flex items-center justify-between lg:hidden">
-          <span className="font-semibold">{journalName}</span>
-          <ThemeToggle />
-        </div>
-
-        <Card className="mx-auto w-full max-w-md border-0 shadow-none lg:border lg:shadow-sm">
-          <CardHeader>
-            <div className="hidden lg:block">
-              <ThemeToggle />
-            </div>
-            <CardTitle>Masuk</CardTitle>
-            <CardDescription>
-              {journalId
-                ? `Masuk ke ${journalName} dengan email dan kata sandi Anda.`
-                : `Masuk ke ${journalName}.`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <LoginForm next={next} initialError={error} />
-
-            <p className="text-center text-sm text-muted-foreground">
-              <Link href="/" className="underline-offset-4 hover:underline">
-                Kembali ke beranda
-              </Link>
-            </p>
-          </CardContent>
-        </Card>
-      </section>
-    </main>
+              ? "Masuk dengan email dan kata sandi akun Anda."
+              : `Masuk ke ${journalName}.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <LoginForm next={next} initialError={error} />
+        </CardContent>
+        <CardFooter className="justify-center border-t border-border/70 px-6 py-4">
+          <Link
+            href="/"
+            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Kembali ke beranda
+          </Link>
+        </CardFooter>
+      </Card>
+    </AuthSplitLayout>
   );
 }

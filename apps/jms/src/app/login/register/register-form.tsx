@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button, Input, Label } from "@nsd/ui";
@@ -24,9 +23,9 @@ export function RegisterForm() {
   }, [state.redirectTo, router]);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       {state.error ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900 dark:bg-red-950 dark:text-red-100">
+        <p className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {state.error}
         </p>
       ) : null}
@@ -70,12 +69,6 @@ export function RegisterForm() {
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Memproses…" : "Daftar sebagai penulis"}
       </Button>
-      <p className="text-center text-sm text-muted-foreground">
-        Sudah punya akun?{" "}
-        <Link href="/login" className="underline-offset-4 hover:underline">
-          Masuk
-        </Link>
-      </p>
     </form>
   );
 }

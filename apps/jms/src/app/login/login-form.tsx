@@ -31,7 +31,7 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
   const error = state.error ?? initialError;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       {next ? <input type="hidden" name="next" value={next} /> : null}
 
       {error ? (
@@ -48,16 +48,16 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           type="email"
           autoComplete="email"
           required
-          placeholder="admin@demo.test"
+          placeholder="nama@email.ac.id"
           disabled={pending}
         />
       </div>
       <div className="space-y-2">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex h-5 items-center justify-between gap-3">
           <Label htmlFor="password">Kata sandi</Label>
           <Link
             href="/login/forgot"
-            className="text-xs text-muted-foreground underline-offset-4 hover:underline"
+            className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
             Lupa kata sandi?
           </Link>
@@ -71,15 +71,17 @@ export function LoginForm({ next, initialError }: LoginFormProps) {
           disabled={pending}
         />
       </div>
-      <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Memproses…" : "Masuk"}
-      </Button>
-      <Button asChild variant="outline" className="w-full">
-        <Link href="/login/register">Daftar sebagai penulis</Link>
-      </Button>
-      <p className="text-center text-sm text-muted-foreground">
-        Penulis baru wajib daftar dulu. Peran editor/reviewer/admin jurnal
-        ditetapkan oleh SUPER_ADMIN lewat menu Platform.
+      <div className="space-y-2.5 pt-1">
+        <Button type="submit" className="w-full" disabled={pending}>
+          {pending ? "Memproses…" : "Masuk"}
+        </Button>
+        <Button asChild variant="outline" className="w-full">
+          <Link href="/login/register">Daftar sebagai penulis</Link>
+        </Button>
+      </div>
+      <p className="text-xs leading-5 text-muted-foreground">
+        Penulis baru daftar dulu. Peran editor dan reviewer diberikan pengelola
+        jurnal.
       </p>
     </form>
   );
