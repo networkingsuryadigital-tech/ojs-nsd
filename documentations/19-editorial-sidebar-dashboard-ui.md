@@ -148,6 +148,39 @@ Login lokal awalnya gagal karena dua hal env (bukan markup UI):
 - Tidak ada perubahan skema/migrasi/use-case di git untuk langkah visual ini. Tabel Auth* di DB lokal perlu ada agar login demo jalan; itu belum masuk folder `prisma/migrations/`.
 - Commit header ringkas (`e64e652`) **belum di-push** sampai operator konfirmasi.
 
+## 6. Sistem visual 2026 (23 Agustus 2026)
+
+Keputusan operator: navy NSD `#1E3A5F` sebagai merek chrome; workspace **tidak** ikut warna tiap jurnal; sidebar gelap (tren konsol 2026); scope penuh token + shell + halaman kunci.
+
+| Lapisan | Arah |
+|---|---|
+| Token | Kertas `#F7F5F0`, tinta `#1C1917`, primer navy, aksen teal `#0F766E` untuk white-label fallback, status tetap semantik |
+| Sidebar workspace | 240px, navy, item aktif teal + indikator kiri 3px |
+| Header | Sticky 56px, `backdrop-blur`, full-bleed di workspace; menu akun (avatar); tema SVG; badge lonceng |
+| Dashboard | 4 KPI + strip perhatian + pipeline horizontal + tren batang; kartu bersarang dikurangi |
+| Situs publik | `--primary` = `--journal-primary`; hero kartu; pita SINTA/Garuda |
+| Footer | Hanya situs publik |
+
+**File tambahan:** `workspace-nav-context.tsx`, `workspace-menu-button.tsx`, `workspace-account-menu.tsx`, `workspace-page-header.tsx`, `notification-bell.tsx`, `notifications/layout.tsx`.
+
+## 7. KPI dashboard → antrian naskah (23 Agustus 2026)
+
+Kartu KPI dan tahap pipeline di dashboard adalah tautan ke daftar naskah editorial yang difilter. Halaman baru: `/editorial/submissions` (indeks; detail tetap `/editorial/submissions/[id]`).
+
+| Sumber di dashboard | Tujuan |
+|---|---|
+| Sedang direview / Perlu revisi / Diterima / Terbit | `?status=UNDER_REVIEW` / `REVISIONS_REQUESTED` / `ACCEPTED` / `PUBLISHED` |
+| Total submission | `/editorial/submissions` (semua) |
+| Tahap pipeline (Intake … Terbit) | `?pipeline=intake` … `published` |
+| Ditolak / ditarik | `?pipeline=declined` |
+| Review terlambat | `?attention=overdue` |
+| APC outstanding | `?pipeline=accepted` (termasuk `PAYMENT_PENDING`) |
+| Total / issue terbit | `/editorial/issues` |
+
+Use-case `listEditorialQueue`: peran sama dengan statistik dashboard (`JOURNAL_ADMIN`, `EDITOR_IN_CHIEF`, `SECTION_EDITOR`); setiap query `journalId`. Daftar menampilkan judul, status, seksi, penulis korespondensi, dan jumlah penugasan terlambat — **bukan** identitas reviewer (double-blind). Transisi status tetap hanya lewat `transitionSubmission()`.
+
+Sidebar menambah item **Naskah**. Halaman retraksi `/editorial/published` tetap untuk retraction/correction.
+
 ## Catatan operator
 
 1. Nomor dokumen ini **19** (18 sengaja dilompati).

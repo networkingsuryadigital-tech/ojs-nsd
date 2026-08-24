@@ -19,15 +19,19 @@ export type MonthlyCountRow = {
 
 export type SubmissionStatusCounts = Record<SubmissionStatus, number>;
 
-export type EditorialPipelineCounts = {
-  intake: number;
-  deskReview: number;
-  peerReview: number;
-  accepted: number;
-  production: number;
-  published: number;
-  declined: number;
-};
+export const EDITORIAL_PIPELINE_KEYS = [
+  "intake",
+  "deskReview",
+  "peerReview",
+  "accepted",
+  "production",
+  "published",
+  "declined",
+] as const;
+
+export type EditorialPipelineKey = (typeof EDITORIAL_PIPELINE_KEYS)[number];
+
+export type EditorialPipelineCounts = Record<EditorialPipelineKey, number>;
 
 export type ReviewAssignmentCounts = {
   invited: number;

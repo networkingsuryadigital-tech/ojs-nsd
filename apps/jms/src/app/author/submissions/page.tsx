@@ -4,13 +4,10 @@ import { notFound } from "next/navigation";
 import { listAuthorSubmissions } from "@/application/submission/list-author-submissions";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialStatusBadge } from "@/components/editorial/editorial-status-badge";
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
 import {
   Button,
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@nsd/ui";
 
 const STATUS_LABELS: Record<string, string> = {
@@ -45,48 +42,50 @@ export default async function AuthorSubmissionsPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
-          <div>
-            <CardTitle>Naskah saya</CardTitle>
-            <CardDescription>
-              Daftar naskah yang Anda kirim ke jurnal ini.
-            </CardDescription>
-          </div>
+      <WorkspacePageHeader
+        title="Naskah saya"
+        description="Daftar naskah yang Anda kirim ke jurnal ini."
+        actions={
           <Button asChild>
             <Link href="/author/submissions/new">Naskah baru</Link>
           </Button>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {submissions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Belum ada naskah. Mulai dengan membuat draft baru.
-            </p>
-          ) : (
-            <ul className="divide-y rounded-lg border">
-              {submissions.map((submission) => (
-                <li key={submission.id} className="flex items-center justify-between gap-4 p-4">
-                  <div>
-                    <Link
-                      href={`/author/submissions/${submission.id}`}
-                      className="font-medium hover:underline"
-                    >
-                      {submission.title ?? "Tanpa judul"}
-                    </Link>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {STATUS_LABELS[submission.status] ?? submission.status}
-                      {submission.hasManuscript ? " · naskah terunggah" : " · belum ada naskah"}
-                    </p>
-                  </div>
-                  <Button asChild variant="outline" size="sm">
-                    <Link href={`/author/submissions/${submission.id}`}>Buka</Link>
-                  </Button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
+        }
+      />
+
+      {submissions.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border bg-card px-6 py-12 text-center">
+          <p className="text-sm text-muted-foreground">
+            Belum ada naskah. Mulai dengan membuat draft baru.
+          </p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-border rounded-xl border border-border bg-card">
+          {submissions.map((submission) => (
+            <li key={submission.id} className="flex items-center justify-between gap-4 p-4">
+              <div className="min-w-0">
+                <Link
+                  href={`/author/submissions/${submission.id}`}
+                  className="font-medium hover:underline"
+                >
+                  {submission.title ?? "Tanpa judul"}
+                </Link>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                  <EditorialStatusBadge
+                    status={submission.status}
+                    label={STATUS_LABELS[submission.status] ?? submission.status}
+                  />
+                  <span>
+                    {submission.hasManuscript ? "naskah terunggah" : "belum ada naskah"}
+                  </span>
+                </div>
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link href={`/author/submissions/${submission.id}`}>Buka</Link>
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

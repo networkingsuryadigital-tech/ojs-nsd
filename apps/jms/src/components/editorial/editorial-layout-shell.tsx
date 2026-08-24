@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 
 import { isPlatformSuperAdmin } from "@/application/identity/is-platform-super-admin";
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
@@ -38,11 +39,15 @@ export async function EditorialLayoutShell({
   const showPlatformAdmin = sessionUser
     ? await isPlatformSuperAdmin(sessionUser.id)
     : false;
+  const t = await getTranslations("editorial");
 
   return (
     <WorkspaceLayoutShell
       site={site}
       activePortal="editorial"
+      sidebarId="editorial-sidebar"
+      openMenuLabel={t("openMenu")}
+      closeMenuLabel={t("closeMenu")}
       sidebar={
         <EditorialSidebar
           showSettings={showSettings}

@@ -3,6 +3,8 @@
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
+
 type EditorialPageHeaderProps = {
   title: string;
   description?: string;
@@ -41,12 +43,10 @@ export function EditorialPageHeader({
   const crumb = breadcrumb ?? breadcrumbForPath(pathname, t, tNav);
 
   return (
-    <header>
-      <p className="mb-1 text-[13px] text-foreground/50">{crumb}</p>
-      <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
-      {description ? (
-        <p className="mt-1 text-sm text-foreground/60">{description}</p>
-      ) : null}
-    </header>
+    <WorkspacePageHeader
+      title={title}
+      description={description}
+      breadcrumb={crumb}
+    />
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ComponentType } from "react";
-import { FileText, LayoutGrid, Library, Newspaper, Settings } from "lucide-react";
+import { FileText, LayoutDashboard, LayoutGrid, Library, Newspaper, Settings } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { WorkspaceSidebar } from "@/components/workspace/workspace-sidebar";
@@ -15,7 +15,13 @@ type EditorialSidebarProps = {
 
 type NavItem = {
   href: string;
-  labelKey: "dashboard" | "issues" | "published" | "settings" | "platform";
+  labelKey:
+    | "dashboard"
+    | "submissions"
+    | "issues"
+    | "published"
+    | "settings"
+    | "platform";
   icon: ComponentType<{ className?: string }>;
   isActive: (pathname: string) => boolean;
 };
@@ -24,10 +30,14 @@ const NAV_ITEMS: NavItem[] = [
   {
     href: "/editorial/dashboard",
     labelKey: "dashboard",
+    icon: LayoutDashboard,
+    isActive: (pathname) => pathname === "/editorial/dashboard",
+  },
+  {
+    href: "/editorial/submissions",
+    labelKey: "submissions",
     icon: FileText,
-    isActive: (pathname) =>
-      pathname === "/editorial/dashboard" ||
-      pathname.startsWith("/editorial/submissions"),
+    isActive: (pathname) => pathname.startsWith("/editorial/submissions"),
   },
   {
     href: "/editorial/issues",

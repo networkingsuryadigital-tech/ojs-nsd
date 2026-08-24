@@ -4,7 +4,19 @@
   font-family: var(--journal-font, var(--font-geist-sans), system-ui, sans-serif);
 }
 
-.tenant-site a:hover {
+.tenant-site[data-surface="public"] {
+  --primary: var(--journal-primary);
+  --ring: var(--journal-primary);
+  --primary-foreground: #f7f5f0;
+}
+
+.tenant-site .prose h1,
+.tenant-site .prose h2,
+.tenant-site .prose h3 {
+  color: var(--journal-primary);
+}
+
+.tenant-site .prose a:hover {
   color: var(--journal-primary);
 }
 
@@ -13,8 +25,8 @@
   color: inherit;
 }
 
-.tenant-site .prose h1,
-.tenant-site .prose h2,
-.tenant-site .prose h3 {
-  color: var(--journal-primary);
+@media (max-width: 767px) {
+  .tenant-site[data-surface="workspace"] .workspace-sidebar {
+    top: 3.5rem;
+  }
 }

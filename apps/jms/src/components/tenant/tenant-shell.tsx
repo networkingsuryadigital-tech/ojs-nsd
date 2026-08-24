@@ -5,17 +5,23 @@ import { buildThemeCssVariables } from "@/domain/tenancy/theme-styles";
 
 type TenantShellProps = {
   site: JournalPublicSite;
+  surface?: "public" | "workspace";
   children: ReactNode;
 };
 
-export function TenantShell({ site, children }: TenantShellProps) {
+export function TenantShell({
+  site,
+  surface = "public",
+  children,
+}: TenantShellProps) {
   const themeStyle = buildThemeCssVariables(site.theme) as CSSProperties;
 
   return (
     <div
-      className="tenant-site min-h-screen flex flex-col bg-background text-foreground"
+      className="tenant-site flex min-h-screen flex-col bg-background text-foreground"
       style={themeStyle}
       data-journal-id={site.journalId}
+      data-surface={surface}
     >
       {children}
     </div>

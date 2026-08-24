@@ -46,7 +46,7 @@ export default async function LoginPage({ searchParams }: PageProps) {
       <section
         className="hidden flex-col justify-between p-10 text-white lg:flex"
         style={{
-          background: `linear-gradient(135deg, ${theme?.primaryColor ?? "#1e3a5f"} 0%, ${theme?.secondaryColor ?? "#0f172a"} 100%)`,
+          background: theme?.primaryColor ?? "#1e3a5f",
         }}
       >
         <div>

@@ -34,16 +34,19 @@ export async function TenantHomeView({ site }: TenantHomeViewProps) {
   return (
     <TenantShell site={site}>
       <TenantHeader site={site} />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
-        <section className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10">
+        <section className="flex flex-col gap-6 rounded-2xl border border-border bg-card px-6 py-8 sm:flex-row sm:items-start sm:justify-between sm:px-8">
           <div className="max-w-2xl">
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">
+              {t("heroEyebrow")}
+            </p>
             <h1
-              className="text-3xl font-bold tracking-tight"
+              className="mt-2 text-3xl font-bold tracking-tight"
               style={{ color: "var(--journal-primary)" }}
             >
               {site.name}
             </h1>
-            <p className="mt-2 text-sm text-foreground/70">
+            <p className="mt-2 text-sm text-muted-foreground">
               {[
                 site.publisher ? `${t("publishedBy")}: ${site.publisher}` : null,
                 site.issnOnline ? `${t("issnOnline")}: ${site.issnOnline}` : null,
@@ -57,12 +60,15 @@ export async function TenantHomeView({ site }: TenantHomeViewProps) {
                 <JournalPageContent content={focusPage.content.slice(0, 900)} />
               </div>
             ) : (
-              <p className="mt-4 text-foreground/70">{t("explorePages")}</p>
+              <p className="mt-4 text-muted-foreground">{t("explorePages")}</p>
             )}
           </div>
-          <Button asChild size="lg" className="shrink-0">
-            <Link href="/author/submissions/new">{t("submitManuscript")}</Link>
-          </Button>
+          <div className="flex shrink-0 flex-col gap-2">
+            <Button asChild size="lg">
+              <Link href="/author/submissions/new">{t("submitManuscript")}</Link>
+            </Button>
+            <p className="text-xs text-muted-foreground">{t("indexationReady")}</p>
+          </div>
         </section>
 
         {latestIssueDetail ? (
@@ -88,7 +94,7 @@ export async function TenantHomeView({ site }: TenantHomeViewProps) {
                 {latestIssueDetail.articles.map((article, index) => (
                   <li
                     key={article.id}
-                    className="rounded-lg border border-border p-4"
+                    className="rounded-xl border border-border bg-card p-4"
                   >
                     <p className="text-xs text-foreground/50">{index + 1}</p>
                     <Link
@@ -116,7 +122,7 @@ export async function TenantHomeView({ site }: TenantHomeViewProps) {
               <li key={page.slug}>
                 <Link
                   href={`/pages/${page.slug}`}
-                  className="block rounded-lg border border-border p-4 transition-colors hover:border-[var(--journal-primary)]"
+                  className="block rounded-xl border border-border bg-card p-4 transition-colors hover:border-[var(--journal-primary)]"
                 >
                   <h3 className="font-semibold">{page.title}</h3>
                   <p className="mt-1 line-clamp-2 text-sm text-foreground/60">

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 
 import { isPlatformSuperAdmin } from "@/application/identity/is-platform-super-admin";
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
@@ -19,11 +20,15 @@ export async function ReviewerLayoutShell({
   const showPlatformAdmin = sessionUser
     ? await isPlatformSuperAdmin(sessionUser.id)
     : false;
+  const t = await getTranslations("reviewer");
 
   return (
     <WorkspaceLayoutShell
       site={site}
       activePortal="reviewer"
+      sidebarId="reviewer-sidebar"
+      openMenuLabel={t("openMenu")}
+      closeMenuLabel={t("closeMenu")}
       sidebar={
         <ReviewerSidebar
           journalName={site.name}

@@ -68,7 +68,9 @@
     "dashboard": "Editorial",
     "authorPortal": "My submissions",
     "reviewerPortal": "Reviews",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "more": "More",
+    "close": "Close"
   },
   "tenant": {
     "welcome": "Welcome to {journalName}",
@@ -91,6 +93,8 @@
     "howToCite": "How to cite",
     "downloadGalley": "Download {label}",
     "openAccessNotice": "This article is published as open access via JMS.",
+    "heroEyebrow": "Open-access scholarly journal",
+    "indexationReady": "Ready for SINTA & Garuda indexing",
     "currentIssue": "Current issue",
     "searchPlaceholder": "Search title, abstract, or keywords",
     "searchTooShort": "Enter at least 2 characters.",

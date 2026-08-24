@@ -15,8 +15,8 @@ export default async function AdminJournalsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Jurnal</h1>
-        <p className="mt-1 text-sm text-foreground/70">
+        <h1 className="text-[1.75rem] font-semibold tracking-tight">Jurnal</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Daftar lintas-tenant (SUPER_ADMIN). Provision jurnal baru via CLI{" "}
           <code className="rounded bg-muted px-1">pnpm db:provision:pilot</code>.
         </p>

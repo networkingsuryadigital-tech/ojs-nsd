@@ -9,7 +9,7 @@ export function AdminSidebar() {
     <WorkspaceSidebar
       sidebarId="platform-admin-sidebar"
       journalName="JMS Platform"
-      roleLabel="SUPER_ADMIN"
+      roleLabel="Platform"
       navLabel="Navigasi platform"
       openMenuLabel="Buka menu platform"
       closeMenuLabel="Tutup menu platform"

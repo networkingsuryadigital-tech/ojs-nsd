@@ -1,5 +1,7 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
+
 import { Button } from "@nsd/ui/button";
 
 import { useTheme } from "./theme-provider";
@@ -17,11 +19,16 @@ export function ThemeToggle({
     <Button
       type="button"
       variant="ghost"
-      size="sm"
+      size="icon"
+      className="h-8 w-8 text-foreground/70"
       onClick={toggleTheme}
       aria-label={theme === "light" ? labels.light : labels.dark}
     >
-      {theme === "light" ? "☀" : "☾"}
+      {theme === "light" ? (
+        <Moon className="h-4 w-4" />
+      ) : (
+        <Sun className="h-4 w-4" />
+      )}
     </Button>
   );
 }

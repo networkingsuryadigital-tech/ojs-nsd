@@ -51,6 +51,7 @@ Password seragam semua akun: **`Demo12345!`**
 | Email | Peran jurnal | Kegunaan preview |
 |-------|--------------|------------------|
 | `admin@demo.test` | JOURNAL_ADMIN, EDITOR_IN_CHIEF | Settings, publish, waiver APC |
+| `superadmin@demo.test` | `platformRole` SUPER_ADMIN (bukan peran jurnal) | Menu Platform `/admin/journals` |
 | `editor@demo.test` | SECTION_EDITOR (+ handling editor) | Desk review, invite reviewer, keputusan |
 | `author@demo.test` | AUTHOR | Portal `/author/submissions` — buat draft, upload, kirim |
 | `reviewer1@demo.test` | REVIEWER | Dashboard `/reviewer/assignments` — review Demo B |
@@ -107,7 +108,8 @@ Masuk via **Masuk** di header atau `http://demo.localhost:3000/login` dengan kre
 
 | URL | Isi |
 |-----|-----|
-| `{base}/editorial/dashboard` | Ringkasan submission per status |
+| `{base}/editorial/dashboard` | Ringkasan submission per status; kartu KPI membuka antrian terfilter |
+| `{base}/editorial/submissions` | Antrian naskah editorial (`?status=`, `?pipeline=`, `?attention=overdue`) |
 | `{base}/editorial/submissions/{id}` | Detail workflow per naskah demo |
 | `{base}/editorial/issues` | Kelola issue |
 | `{base}/editorial/published` | Artikel terbit |

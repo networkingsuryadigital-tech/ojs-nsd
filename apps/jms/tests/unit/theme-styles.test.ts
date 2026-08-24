@@ -25,8 +25,8 @@ describe("buildThemeCssVariables", () => {
         fontFamily: null,
       }),
     ).toEqual({
-      "--journal-primary": "#1d4ed8",
-      "--journal-secondary": "#64748b",
+      "--journal-primary": "#0f766e",
+      "--journal-secondary": "#1e3a5f",
     });
   });
 });

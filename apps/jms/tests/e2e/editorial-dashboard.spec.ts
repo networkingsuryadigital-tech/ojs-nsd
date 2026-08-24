@@ -48,6 +48,27 @@ test.describe("editorial dashboard (demo tenant)", () => {
     }
   });
 
+  test("dashboard KPI opens a filtered editorial queue", async ({ page }) => {
+    test.setTimeout(60_000);
+    await loginAsDemoUser(page);
+    await expect(page.getByRole("heading", { name: "Dashboard statistik" })).toBeVisible({
+      timeout: 30_000,
+    });
+
+    await page
+      .getByRole("link", { name: "Buka antrian naskah Sedang direview" })
+      .click();
+    await expect(page).toHaveURL(/\/editorial\/submissions\?status=UNDER_REVIEW/, {
+      timeout: 30_000,
+    });
+    await expect(page.getByRole("heading", { name: "Antrian naskah" })).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: "Navigasi editorial" }).getByRole("link", {
+        name: "Naskah",
+      }),
+    ).toBeVisible();
+  });
+
   test("mobile editorial layout exposes sidebar via menu button", async ({
     page,
   }) => {

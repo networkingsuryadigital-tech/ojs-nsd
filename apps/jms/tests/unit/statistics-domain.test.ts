@@ -7,6 +7,8 @@ import {
   computeAcceptanceRatePercent,
   computeEditorialPipeline,
   computeMedianDays,
+  pipelineKeyForStatus,
+  resolveEditorialQueueStatuses,
   sumStatusCounts,
 } from "@/domain/statistics/aggregates";
 import { getStatisticsHealth } from "@/application/statistics/get-statistics-health";
@@ -21,6 +23,33 @@ describe("statistics domain", () => {
       expect(counts.SUBMITTED).toBe(3);
       expect(counts.PUBLISHED).toBe(2);
       expect(counts.DRAFT).toBe(0);
+    });
+  });
+
+  describe("resolveEditorialQueueStatuses", () => {
+    it("prefers a single submission status over a pipeline group", () => {
+      expect(
+        resolveEditorialQueueStatuses({
+          status: "UNDER_REVIEW",
+          pipeline: "peerReview",
+        }),
+      ).toEqual(["UNDER_REVIEW"]);
+    });
+
+    it("maps pipeline keys to the same statuses as computeEditorialPipeline", () => {
+      expect(resolveEditorialQueueStatuses({ pipeline: "peerReview" })).toEqual([
+        "UNDER_REVIEW",
+        "REVISIONS_REQUESTED",
+        "RESUBMITTED",
+      ]);
+      expect(pipelineKeyForStatus("PAYMENT_PENDING")).toBe("accepted");
+      expect(pipelineKeyForStatus("RETRACTED")).toBeUndefined();
+    });
+
+    it("returns undefined when no valid filter is set", () => {
+      expect(
+        resolveEditorialQueueStatuses({ status: "not-a-status", pipeline: "nope" }),
+      ).toBeUndefined();
     });
   });
 

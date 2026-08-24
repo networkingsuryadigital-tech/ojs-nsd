@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getAuthorSubmissionDetail } from "@/application/submission/list-author-submissions";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { EditorialStatusBadge } from "@/components/editorial/editorial-status-badge";
 import {
   Button,
   Card,
@@ -90,9 +91,13 @@ export default async function AuthorSubmissionDetailPage({
       <Card>
         <CardHeader>
           <CardTitle>{detail.title ?? "Tanpa judul"}</CardTitle>
-          <CardDescription>
-            Status: {STATUS_LABELS[detail.status] ?? detail.status} · Round{" "}
-            {detail.reviewRound}
+          <CardDescription className="flex flex-wrap items-center gap-2">
+            <span>Status:</span>
+            <EditorialStatusBadge
+              status={detail.status}
+              label={STATUS_LABELS[detail.status] ?? detail.status}
+            />
+            <span>· Round {detail.reviewRound}</span>
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

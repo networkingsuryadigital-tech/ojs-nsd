@@ -5,13 +5,11 @@ import { listJournalSections } from "@/application/submission/list-author-submis
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
 import {
   Button,
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
   Input,
   Label,
 } from "@nsd/ui";
@@ -37,15 +35,12 @@ export default async function NewAuthorSubmissionPage() {
 
   return (
     <div className="space-y-6">
+      <WorkspacePageHeader
+        title="Naskah baru"
+        description="Buat draft naskah. Anda dapat mengunggah file dan mengirim setelah draft disimpan."
+      />
       <Card>
-        <CardHeader>
-          <CardTitle>Naskah baru</CardTitle>
-          <CardDescription>
-            Buat draft naskah. Anda dapat mengunggah file dan mengirim setelah
-            draft disimpan.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+        <CardContent className="pt-6">
           <form action={createDraftFormAction} className="space-y-4">
             {sections.length > 0 ? (
               <div className="space-y-2">

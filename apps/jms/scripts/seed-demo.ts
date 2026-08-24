@@ -180,6 +180,20 @@ async function upsertDemoUser(
   return created.id;
 }
 
+async function ensureDemoSuperAdmin(seedDb: PrismaClient): Promise<string> {
+  const email = "superadmin@demo.test";
+  const userId = await upsertDemoUser(seedDb, {
+    email,
+    name: "Demo Super Admin",
+    roles: [],
+  });
+  await seedDb.user.update({
+    where: { id: userId },
+    data: { platformRole: "SUPER_ADMIN" },
+  });
+  return userId;
+}
+
 async function upsertJournalMembership(
   seedDb: PrismaClient,
   journalId: string,
@@ -711,6 +725,7 @@ async function runSeedDemoCore(seedDb: PrismaClient): Promise<SeedDemoSummary> {
   for (const spec of DEMO_USERS) {
     userIds[spec.email] = await upsertDemoUser(seedDb, spec);
   }
+  userIds["superadmin@demo.test"] = await ensureDemoSuperAdmin(seedDb);
 
   const adminUserId = userIds["admin@demo.test"]!;
   const journalId = await ensureDemoJournal(seedDb, adminUserId);

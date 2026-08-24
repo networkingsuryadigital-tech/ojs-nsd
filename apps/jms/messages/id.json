@@ -68,7 +68,9 @@
     "dashboard": "Editorial",
     "authorPortal": "Naskah saya",
     "reviewerPortal": "Review",
-    "notifications": "Notifikasi"
+    "notifications": "Notifikasi",
+    "more": "Lainnya",
+    "close": "Tutup"
   },
   "tenant": {
     "welcome": "Selamat datang di {journalName}",
@@ -91,6 +93,8 @@
     "howToCite": "Sitasi",
     "downloadGalley": "Unduh {label}",
     "openAccessNotice": "Artikel ini diterbitkan sebagai open access melalui JMS.",
+    "heroEyebrow": "Jurnal ilmiah open access",
+    "indexationReady": "Siap indeksasi SINTA & Garuda",
     "currentIssue": "Terbitan terkini",
     "searchPlaceholder": "Cari judul, abstrak, atau kata kunci",
     "searchTooShort": "Masukkan minimal 2 karakter.",

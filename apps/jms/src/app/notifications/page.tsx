@@ -4,13 +4,11 @@ import { notFound } from "next/navigation";
 import { requireAuthenticatedUserId } from "@/application/identity/require-authenticated-user";
 import { listUserNotifications } from "@/application/notification/list-user-notifications";
 import { resolveRequestJournalId } from "@/application/tenancy/resolve-request-journal-id";
+import { WorkspacePageHeader } from "@/components/workspace/workspace-page-header";
 import {
   Button,
   Card,
   CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
 } from "@nsd/ui";
 
 import { markReadFormAction } from "./actions";
@@ -30,24 +28,32 @@ export default async function NotificationsPage() {
   });
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 p-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Notifikasi</CardTitle>
-          <CardDescription>
-            {unreadCount > 0
-              ? `${unreadCount} belum dibaca`
-              : "Semua notifikasi sudah dibaca"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {items.length === 0 ? (
+    <div className="space-y-6">
+      <WorkspacePageHeader
+        title="Notifikasi"
+        description={
+          unreadCount > 0
+            ? `${unreadCount} belum dibaca`
+            : "Semua notifikasi sudah dibaca"
+        }
+      />
+
+      {items.length === 0 ? (
+        <Card>
+          <CardContent className="py-8">
             <p className="text-sm text-muted-foreground">Belum ada notifikasi.</p>
-          ) : (
-            items.map((item) => (
+          </CardContent>
+        </Card>
+      ) : (
+        <ul className="space-y-3">
+          {items.map((item) => (
+            <li key={item.id}>
               <article
-                key={item.id}
-                className={`rounded-lg border p-4 ${item.isRead ? "opacity-80" : "border-primary/40 bg-primary/5"}`}
+                className={`rounded-xl border p-4 ${
+                  item.isRead
+                    ? "border-border bg-card"
+                    : "border-primary/30 bg-primary/5"
+                }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
@@ -81,10 +87,10 @@ export default async function NotificationsPage() {
                   </div>
                 </div>
               </article>
-            ))
-          )}
-        </CardContent>
-      </Card>
-    </main>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

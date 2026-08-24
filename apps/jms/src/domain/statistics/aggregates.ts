@@ -1,15 +1,69 @@
 import { INVOICE_STATUSES } from "@/domain/billing/types";
-import { SUBMISSION_STATUSES } from "@/domain/submission/types";
+import {
+  SUBMISSION_STATUSES,
+  type SubmissionStatus,
+} from "@/domain/submission/types";
 
 import type {
   BillingSnapshot,
   EditorialPipelineCounts,
+  EditorialPipelineKey,
   InvoiceStatusCountRow,
   MonthlyCountRow,
   ReviewAssignmentCounts,
   StatusCountRow,
   SubmissionStatusCounts,
 } from "./types";
+import { EDITORIAL_PIPELINE_KEYS } from "./types";
+
+export const EDITORIAL_PIPELINE_STATUSES: Record<
+  EditorialPipelineKey,
+  readonly SubmissionStatus[]
+> = {
+  intake: ["DRAFT", "SUBMITTED"],
+  deskReview: ["DESK_REVIEW"],
+  peerReview: ["UNDER_REVIEW", "REVISIONS_REQUESTED", "RESUBMITTED"],
+  accepted: ["ACCEPTED", "PAYMENT_PENDING"],
+  production: ["IN_PRODUCTION"],
+  published: ["PUBLISHED"],
+  declined: ["DESK_REJECTED", "REJECTED", "WITHDRAWN"],
+};
+
+export function isEditorialPipelineKey(
+  value: string,
+): value is EditorialPipelineKey {
+  return (EDITORIAL_PIPELINE_KEYS as readonly string[]).includes(value);
+}
+
+export function statusesForEditorialPipeline(
+  key: EditorialPipelineKey,
+): readonly SubmissionStatus[] {
+  return EDITORIAL_PIPELINE_STATUSES[key];
+}
+
+export function pipelineKeyForStatus(
+  status: SubmissionStatus,
+): EditorialPipelineKey | undefined {
+  return EDITORIAL_PIPELINE_KEYS.find((key) =>
+    EDITORIAL_PIPELINE_STATUSES[key].includes(status),
+  );
+}
+
+export function resolveEditorialQueueStatuses(input: {
+  status?: string | null;
+  pipeline?: string | null;
+}): readonly SubmissionStatus[] | undefined {
+  if (
+    input.status &&
+    (SUBMISSION_STATUSES as readonly string[]).includes(input.status)
+  ) {
+    return [input.status as SubmissionStatus];
+  }
+  if (input.pipeline && isEditorialPipelineKey(input.pipeline)) {
+    return EDITORIAL_PIPELINE_STATUSES[input.pipeline];
+  }
+  return undefined;
+}
 
 export function buildSubmissionStatusCounts(
   rows: StatusCountRow[],
@@ -34,16 +88,15 @@ export function sumStatusCounts(counts: SubmissionStatusCounts): number {
 export function computeEditorialPipeline(
   counts: SubmissionStatusCounts,
 ): EditorialPipelineCounts {
-  return {
-    intake: counts.DRAFT + counts.SUBMITTED,
-    deskReview: counts.DESK_REVIEW,
-    peerReview:
-      counts.UNDER_REVIEW + counts.REVISIONS_REQUESTED + counts.RESUBMITTED,
-    accepted: counts.ACCEPTED + counts.PAYMENT_PENDING,
-    production: counts.IN_PRODUCTION,
-    published: counts.PUBLISHED,
-    declined: counts.DESK_REJECTED + counts.REJECTED + counts.WITHDRAWN,
-  };
+  return Object.fromEntries(
+    EDITORIAL_PIPELINE_KEYS.map((key) => [
+      key,
+      EDITORIAL_PIPELINE_STATUSES[key].reduce(
+        (sum, status) => sum + counts[status],
+        0,
+      ),
+    ]),
+  ) as EditorialPipelineCounts;
 }
 
 export function computeAcceptanceRatePercent(

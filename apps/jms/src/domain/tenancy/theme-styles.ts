@@ -4,8 +4,8 @@ export type JournalThemeBranding = {
   fontFamily?: string | null;
 };
 
-const FALLBACK_PRIMARY = "#1d4ed8";
-const FALLBACK_SECONDARY = "#64748b";
+const FALLBACK_PRIMARY = "#0f766e";
+const FALLBACK_SECONDARY = "#1e3a5f";
 
 /** Maps journal theme colors to CSS custom properties for white-label rendering. */
 export function buildThemeCssVariables(

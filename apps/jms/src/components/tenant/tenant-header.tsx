@@ -1,17 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bell, ClipboardCheck, FileEdit, LayoutDashboard } from "lucide-react";
+import { ClipboardCheck, FileEdit, LayoutDashboard } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 import { resolveSessionUser } from "@/application/identity/resolve-session-user";
 import { resolveJournalRoles } from "@/application/identity/resolve-journal-roles";
 import type { JournalPublicSite } from "@/domain/tenancy/public-site";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { WorkspaceAccountMenu } from "@/components/workspace/workspace-account-menu";
+import { WorkspaceMenuButton } from "@/components/workspace/workspace-menu-button";
 import { cn } from "@nsd/ui/utils";
+import { Button } from "@nsd/ui";
 
 import { LocaleSwitcher } from "./locale-switcher";
-import { SignOutButton } from "./sign-out-button";
-import { TenantPublicNav } from "./tenant-public-nav";
+import { NotificationBell } from "./notification-bell";
+import { TenantPublicChrome } from "./tenant-public-nav";
 
 type TenantHeaderProps = {
   site: JournalPublicSite;
@@ -19,15 +22,20 @@ type TenantHeaderProps = {
   variant?: "public" | "editorial" | "workspace";
   /** Portal yang sedang dibuka — ikon portal itu disembunyikan di header ringkas. */
   activePortal?: "editorial" | "author" | "reviewer";
+  openMenuLabel?: string;
+  closeMenuLabel?: string;
 };
 
 export async function TenantHeader({
   site,
   variant = "public",
   activePortal,
+  openMenuLabel,
+  closeMenuLabel,
 }: TenantHeaderProps) {
   const isWorkspace = variant === "editorial" || variant === "workspace";
   const t = await getTranslations("nav");
+  const tTenant = await getTranslations("tenant");
   const sessionUser = await resolveSessionUser();
   const roles = sessionUser
     ? await resolveJournalRoles(site.journalId, sessionUser.id)
@@ -43,51 +51,73 @@ export async function TenantHeader({
   const hasAuthorAccess = roles.includes("AUTHOR");
   const hasReviewerAccess = roles.includes("REVIEWER");
 
-  const links = [
+  const primaryLinks = [
     { href: "/", label: t("home") },
-    { href: "/pages/about", label: t("about") },
     { href: "/current", label: t("current") },
     { href: "/issues", label: t("issues") },
     { href: "/editorial-board", label: t("editorialBoard") },
+    { href: "/search", label: t("search") },
+  ];
+  const extraLinks = [
+    { href: "/pages/about", label: t("about") },
     { href: "/pages/author-guidelines", label: t("guidelines") },
     { href: "/pages/announcements", label: t("announcements") },
-    { href: "/search", label: t("search") },
   ];
 
   const account = (
     <>
-      <LocaleSwitcher />
+      <LocaleSwitcher compact />
       <ThemeToggle />
       {sessionUser ? (
         <>
           {hasEditorialAccess ? (
-            <Link href="/editorial/dashboard" className="hover:underline">
-              {t("dashboard")}
+            <Link
+              href="/editorial/dashboard"
+              aria-label={t("dashboard")}
+              title={t("dashboard")}
+              className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-muted hover:text-foreground"
+            >
+              <LayoutDashboard className="h-4 w-4" />
             </Link>
           ) : null}
           {hasAuthorAccess ? (
-            <Link href="/author/submissions" className="hover:underline">
-              {t("authorPortal")}
+            <Link
+              href="/author/submissions"
+              aria-label={t("authorPortal")}
+              title={t("authorPortal")}
+              className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-muted hover:text-foreground"
+            >
+              <FileEdit className="h-4 w-4" />
             </Link>
           ) : null}
           {hasReviewerAccess ? (
-            <Link href="/reviewer/assignments" className="hover:underline">
-              {t("reviewerPortal")}
+            <Link
+              href="/reviewer/assignments"
+              aria-label={t("reviewerPortal")}
+              title={t("reviewerPortal")}
+              className="flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-muted hover:text-foreground"
+            >
+              <ClipboardCheck className="h-4 w-4" />
             </Link>
           ) : null}
-          <Link href="/notifications" className="hover:underline">
-            {t("notifications")}
-          </Link>
-          <SignOutButton label={t("signOut")} />
+          <NotificationBell journalId={site.journalId} userId={sessionUser.id} />
+          <WorkspaceAccountMenu
+            email={sessionUser.email}
+            name={sessionUser.name}
+            signOutLabel={t("signOut")}
+          />
         </>
       ) : (
         <>
-          <Link href="/login" className="font-medium hover:underline">
+          <Link
+            href="/login"
+            className="whitespace-nowrap px-2 text-sm font-medium text-foreground/80 hover:text-foreground"
+          >
             {t("signIn")}
           </Link>
-          <Link href="/login/register" className="hover:underline">
-            {t("register")}
-          </Link>
+          <Button asChild size="sm" className="whitespace-nowrap tracking-wide">
+            <Link href="/author/submissions/new">{tTenant("submitManuscript")}</Link>
+          </Button>
         </>
       )}
     </>
@@ -101,12 +131,12 @@ export async function TenantHeader({
           alt={site.name}
           width={40}
           height={40}
-          className="h-10 w-10 object-contain"
+          className="h-9 w-9 object-contain"
           unoptimized
         />
       ) : (
         <span
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm font-bold text-white"
           style={{ backgroundColor: "var(--journal-primary)" }}
         >
           {site.name.charAt(0).toUpperCase()}
@@ -114,8 +144,8 @@ export async function TenantHeader({
       )}
       <span
         className={cn(
-          "truncate",
-          isWorkspace && "max-sm:hidden",
+          "truncate font-semibold tracking-tight",
+          isWorkspace ? "max-sm:hidden" : "max-w-[12rem] sm:max-w-none",
         )}
       >
         {site.name}
@@ -124,20 +154,22 @@ export async function TenantHeader({
   );
 
   const iconLinkClassName =
-    "flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-foreground/5 hover:text-foreground";
+    "flex h-8 w-8 items-center justify-center rounded-md text-foreground/70 hover:bg-muted hover:text-foreground";
 
   if (isWorkspace) {
     return (
-      <header
-        className="relative border-b border-border"
-        style={{
-          borderColor:
-            "color-mix(in srgb, var(--journal-primary) 25%, transparent)",
-        }}
-      >
-        <div className="mx-auto flex max-w-5xl min-w-0 items-center justify-between gap-2 px-4 py-3">
-          {logo}
-          <div className="flex min-w-0 shrink-0 flex-wrap items-center justify-end gap-1 text-sm">
+      <header className="sticky top-0 z-50 border-b border-border bg-background/85 backdrop-blur-md">
+        <div className="flex h-14 min-w-0 items-center justify-between gap-2 px-3 md:px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            {openMenuLabel && closeMenuLabel ? (
+              <WorkspaceMenuButton
+                openLabel={openMenuLabel}
+                closeLabel={closeMenuLabel}
+              />
+            ) : null}
+            {logo}
+          </div>
+          <div className="flex min-w-0 shrink-0 items-center justify-end gap-0.5">
             <LocaleSwitcher />
             <ThemeToggle />
             {hasEditorialAccess && activePortal !== "editorial" ? (
@@ -170,17 +202,18 @@ export async function TenantHeader({
                 <ClipboardCheck className="h-4 w-4" />
               </Link>
             ) : null}
-            <Link
-              href="/notifications"
-              aria-label={t("notifications")}
-              title={t("notifications")}
-              className={iconLinkClassName}
-            >
-              <Bell className="h-4 w-4" />
-            </Link>
-            <div className="ml-1 border-l border-border pl-2">
-              <SignOutButton label={t("signOut")} />
-            </div>
+            {sessionUser ? (
+              <NotificationBell journalId={site.journalId} userId={sessionUser.id} />
+            ) : null}
+            {sessionUser ? (
+              <div className="ml-1 border-l border-border pl-2">
+                <WorkspaceAccountMenu
+                  email={sessionUser.email}
+                  name={sessionUser.name}
+                  signOutLabel={t("signOut")}
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       </header>
@@ -188,17 +221,15 @@ export async function TenantHeader({
   }
 
   return (
-    <header
-      className="relative border-b border-border"
-      style={{
-        borderColor:
-          "color-mix(in srgb, var(--journal-primary) 25%, transparent)",
-      }}
-    >
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4">
-        {logo}
-        <TenantPublicNav links={links} account={account} />
-      </div>
+    <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur-md">
+      <TenantPublicChrome
+        logo={logo}
+        account={account}
+        primaryLinks={primaryLinks}
+        extraLinks={extraLinks}
+        extraTitle={t("more")}
+        closeLabel={t("close")}
+      />
     </header>
   );
 }
