@@ -16,6 +16,7 @@ const envSchema = z.object({
   DIRECT_URL: z.string().optional(),
   BETTER_AUTH_SECRET: optionalEnvString(),
   BETTER_AUTH_URL: optionalEnvString(),
+  JMS_AUTH_TRUSTED_ORIGINS: optionalEnvString(),
   MINIO_ENDPOINT: optionalEnvString(),
   MINIO_ACCESS_KEY: optionalEnvString(),
   MINIO_SECRET_KEY: optionalEnvString(),

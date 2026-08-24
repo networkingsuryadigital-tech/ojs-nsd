@@ -145,6 +145,8 @@ Format `--config` (semua field selain `name` / `subdomain` / `adminEmail` opsion
 
 Skrip: [`apps/jms/scripts/provision-pilot-journal.ts`](../apps/jms/scripts/provision-pilot-journal.ts) — memanggil `provisionJournal()`, **bukan** insert mentah ke `Journal`.
 
+Jika klien memakai **hostname sendiri** di zona yang sama (contoh `infomanet.ptnsd.co.id`, bukan `infomanet.ejournal.ptnsd.co.id`): itu **custom domain**, bukan subdomain platform. Di VPS wajib ada vhost Nginx + origin cert untuk host itu, plus `JMS_AUTH_TRUSTED_ORIGINS`. Lihat [`17-deploy-vps-jagoan.md`](./17-deploy-vps-jagoan.md).
+
 ### 2.3 Provisioning manual (tanpa skrip)
 
 Urutan jika menjalankan dari REPL / test harness:

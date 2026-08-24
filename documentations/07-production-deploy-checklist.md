@@ -56,6 +56,7 @@ Salin `.env.example` → `/home/jms/.env` di VPS (chmod 600). **Jangan** commit 
 | `DIRECT_URL` | Direct Postgres (`127.0.0.1:5432`) untuk migrasi Prisma |
 | `BETTER_AUTH_SECRET` | `openssl rand -base64 32` |
 | `BETTER_AUTH_URL` | `https://ejournal.ptnsd.co.id` |
+| `JMS_AUTH_TRUSTED_ORIGINS` | Opsional. Origin tambahan (koma) untuk jurnal custom domain, mis. `https://infomanet.ptnsd.co.id` |
 | `NEXT_PUBLIC_APP_URL` | URL production tanpa trailing slash |
 | `JMS_PRIMARY_JOURNAL_SUBDOMAIN` | `nsd` — apex domain = situs jurnal |
 | `REDIS_URL` | `redis://127.0.0.1:6379` |

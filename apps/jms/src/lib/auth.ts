@@ -5,6 +5,7 @@ import { sendEmail, escapeHtml } from "@nsd/email";
 
 import { prisma } from "@/infrastructure/db/prisma";
 import { env } from "@/lib/env";
+import { parseAuthTrustedOrigins } from "@/lib/auth-trusted-origins";
 
 const appUrl =
   env.BETTER_AUTH_URL ?? env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -15,7 +16,7 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET ?? "dev-better-auth-secret-change-me",
   baseURL: appUrl,
-  trustedOrigins: [appUrl],
+  trustedOrigins: parseAuthTrustedOrigins(appUrl, env.JMS_AUTH_TRUSTED_ORIGINS),
   user: { modelName: "authUser" },
   session: { modelName: "authSession" },
   account: { modelName: "authAccount" },

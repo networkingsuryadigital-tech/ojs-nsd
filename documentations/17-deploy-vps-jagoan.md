@@ -62,6 +62,7 @@ Seluruh detail eksekusi dan skrip deploy tersimpan di **repo infra** (`BUILD VPS
 ```env
 BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=https://ejournal.ptnsd.co.id
+JMS_AUTH_TRUSTED_ORIGINS=https://infomanet.ptnsd.co.id
 MINIO_ENDPOINT=http://127.0.0.1:9000
 MINIO_PUBLIC_ENDPOINT=https://ejournal.ptnsd.co.id/s3
 MINIO_ACCESS_KEY=
@@ -91,6 +92,15 @@ Di VPS, sebagai superuser Postgres, jalankan `apps/jms/prisma/ensure-vps-roles.s
 - MinIO bucket `jms-manuscripts`: **0 objek** (migrasi file Supabase tidak diperlukan)
 - `SIMILARITY_PROVIDER=mock` eksplisit sampai iThenticate/Copyleaks berlangganan
 - Supabase project: **jangan hapus** (retensi 2 minggu dari cutover 20 Aug 2026)
+
+### Custom domain klien (hostname sendiri, bukan subdomain `*.ejournal`)
+
+Nginx hanya punya `server_name` eksplisit. Host yang tidak terdaftar jatuh ke default site (app lain di VPS). Setiap custom domain baru butuh:
+
+1. File vhost di `/etc/nginx/sites-available/<host>` (clone `ejournal.ptnsd.co.id`, upstream `127.0.0.1:3002`)
+2. Origin cert di `/etc/nginx/ssl/<host>/` (pola self-signed seperti jurnal lain di Cloudflare Full)
+3. `JournalDomain` verified + `sslStatus=ACTIVE` (skrip `pnpm db:provision:pilot -- --custom-domain=...`)
+4. Tambah origin ke `JMS_AUTH_TRUSTED_ORIGINS` lalu `pm2 reload jms --update-env`
 
 ### Deploy ulang
 
